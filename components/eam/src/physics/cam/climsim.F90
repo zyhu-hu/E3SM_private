@@ -62,7 +62,7 @@ use mod_network, only: network_type
   integer :: cb_n_levels_zero = 12 ! top n levels to zero out
 
   public neural_net, init_neural_net, climsim_readnl, &
-         cb_partial_coupling, cb_partial_coupling_vars
+         cb_partial_coupling, cb_partial_coupling_vars, cb_do_ramp, cb_ramp_start
   
 contains
 
