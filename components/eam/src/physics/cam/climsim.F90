@@ -40,7 +40,7 @@ use mod_network, only: network_type
   character(len=fieldname_lenp2) :: cb_partial_coupling_vars(pflds)
   character(len=256) :: cb_nn_var_combo = 'v2' ! nickname for a specific NN in/out variable combination
   logical :: cb_do_ramp = .false. ! ramping up the NN output
-  real(r8) :: cb_ramp_start = 0.0_r8
+  real(r8) :: cb_ramp_steps = 0.0_r8
 
   type(network_type), allocatable :: climsim_net(:)
   real(r8), allocatable :: inp_sub(:)
@@ -62,7 +62,7 @@ use mod_network, only: network_type
   integer :: cb_n_levels_zero = 12 ! top n levels to zero out
 
   public neural_net, init_neural_net, climsim_readnl, &
-         cb_partial_coupling, cb_partial_coupling_vars, cb_do_ramp, cb_ramp_start
+         cb_partial_coupling, cb_partial_coupling_vars, cb_do_ramp, cb_ramp_steps
   
 contains
 
