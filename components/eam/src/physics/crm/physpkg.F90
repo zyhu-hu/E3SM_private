@@ -947,6 +947,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
       else
         ramp_ratio = 1.0
       end if
+      write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
     end if
      call cnst_get_ind('CLDICE', ixcldice)
      call cnst_get_ind('CLDLIQ', ixcldliq)
