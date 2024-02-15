@@ -8010,4 +8010,14 @@ The size of ensemble member subset, i.e., how many FKB models for ens-avg?
 Nickname for a specific NN input/output variable combination
 </entry>
 
+<entry id="cb_do_ramp" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to gradually transit from MMF to NN;
+</entry>
+
+<entry id="cb_ramp_steps" type="integer" category="climsim"
+       group="climsim_nl" valid_values="" >
+If cb_do_ramp=.true., the number of steps for the linear ramping from MMF to NN
+</entry>
+
 </namelist_definition>

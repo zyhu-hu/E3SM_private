@@ -602,7 +602,7 @@ end subroutine neural_net
                            cb_use_input_prectm1, &
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
                            cb_random_ens_size, &
-                           cb_nn_var_combo
+                           cb_nn_var_combo, cb_do_ramp, cb_ramp_steps
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -647,6 +647,8 @@ end subroutine neural_net
       call mpibcast(cb_ens_fkb_model_list,    len(cb_ens_fkb_model_list(1))*max_nn_ens, mpichar, 0, mpicom)
       call mpibcast(cb_random_ens_size,    1,        mpiint,  0, mpicom)
       call mpibcast(cb_nn_var_combo, len(cb_nn_var_combo), mpichar,  0, mpicom)
+      call mpibcast(cb_do_ramp, 1,                  mpilog,  0, mpicom)
+      call mpibcast(cb_ramp_steps, 1,            mpiint,  0, mpicom)
       ! [TODO] check ierr for each mpibcast call
       ! if (ierr /= 0) then
       !    call endrun(subname // ':: ERROR broadcasting namelist variable cb_partial_coupling_vars')
