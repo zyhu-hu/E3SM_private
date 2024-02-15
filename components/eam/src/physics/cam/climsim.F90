@@ -39,6 +39,8 @@ use mod_network, only: network_type
   logical :: cb_partial_coupling  = .false.
   character(len=fieldname_lenp2) :: cb_partial_coupling_vars(pflds)
   character(len=256) :: cb_nn_var_combo = 'v2' ! nickname for a specific NN in/out variable combination
+  logical :: cb_do_ramp = .false. ! ramping up the NN output
+  real(r8) :: cb_ramp_start = 0.0_r8
 
   type(network_type), allocatable :: climsim_net(:)
   real(r8), allocatable :: inp_sub(:)
