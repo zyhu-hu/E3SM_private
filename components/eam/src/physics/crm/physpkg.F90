@@ -1020,16 +1020,16 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_PRECSC') then
-              phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)*ramp_ratio + phys_buffer_chunk*(1.0_r8-ramp_ratio)
+              phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)
               call pbuf_get_field(phys_buffer_chunk, snow_dp_idx, snow_dp)
-              snow_dp(:) = snow_dp_nn(:,c) 
+              snow_dp(:) = snow_dp_nn(:,c)*ramp_ratio + snow_dp(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_PRECC') then
-              phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)*ramp_ratio + phys_buffer_chunk*(1.0_r8-ramp_ratio)
+              phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)
               call pbuf_get_field(phys_buffer_chunk, prec_dp_idx, prec_dp)
-              prec_dp(:) = prec_dp_nn(:,c) 
+              prec_dp(:) = prec_dp_nn(:,c)*ramp_ratio + prec_dp(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
