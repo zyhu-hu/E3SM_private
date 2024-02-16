@@ -943,11 +943,13 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
 
     if (cb_do_ramp) then
       if (nstep-nstep0-nstep_NN .le. cb_ramp_steps) then
-        ramp_ratio = nstep-nstep0-nstep_NN*1.0/cb_ramp_steps
+        ramp_ratio = (nstep-nstep0-nstep_NN)*1.0/(cb_ramp_steps*1.0)
       else
         ramp_ratio = 1.0
       end if
       write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
+      write (iulog,*) 'CLIMSIM partial coupling: nstep-nstep0-nstep_NN = ', nstep-nstep0-nstep_NN
+      write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_steps = ', cb_ramp_steps
     end if
      call cnst_get_ind('CLDICE', ixcldice)
      call cnst_get_ind('CLDLIQ', ixcldliq)
