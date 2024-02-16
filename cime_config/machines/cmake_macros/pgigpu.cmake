@@ -44,3 +44,7 @@ set(PIO_FILESYSTEM_HINTS "gpfs")
 
 # PGI has to link fortran mains with fortran
 set(E3SM_LINK_WITH_FORTRAN "TRUE")
+
+# FKB (Sungduk Yu, Thu 21 Sep 2023 05:12:11 PM PDT)
+string(APPEND CMAKE_Fortran_FLAGS " -I/global/cfs/cdirs/m4331/shared/FKB64/build/include ")
+string(APPEND CMAKE_EXE_LINKER_FLAGS " -L/global/cfs/cdirs/m4331/shared/FKB64/build/lib -lneural ")
