@@ -737,6 +737,10 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
   use geopotential,        only: geopotential_t
   use cam_history_support, only: pflds
   use physconst,        only: cpair, zvir, rair, gravit
+
+  use torch_ftn
+  use iso_fortran_env
+
   !-----------------------------------------------------------------------------
   ! Interface arguments
   !-----------------------------------------------------------------------------
@@ -796,6 +800,48 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
   real(r8) :: dt_avg = 0.0_r8   ! time step to use for the shr_orb_cosz calculation, if use_rad_dt_cosz set to true
   real(r8) :: delta    ! Solar declination angle  in radians
   real(r8) :: eccf     ! Earth orbit eccentricity factor
+
+  ! test to call pytorch-fortran module
+  integer :: n
+  integer :: use_gpu
+  type(torch_module) :: torch_mod
+  type(torch_tensor_wrap) :: input_tensors
+  type(torch_tensor) :: out_tensor
+
+  real(real32) :: input(124, 1)
+  real(real32), pointer :: output(:, :)
+
+  character(:), allocatable :: filename
+  character(len=50) :: outputfile
+  integer :: arglen, stat
+  integer :: units
+
+  unit = 20
+  print *, "Reading input from test_input.txt"
+  open(unit=unit, file="/global/homes/z/zeyuanhu/nvidia_codes/Climsim_private/baseline_models/HSR/inference/test_input.txt", status="old", action="read")
+  do i = 1, size(input, 1)
+      read(unit,*) input(i,1)
+  end do
+  close(unit)
+
+  use_gpu = 0 !module_use_device
+
+  print *, "Creating input tensor"
+  call input_tensors%create
+  print *, "Adding input data"
+  call input_tensors%add_array(input)
+  print *, "Loading model"
+  call torch_mod%load("/global/homes/z/zeyuanhu/nvidia_codes/Climsim_private/baseline_models/HSR/model/final_hsr_wrapped.pt", use_gpu)
+  print *, "Running forward pass"
+  call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
+  print *, "Getting output data"
+  call out_tensor%to_array(output)
+  print *, "torch Output data:"
+  do i = 1, size(output, 1)
+      print *, output(i,1)
+  end do
+
+
 !-----------------------------------------------------------------------------
   ! phys_run1 opening
   ! - phys_timestep_init advances ghg gases,
