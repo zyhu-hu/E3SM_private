@@ -943,7 +943,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
 
     if (cb_do_ramp) then
       if (nstep-nstep0-nstep_NN .le. cb_ramp_steps) then
-        ramp_ratio = real(nstep-nstep0-nstep_NN)/cb_ramp_steps
+        ramp_ratio = nstep-nstep0-nstep_NN*1.0/cb_ramp_steps
       else
         ramp_ratio = 1.0
       end if
