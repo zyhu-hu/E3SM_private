@@ -814,7 +814,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
   character(:), allocatable :: filename
   character(len=50) :: outputfile
   integer :: arglen, stat
-  integer :: units
+  integer :: unit
 
   unit = 20
   print *, "Reading input from test_input.txt"
