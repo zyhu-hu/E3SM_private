@@ -10,21 +10,25 @@ import os, datetime, subprocess as sp, numpy as np
 from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-acct = 'm3312'
+acct = 'm4331'
 
 case_prefix = 'E3SM_ML'
 # Added extra physics_state and cam_out variables.
 
-top_dir  = os.getenv('HOME')+'/repositories'
+top_dir  = os.getenv('HOME')
 scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
-src_dir  = top_dir+'/E3SM_sungdukyu/' # branch => whannah/mmf/ml-training
+src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
+pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-nvhpc22.7/nvhpc/install'
 
-# clean        = True
+os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
+os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
+
+clean        = True
 newcase      = True
 config       = True
 build        = True
-submit       = True
+submit       = False
 # continue_run = True
 
 debug_mode = False
