@@ -10,15 +10,15 @@ import os, datetime, subprocess as sp, numpy as np
 from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-acct = 'm3312'
+acct = 'm4331'
 
-case_prefix = 'E3SM_ML'
+case_prefix = 'nofkb_test'
 # Added extra physics_state and cam_out variables.
 
-top_dir  = os.getenv('HOME')+'/repositories'
+top_dir  = os.getenv('HOME')
 scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
-src_dir  = top_dir+'/E3SM_sungdukyu/' # branch => whannah/mmf/ml-training
+src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 
 # clean        = True
 newcase      = True
@@ -39,7 +39,7 @@ ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
 # compset,arch   = 'F2010-MMF1','GNUGPU'
-compset,arch   = 'FAQP-MMF1','GNUGPU'
+compset,arch   = 'FAQP-MMF1','GNUCPU'
 # compset,arch   = 'F2010-MMF1','CORI'; queue = 'regular'
 
 case_list = [case_prefix,arch,compset,grid]
