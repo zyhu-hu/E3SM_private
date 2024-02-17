@@ -76,7 +76,7 @@ f_out_scale   = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/out_scale.v2.txt
 print('\n  case : '+case+'\n')
 
 if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1 ; max_task_per_node = 64
-if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  64,1 ; max_task_per_node = 32
+if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  32,1 ; max_task_per_node = 32
 if arch=='CORI'  : max_mpi_per_node,atm_nthrds  = 64,1
 atm_ntasks = max_mpi_per_node*num_nodes
 #---------------------------------------------------------------------------------------------------
