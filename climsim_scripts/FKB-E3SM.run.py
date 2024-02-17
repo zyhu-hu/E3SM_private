@@ -66,11 +66,11 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-f_fkb_model   = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/trained_models/'\
+f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/'\
                 'backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
-f_inp_sub     = '/global/u2/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/norm_factors/inp_sub.v2.txt'
-f_inp_div     = '/global/u2/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/norm_factors/inp_div.v2.txt'
-f_out_scale   = '/global/u2/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/norm_factors/out_scale.v2.txt'
+f_inp_sub     = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/inp_sub.v2.txt'
+f_inp_div     = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/inp_div.v2.txt'
+f_out_scale   = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/out_scale.v2.txt'
 
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
