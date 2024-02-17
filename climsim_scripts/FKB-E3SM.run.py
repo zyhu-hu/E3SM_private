@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch_cpu_debug_1thread_cpubuild'
+case_prefix = 'torch_cpu_debug_1thread_gpubuild'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -51,7 +51,7 @@ ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
-compset,arch   = 'F2010-MMF1','GNUCPU'
+compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'FAQP-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
@@ -76,7 +76,7 @@ f_out_scale   = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/out_scale.v2.txt
 print('\n  case : '+case+'\n')
 
 if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1 ; max_task_per_node = 64
-if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  8,4 ; max_task_per_node = 32
+if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  8,1 ; max_task_per_node = 8
 if arch=='CORI'  : max_mpi_per_node,atm_nthrds  = 64,1
 atm_ntasks = max_mpi_per_node*num_nodes
 #---------------------------------------------------------------------------------------------------
