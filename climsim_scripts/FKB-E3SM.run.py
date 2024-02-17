@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch_cpu3'
+case_prefix = 'torch_cpu_debug'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -40,7 +40,7 @@ submit       = True
 # continue_run = True
 src_mod_atm  = False
 
-debug_mode = False
+debug_mode = True
 
 dtime = 1200 # set to 0 to use a default value 
 
