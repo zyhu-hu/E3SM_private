@@ -830,7 +830,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
   print *, "Adding input data"
   call input_tensors%add_array(input)
   print *, "Loading model"
-  call torch_mod%load("/global/homes/z/zeyuanhu/nvidia_codes/Climsim_private/baseline_models/HSR/model/final_hsr_wrapped.pt") !, use_gpu)
+  call torch_mod%load("/global/homes/z/zeyuanhu/final_hsr_wrapped.pt", use_gpu)
   print *, "Running forward pass"
   call torch_mod%forward(input_tensors, out_tensor) !, flags=module_use_inference_mode)
   print *, "Getting output data"
