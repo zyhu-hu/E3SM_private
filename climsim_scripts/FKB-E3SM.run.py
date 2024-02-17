@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch-test'
+case_prefix = 'torch_cpu'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -22,7 +22,8 @@ src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-trai
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG ' # NN hybrid test
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
-pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-nvhpc22.7/nvhpc/install'
+#pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-nvhpc22.7/nvhpc/install'
+pytorch_fortran_path ='/global/homes/z/zeyuanhu/pytorch-fortran/gnu/install'
 
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path

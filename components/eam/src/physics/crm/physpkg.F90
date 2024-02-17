@@ -737,6 +737,9 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
   use geopotential,        only: geopotential_t
   use cam_history_support, only: pflds
   use physconst,        only: cpair, zvir, rair, gravit
+
+  use torch_ftn
+  use iso_fortran_env
   !-----------------------------------------------------------------------------
   ! Interface arguments
   !-----------------------------------------------------------------------------
