@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch_cpu'
+case_prefix = 'torch_cpu2'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
