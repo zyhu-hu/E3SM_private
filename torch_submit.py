@@ -21,6 +21,7 @@ case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 #user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG ' # NN hybrid test
+user_cpp = ''
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 #pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-nvhpc22.7/nvhpc/install'
 pytorch_fortran_path ='/global/homes/z/zeyuanhu/pytorch-fortran/gnu/install'
