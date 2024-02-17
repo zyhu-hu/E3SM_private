@@ -759,7 +759,7 @@ subroutine phys_run1(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
 
 
     ! test to call pytorch-fortran module
-  integer :: n
+  integer :: n, i, j
   integer :: use_gpu
   type(torch_module) :: torch_mod
   type(torch_tensor_wrap) :: input_tensors
