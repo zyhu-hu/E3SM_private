@@ -22,10 +22,10 @@ src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-trai
 
 #pytorch_fortran_path ='/global/homes/z/zeyuanhu/pytorch-fortran/gnu/install'
 #pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug/gnu/install'
-pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc11/gnu/install'
+# pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc11/gnu/install'
+pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc12/gnu/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
-
 
 
 # clean        = True
