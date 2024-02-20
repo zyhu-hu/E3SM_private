@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'nofkb_test_wtorch'
+case_prefix = 'nofkb_test_wtorch_debug'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -20,7 +20,8 @@ scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 
-pytorch_fortran_path ='/global/homes/z/zeyuanhu/pytorch-fortran/gnu/install'
+#pytorch_fortran_path ='/global/homes/z/zeyuanhu/pytorch-fortran/gnu/install'
+pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug/gnu/install'
 
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
