@@ -39,10 +39,10 @@ debug_mode = False
 
 dtime = 1200 # set to 0 to use a default value 
 
-stop_opt,stop_n,resub,walltime = 'nmonths',48, 1, '12:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:10:00'
+#stop_opt,stop_n,resub,walltime = 'nmonths',48, 1, '12:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:10:00'
 
-ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
+ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
