@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'nofkb_test_wtorch_debug_gcc12'
+case_prefix = 'nofkb_test_wtorch_debug_gcc11_loadtorch'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -22,8 +22,8 @@ src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-trai
 
 #pytorch_fortran_path ='/global/homes/z/zeyuanhu/pytorch-fortran/gnu/install'
 #pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug/gnu/install'
-# pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc11/gnu/install'
-pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc12/gnu/install'
+pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc11/gnu/install'
+#pytorch_fortran_path ='/global/u2/z/zeyuanhu/pytorch-fortran-debug-gcc12/gnu/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
