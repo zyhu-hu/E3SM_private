@@ -217,17 +217,20 @@
         <command name="load">PrgEnv-gnu/8.3.3</command>
         <command name="load">gcc/12.2.0</command>
         <command name="load">cray-libsci/23.02.1.1</command>
+        <command name="load">pytorch/2.0.1</command>
       </modules>
 
       <modules compiler="intel">
         <command name="load">PrgEnv-intel/8.3.3</command>
         <command name="load">intel/2023.1.0</command>
+        <command name="load">pytorch/2.0.1</command>
       </modules>
 
       <modules compiler="nvidia">
         <command name="load">PrgEnv-nvidia</command>
         <command name="load">nvidia/22.7</command>
         <command name="load">cray-libsci/23.02.1.1</command>
+        <command name="load">pytorch/2.0.1</command>
       </modules>
 
       <modules compiler="amdclang">
