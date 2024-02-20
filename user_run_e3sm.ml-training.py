@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'nofkb_test_wtorch_debug_gcc11_loadtorch'
+case_prefix = 'nofkb_test_wtorch_debug_gcc11_loadtorch2'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
