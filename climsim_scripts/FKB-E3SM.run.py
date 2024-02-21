@@ -47,7 +47,7 @@ dtime = 1200 # set to 0 to use a default value
 # stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
 stop_opt,stop_n,resub,walltime = 'ndays',15, 0,'00:30:00'
 
-ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
+ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
@@ -66,11 +66,10 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-f_fkb_model   = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/trained_models/'\
-                'backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
-f_inp_sub     = '/global/u2/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/norm_factors/inp_sub.v2.txt'
-f_inp_div     = '/global/u2/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/norm_factors/inp_div.v2.txt'
-f_out_scale   = '/global/u2/s/sungduk/repositories/ClimSim-E3SM-Hybrid/model_wgts/norm_factors/out_scale.v2.txt'
+f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
+f_inp_sub     = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/inp_sub.v2.txt'
+f_inp_div     = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/inp_div.v2.txt'
+f_out_scale   = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/out_scale.v2.txt'
 
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
