@@ -382,7 +382,7 @@
       <modules compiler="gnugpu">
         <command name="load">cudatoolkit/11.7</command>
         <command name="load">craype-accel-nvidia80</command>
-        <command name="load">pytorch/2.0.1-cu12</command>
+        <command name="load">pytorch/2.0.1</command>
       </modules>
 
       <modules compiler="nvidiagpu">
