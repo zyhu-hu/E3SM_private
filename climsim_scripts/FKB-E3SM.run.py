@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch-test1'
+case_prefix = 'torch-mlp-test'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -20,7 +20,8 @@ scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
-user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
+# user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
+user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG' # NN hybrid test
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path

@@ -19,6 +19,9 @@ use phys_grid,       only: get_lat_p, get_lon_p, get_rlat_p, get_rlon_p
 !-------- NEURAL-FORTRAN (FKB) --------
 ! use mod_kinds, only: ik, rk
 use mod_network, only: network_type
+
+use torch_ftn
+use iso_fortran_env
 !--------------------------------------
 
   implicit none
@@ -97,6 +100,13 @@ contains
 
    real(r8), pointer, dimension(:)   :: lhflx, shflx, taux, tauy ! (/pcols/)
    real(r8), pointer, dimension(:,:) :: ozone, ch4, n2o ! (/pcols,pver/)
+
+   type(torch_module) :: torch_mod
+   type(torch_tensor_wrap) :: input_tensors
+   type(torch_tensor) :: out_tensor
+   real(real32) :: input_torch(inputlength, 1)
+   real(real32), pointer :: output_torch(:, :)
+
 
    ncol  = state%ncol
    call cnst_get_ind('CLDLIQ', ixcldliq)
@@ -180,6 +190,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
          end do
       end if
 
+
 end select
 
 ! Tue Jan 24 13:28:43 CST 2023
@@ -227,6 +238,11 @@ end if
       endif
 #endif
 
+    !load torch model
+    print *, "Loading model"
+    call torch_mod%load("/global/u2/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v2_ep8_step2_torchscript.pt", 0) !0 is not using gpu? for now just use cpu
+
+
     ! 2. Normalize input
     do k=1,inputlength
       input(:ncol,k) = (input(:ncol,k) - inp_sub(k))/inp_div(k)
@@ -259,7 +275,23 @@ end if
         endif
       !! Using a single model
       else ! cb_do_ensemble
-        output(i,:) = climsim_net(1) % output(input(i,:))
+        !output(i,:) = climsim_net(1) % output(input(i,:))
+
+        !input_torch(inputlength, 1)
+        do k=1,inputlength
+          input_torch(k,1) = input(i,k)
+        end do
+        print *, "Creating input tensor"
+        call input_tensors%create
+        print *, "Adding input data"
+        call input_tensors%add_array(input_torch)
+        print *, "Running forward pass"
+        call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
+        call out_tensor%to_array(output_torch)
+        do k=1,outputlength
+          output(i,k) = output_torch(k,1)
+        end do
+
       endif
     end do
 #ifdef CLIMSIMDEBUG
