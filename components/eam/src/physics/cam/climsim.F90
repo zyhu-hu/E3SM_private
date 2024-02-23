@@ -104,7 +104,7 @@ contains
    type(torch_module) :: torch_mod
    type(torch_tensor_wrap) :: input_tensors
    type(torch_tensor) :: out_tensor
-   real(real32) :: input_torch(inputlength, 1)
+   real(real32) :: input_torch(557, 1)
    real(real32), pointer :: output_torch(:, :)
 
 
@@ -278,9 +278,21 @@ end if
         !output(i,:) = climsim_net(1) % output(input(i,:))
 
         !input_torch(inputlength, 1)
-        do k=1,inputlength
+        input_torch(:,1) = 0.
+        do k=1,inputlength-16*3 ! 16*3 is the number of gas variables which does not use the full column in the original MLP model
           input_torch(k,1) = input(i,k)
         end do
+        do k=6,21
+          input_torch(inputlength-16*3+k,1) = input(i,inputlength-16*3+k-5)
+        end do
+        do k=6,21
+          input_torch(inputlength-16*3+60+k,1) = input(i,inputlength-16*2+k-5)
+        end do
+        do k=6,21
+          input_torch(inputlength-16*3+120+k,1) = input(i,inputlength-16*1+k-5)
+        end do
+
+
         print *, "Creating input tensor"
         call input_tensors%create
         print *, "Adding input data"
