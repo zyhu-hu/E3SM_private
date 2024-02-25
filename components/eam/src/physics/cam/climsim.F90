@@ -67,13 +67,14 @@ use iso_fortran_env
   
 contains
 
-  subroutine neural_net (ptend, state, pbuf, cam_in, cam_out, coszrs, solin, ztodt)
+  subroutine neural_net (ptend, state, state_aphys1, pbuf, cam_in, cam_out, coszrs, solin, ztodt)
  ! note state is meant to have the "BP" state saved earlier. 
 
    implicit none
 
    type(physics_ptend),intent(out)    :: ptend 
    type(physics_state), intent(in)    :: state
+   type(physics_state), intent(in)    :: state_aphys1
    type(physics_buffer_desc), pointer :: pbuf(:)  
    type(cam_in_t),intent(in)          :: cam_in
    type(cam_out_t),     intent(inout) :: cam_out 

@@ -506,7 +506,7 @@ end subroutine phys_inidat
 !===================================================================================================
 !===================================================================================================
 
-subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
+subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, pbuf2d, cam_out )
   !-----------------------------------------------------------------------------
   ! Purpose: Initialization of physics package
   !-----------------------------------------------------------------------------
@@ -566,6 +566,8 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
   !-----------------------------------------------------------------------------
   type(physics_state), pointer       :: phys_state(:)
   type(physics_tend ), pointer       :: phys_tend(:)
+  type(physics_state), pointer       :: phys_state_aphys1(:)
+  type(physics_tend ), pointer       :: phys_tend_placeholder(:) 
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
   type(cam_out_t),intent(inout)      :: cam_out(begchunk:endchunk)
   !-----------------------------------------------------------------------------
@@ -579,9 +581,11 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
   !-----------------------------------------------------------------------------
 
   call physics_type_alloc(phys_state, phys_tend, begchunk, endchunk, pcols)
+  call physics_type_alloc(phys_state_aphys1, phys_tend_placeholder, begchunk, endchunk, pcols)
 
   do lchnk = begchunk, endchunk
      call physics_state_set_grid(lchnk, phys_state(lchnk))
+     call physics_state_set_grid(lchnk, phys_state_aphys1(lchnk))
   end do
 
   !-----------------------------------------------------------------------------
@@ -712,7 +716,7 @@ end subroutine phys_init
 !===================================================================================================
 
 #ifdef CLIMSIM
-subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
+subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
   !-----------------------------------------------------------------------------
   ! Purpose: climsim driver
   !-----------------------------------------------------------------------------
@@ -747,6 +751,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
   !-----------------------------------------------------------------------------
   real(r8), intent(in) :: ztodt            ! physics time step unless nstep=0
   type(physics_state), intent(inout), dimension(begchunk:endchunk) :: phys_state
+  type(physics_state), intent(in),    dimension(begchunk:endchunk) :: phys_state_aphys1
   type(physics_tend ), intent(inout), dimension(begchunk:endchunk) :: phys_tend
   type(physics_buffer_desc), pointer, dimension(:,:)               :: pbuf2d
   type(cam_in_t),                     dimension(begchunk:endchunk) :: cam_in
@@ -955,7 +960,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
            snow_dp_mmf(:,lchnk) = snow_dp(:)
         end do
 
-        call phys_run1_NN(phys_state_nn, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&
+        call phys_run1_NN(phys_state_nn, phys_state_aphys1, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&
                           solin, coszrs)
 #ifdef CLIMSIM_DIAG_PARTIAL
         do lchnk = begchunk, endchunk
@@ -975,7 +980,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
         end do
 
      else ! NN full coupling
-        call phys_run1_NN(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out,&
+        call phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out,&
                           solin, coszrs)
      end if ! (cb_partial_coupling)
   end if ! (.not. do_climsim_inference)
@@ -1121,7 +1126,7 @@ subroutine climsim_driver(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out
 end subroutine climsim_driver
 
 
-subroutine phys_run1_NN(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out, &
+subroutine phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out, &
                         solin, coszrs)
   !-----------------------------------------------------------------------------
   ! Purpose: First part of atmos physics before updating of surface components
@@ -1137,6 +1142,7 @@ subroutine phys_run1_NN(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out, 
   !-----------------------------------------------------------------------------
   real(r8), intent(in) :: ztodt            ! physics time step unless nstep=0
   type(physics_state), intent(inout), dimension(begchunk:endchunk) :: phys_state
+  type(physics_state), intent(in),    dimension(begchunk:endchunk) :: phys_state_aphys1
   type(physics_tend ), intent(inout), dimension(begchunk:endchunk) :: phys_tend
 
   type(physics_buffer_desc), pointer, dimension(:,:) :: pbuf2d
@@ -1209,7 +1215,7 @@ subroutine phys_run1_NN(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out, 
   !-----------------------------------------------------------------------------
   do lchnk=begchunk, endchunk
      phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-     call neural_net (ptend, phys_state(lchnk), &
+     call neural_net (ptend, phys_state(lchnk), phys_state_aphys1(lchnk), &
                       phys_buffer_chunk, &
                       cam_in(lchnk), cam_out(lchnk), &
                       coszrs(:,lchnk), solin(:,lchnk), &

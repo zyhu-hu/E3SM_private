@@ -55,7 +55,9 @@ module cam_comp
   type(dyn_export_t) :: dyn_out  ! Dynamics export container
 
   type(physics_state), pointer :: phys_state(:) => null()
+  type(physics_state), pointer :: phys_state_aphys1(:) => null() ! save phys_state after call to phys_run1
   type(physics_tend ), pointer :: phys_tend(:) => null()
+  type(physics_tend ), pointer :: phys_tend_placeholder(:) => null() ! save phys_tend after call to phys_run1 (right now primarily for easy init of phys_state_aphys1)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:) => null()
   type(cnd_diag_t),          pointer :: phys_diag(:) => null()
 
@@ -185,7 +187,7 @@ subroutine cam_init( cam_out, cam_in, mpicom_atm, &
    end if
 
    call t_startf('phys_init')
-   call phys_init( phys_state, phys_tend, pbuf2d,  cam_out )
+   call phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, pbuf2d,  cam_out )
    call t_stopf('phys_init')
 
    call bldfld ()       ! master field list (if branch, only does hash tables)
@@ -237,7 +239,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    integer, intent(in), optional :: mn   ! Simulation month
    integer, intent(in), optional :: dy   ! Simulation day
    integer, intent(in), optional :: sec  ! Seconds into current simulation day
-
+   integer :: lchnk
 #if ( defined SPMD )
    real(r8) :: mpi_wtime
 #endif
@@ -282,7 +284,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 #if defined(MMF_SAMXX) || defined(MMF_PAM)
 
 #ifdef CLIMSIM
-   call climsim_driver(phys_state, dtime, phys_tend, pbuf2d,  cam_in, cam_out)
+   call climsim_driver(phys_state, phys_state_aphys1, dtime, phys_tend, pbuf2d,  cam_in, cam_out)
 #else
    call phys_run1(phys_state, dtime, phys_tend, pbuf2d,  cam_in, cam_out)
 #endif 
@@ -290,6 +292,16 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 #else
    call phys_run1(phys_state, dtime, phys_tend, pbuf2d,  cam_in, cam_out, phys_diag)
 #endif
+
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state_aphys1(lchnk)%t(:,:) = phys_state(lchnk)%t(:,:)
+      phys_state_aphys1(lchnk)%u(:,:) = phys_state(lchnk)%u(:,:)
+      phys_state_aphys1(lchnk)%v(:,:) = phys_state(lchnk)%v(:,:)
+      phys_state_aphys1(lchnk)%s(:,:) = phys_state(lchnk)%s(:,:)
+      phys_state_aphys1(lchnk)%q(:,:,:) = phys_state(lchnk)%q(:,:,:)
+   end do
+
    call t_stopf  ('phys_run1')
 
    !----------------------------------------------------------------------------
