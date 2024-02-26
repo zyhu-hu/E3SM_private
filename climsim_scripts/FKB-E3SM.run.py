@@ -70,9 +70,9 @@ f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11
 f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/inp_sub.txt'
 f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/inp_div.txt'
 f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/out_scale.txt'
-f_qinput_log = True
-f_qinput_prune = True
-f_qoutput_prune = True
+f_qinput_log = '.true.'
+f_qinput_prune = '.true.'
+f_qoutput_prune = '.true.'
 f_strato_lev = 15
 
 #---------------------------------------------------------------------------------------------------
