@@ -110,7 +110,7 @@ contains
    type(torch_module) :: torch_mod
    type(torch_tensor_wrap) :: input_tensors
    type(torch_tensor) :: out_tensor
-   real(real32) :: input_torch(557, 1)
+   real(real32) :: input_torch(inputlength, 1)
    real(real32), pointer :: output_torch(:, :)
 
 
@@ -326,6 +326,7 @@ end if
     !load torch model
     print *, "Loading model"
     call torch_mod%load(cb_torch_model, 0) !0 is not using gpu? for now just use cpu
+    print *, "finish loading model"
 
 
     ! 2. Normalize input
