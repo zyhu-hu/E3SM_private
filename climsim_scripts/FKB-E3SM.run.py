@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch-mlp-v3-noqprune-test-debug2'
+case_prefix = 'torch-mlp-v3-qprune-test2'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -65,14 +65,14 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_ep8_step2/model.pt'
+f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/model.pt'
 f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
-f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_ep8_step2/inp_sub.txt'
-f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_ep8_step2/inp_div.txt'
-f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_ep8_step2/out_scale.txt'
+f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/inp_sub.txt'
+f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/inp_div.txt'
+f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/out_scale.txt'
 f_qinput_log = '.true.'
-f_qinput_prune = '.false.'
-f_qoutput_prune = '.false.'
+f_qinput_prune = '.true.'
+f_qoutput_prune = '.true.'
 f_strato_lev = 15
 
 #---------------------------------------------------------------------------------------------------
