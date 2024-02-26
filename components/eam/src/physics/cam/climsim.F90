@@ -325,7 +325,7 @@ end if
 
     !load torch model
     print *, "Loading model"
-    call torch_mod%load(cb_torch_model, 0) !0 is not using gpu? for now just use cpu
+    call torch_mod%load("/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_ep8_step2/model.pt", 0) !0 is not using gpu? for now just use cpu
     print *, "finish loading model"
 
 
