@@ -8010,4 +8010,29 @@ The size of ensemble member subset, i.e., how many FKB models for ens-avg?
 Nickname for a specific NN input/output variable combination
 </entry>
 
+<entry id="qinput_log" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+do log transform of qc and qi input
+</entry>
+
+<entry id="qinput_prune" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+prune qv, qc and qi input in stratosphere
+</entry>
+
+<entry id="qoutput_prune" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+prune qv, qc and qi tendencies output in stratosphere
+</entry>
+
+<entry id="strato_lev" type="integer" category="climsim"
+       group="climsim_nl" valid_values="" >
+define the stratosphere level for pruning
+</entry>
+
+<entry id="cb_torch_model" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a torch model txt file
+</entry>
+
 </namelist_definition>

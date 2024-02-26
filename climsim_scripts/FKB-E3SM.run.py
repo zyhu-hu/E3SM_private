@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'torch-mlp-test'
+case_prefix = 'torch-mlp-v3-qprune-test'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -65,10 +65,16 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
+f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/model.pt'
 f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
-f_inp_sub     = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/inp_sub.v2.txt'
-f_inp_div     = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/inp_div.v2.txt'
-f_out_scale   = '/pscratch/sd/s/sungduk/for_zeyuan/norm_factors/out_scale.v2.txt'
+f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/inp_sub.txt'
+f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/inp_div.txt'
+f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v3_qprune_ep8_step2/out_scale.txt'
+f_qinput_log = True
+f_qinput_prune = True
+f_qoutput_prune = True
+f_strato_lev = 15
+
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
 
@@ -126,14 +132,19 @@ do_aerosol_rad = .false.
 /
 
 &climsim_nl
-inputlength     = 425
+inputlength     = 737
 outputlength    = 368
-cb_nn_var_combo = 'v2'
+cb_nn_var_combo = 'v3'
 input_rh        = .false.
 cb_fkb_model    = '{f_fkb_model}'
+cb_torch_model  = '{f_torch_model}'
 cb_inp_sub      = '{f_inp_sub}'
 cb_inp_div      = '{f_inp_div}'
 cb_out_scale    = '{f_out_scale}'
+qinput_log   = {f_qinput_log}
+qinput_prune = {f_qinput_prune}
+qoutput_prune = {f_qoutput_prune}
+strato_lev = {f_strato_lev}
 
 cb_partial_coupling = .true.
 cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 

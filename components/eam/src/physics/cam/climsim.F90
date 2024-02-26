@@ -34,6 +34,10 @@ use iso_fortran_env
   integer :: inputlength  = 425     ! length of NN input vector
   integer :: outputlength = 368     ! length of NN output vector
   logical :: input_rh     = .false.  ! toggle to switch from q --> RH input
+  logical :: qinput_log   = .false.  ! toggle to switch from qc/qi --> log10(1+1e6*qc/i) input
+  logical :: qinput_prune = .false.  ! prune qv, qc and qi input in stratosphere
+  logical :: qoutput_prune = .false. ! prune qv, qc and qi tendencies output in stratosphere
+  integer :: strato_lev = 15 ! stratospheric level used for pruning
   logical :: cb_use_input_prectm1 = .false.  ! use previous timestep PRECT for input variable 
   character(len=256)    :: cb_fkb_model   ! absolute filepath for a fkb model txt file
   character(len=256)    :: cb_inp_sub     ! absolute filepath for a inp_sub.txt
@@ -42,6 +46,7 @@ use iso_fortran_env
   logical :: cb_partial_coupling  = .false.
   character(len=fieldname_lenp2) :: cb_partial_coupling_vars(pflds)
   character(len=256) :: cb_nn_var_combo = 'v2' ! nickname for a specific NN in/out variable combination
+  character(len=256)    :: cb_torch_model   ! absolute filepath for a torch model txt file
 
   type(network_type), allocatable :: climsim_net(:)
   real(r8), allocatable :: inp_sub(:)
@@ -191,6 +196,85 @@ select case (to_lower(trim(cb_nn_var_combo)))
          end do
       end if
 
+   case('v3')
+      input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
+      input(:ncol,1*pver+1:2*pver) = state%q(1:ncol,1:pver,1)        ! state_q0001
+      if (qinput_log) then
+        input(:ncol,2*pver+1:3*pver) = log10(1._r8+1.e6*state%q(1:ncol,1:pver,ixcldliq)) ! state_q0002
+        input(:ncol,3*pver+1:4*pver) = log10(1._r8+1.e6*state%q(1:ncol,1:pver,ixcldice)) ! state_q0003
+#ifdef CLIMSIMDEBUG
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIMDEBUG log10 transform is applied to q1-3'
+      endif
+#endif     
+      else
+        input(:ncol,2*pver+1:3*pver) = state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
+        input(:ncol,3*pver+1:4*pver) = state%q(1:ncol,1:pver,ixcldice) ! state_q0003
+      end if
+      input(:ncol,4*pver+1:5*pver) = state%u(1:ncol,1:pver)          ! state_u
+      input(:ncol,5*pver+1:6*pver) = state%v(1:ncol,1:pver)          ! state_v
+      input(:ncol,6*pver+1:7*pver) = (state%t(1:ncol,1:pver)-state_aphys1%t(1:ncol,1:pver))/1200. ! state_t_dyn
+      ! state_q0_dyn
+      input(:ncol,7*pver+1:8*pver) = (state%q(1:ncol,1:pver,1)-state_aphys1%q(1:ncol,1:pver,1) + state%q(1:ncol,1:pver,ixcldliq)-state_aphys1%q(1:ncol,1:pver,ixcldliq) + state%q(1:ncol,1:pver,ixcldice)-state_aphys1%q(1:ncol,1:pver,ixcldice))/1200.
+      input(:ncol,8*pver+1:9*pver) = (state%u(1:ncol,1:pver)-state_aphys1%u(1:ncol,1:pver))/1200. ! state_u_dyn
+      input(:ncol,9*pver+1:10*pver) = ozone(:ncol,1:pver)            ! pbuf_ozone
+      input(:ncol,10*pver+1:11*pver) = ch4(:ncol,1:pver)             ! pbuf_CH4
+      input(:ncol,11*pver+1:12*pver) = n2o(:ncol,1:pver)             ! pbuf_N2O
+      input(:ncol,12*pver+1) = state%ps(1:ncol)                      ! state_ps
+      input(:ncol,12*pver+2) = solin(1:ncol)                         ! pbuf_SOLIN
+      input(:ncol,12*pver+3) = lhflx(1:ncol)                         ! pbuf_LHFLX
+      input(:ncol,12*pver+4) = shflx(1:ncol)                         ! pbuf_SHFLX
+      input(:ncol,12*pver+5) = taux(1:ncol)                          ! pbuf_TAUX
+      input(:ncol,12*pver+6) = tauy(1:ncol)                          ! pbuf_TAUY
+      input(:ncol,12*pver+7) = coszrs(1:ncol)                        ! pbuf_COSZRS
+      input(:ncol,12*pver+8) = cam_in%ALDIF(:ncol)                   ! cam_in_ALDIF
+      input(:ncol,12*pver+9) = cam_in%ALDIR(:ncol)                   ! cam_in_ALDIR
+      input(:ncol,12*pver+10) = cam_in%ASDIF(:ncol)                  ! cam_in_ASDIF
+      input(:ncol,12*pver+11) = cam_in%ASDIR(:ncol)                  ! cam_in_ASDIR
+      input(:ncol,12*pver+12) = cam_in%LWUP(:ncol)                   ! cam_in_LWUP
+      input(:ncol,12*pver+13) = cam_in%ICEFRAC(:ncol)                ! cam_in_ICEFRAC
+      input(:ncol,12*pver+14) = cam_in%LANDFRAC(:ncol)               ! cam_in_LANDFRAC
+      input(:ncol,12*pver+15) = cam_in%OCNFRAC(:ncol)                ! cam_in_OCNFRAC
+      input(:ncol,12*pver+16) = cam_in%SNOWHICE(:ncol)               ! cam_in_SNOWHICE
+      input(:ncol,12*pver+17) = cam_in%SNOWHLAND(:ncol)              ! cam_in_SNOWHLAND
+      
+      ! input(:ncol,6*pver+1       ) = state%ps(1:ncol)                ! state_ps
+      ! input(:ncol,6*pver+2       ) = solin(1:ncol)                   ! pbuf_SOLIN
+      ! input(:ncol,6*pver+3       ) = lhflx(1:ncol)                   ! pbuf_LHFLX
+      ! input(:ncol,6*pver+4       ) = shflx(1:ncol)                   ! pbuf_SHFLX
+      ! input(:ncol,6*pver+5       ) = taux(1:ncol)                    ! pbuf_TAUX
+      ! input(:ncol,6*pver+6       ) = tauy(1:ncol)                    ! pbuf_TAUY
+      ! input(:ncol,6*pver+7       ) = coszrs(1:ncol)                  ! pbuf_COSZRS
+      ! input(:ncol,6*pver+8       ) = cam_in%ALDIF(:ncol)             ! cam_in_ALDIF 
+      ! input(:ncol,6*pver+9       ) = cam_in%ALDIR(:ncol)             ! cam_in_ALDIR 
+      ! input(:ncol,6*pver+10      ) = cam_in%ASDIF(:ncol)             ! cam_in_ASDIF 
+      ! input(:ncol,6*pver+11      ) = cam_in%ASDIR(:ncol)             ! cam_in_ASDIR
+      ! input(:ncol,6*pver+12      ) = cam_in%LWUP(:ncol)              ! cam_in_LWUP
+      ! input(:ncol,6*pver+13      ) = cam_in%ICEFRAC(:ncol)           ! cam_in_ICEFRAC
+      ! input(:ncol,6*pver+14      ) = cam_in%LANDFRAC(:ncol)          ! cam_in_LANDFRAC
+      ! input(:ncol,6*pver+15      ) = cam_in%OCNFRAC(:ncol)           ! cam_in_OCNFRAC
+      ! input(:ncol,6*pver+16      ) = cam_in%SNOWHICE(:ncol)          ! cam_in_SNOWHICE
+      ! input(:ncol,6*pver+17      ) = cam_in%SNOWHLAND(:ncol)         ! cam_in_SNOWHLAND
+      ! input(:ncol,6*pver+18:6*pver+33) = ozone(:ncol,6:21)           ! pbuf_ozone
+      ! input(:ncol,6*pver+34:6*pver+49) = ch4(:ncol,6:21)             ! pbuf_CH4
+      ! input(:ncol,6*pver+50:6*pver+65) = n2o(:ncol,6:21)             ! pbuf_N2O
+
+      ! RH conversion
+      if (input_rh) then ! relative humidity conversion for input
+         do i = 1,ncol
+           do k=1,pver
+             ! Port of tom's RH =  Rv*p*qv/(R*esat(T))
+             rh_loc = 461.*state%pmid(i,k)*state%q(i,k,1)/(287.*tom_esat(state%t(i,k))) ! note function tom_esat below refercing SAM's sat.F90
+#ifdef RHDEBUG
+             if (masterproc) then
+               write (iulog,*) 'RHDEBUG:p,q,T,RH=',state%pmid(i,k),state%q(i,k,1),state%t(i,k),rh_loc
+             endif
+#endif
+             input(i,1*pver+k) = rh_loc
+           end do
+         end do
+      end if
+
 
 end select
 
@@ -241,13 +325,31 @@ end if
 
     !load torch model
     print *, "Loading model"
-    call torch_mod%load("/global/u2/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v2_ep8_step2_torchscript.pt", 0) !0 is not using gpu? for now just use cpu
+    call torch_mod%load(cb_torch_model, 0) !0 is not using gpu? for now just use cpu
 
 
     ! 2. Normalize input
     do k=1,inputlength
-      input(:ncol,k) = (input(:ncol,k) - inp_sub(k))/inp_div(k)
+      if (inp_div(k) .eq. 0.) then
+        input(:ncol,k) = 0.
+      else
+        input(:ncol,k) = (input(:ncol,k) - inp_sub(k))/inp_div(k)
+      end if
     end do
+
+    if (qinput_prune) then
+      do k=1,strato_lev
+        input(:,1*pver+k) = 0. ! qv
+        input(:,2*pver+k) = 0. ! qc
+        input(:,3*pver+k) = 0. ! qi
+      end do 
+#ifdef CLIMSIMDEBUG
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIMDEBUG qinput is pruned above level: ',strato_lev
+      endif
+#endif      
+    end if
+
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
         write (iulog,*) 'CLIMSIMDEBUG input post norm=',input(1,:)
@@ -280,20 +382,21 @@ end if
 
         !input_torch(inputlength, 1)
         input_torch(:,1) = 0.
-        do k=1,inputlength-16*3 ! 16*3 is the number of gas variables which does not use the full column in the original MLP model
+        ! do k=1,inputlength-16*3 ! 16*3 is the number of gas variables which does not use the full column in the original MLP model
+        !   input_torch(k,1) = input(i,k)
+        ! end do
+        ! do k=6,21
+        !   input_torch(inputlength-16*3+k,1) = input(i,inputlength-16*3+k-5)
+        ! end do
+        ! do k=6,21
+        !   input_torch(inputlength-16*3+60+k,1) = input(i,inputlength-16*2+k-5)
+        ! end do
+        ! do k=6,21
+        !   input_torch(inputlength-16*3+120+k,1) = input(i,inputlength-16*1+k-5)
+        ! end do
+        do k=1,inputlength
           input_torch(k,1) = input(i,k)
         end do
-        do k=6,21
-          input_torch(inputlength-16*3+k,1) = input(i,inputlength-16*3+k-5)
-        end do
-        do k=6,21
-          input_torch(inputlength-16*3+60+k,1) = input(i,inputlength-16*2+k-5)
-        end do
-        do k=6,21
-          input_torch(inputlength-16*3+120+k,1) = input(i,inputlength-16*1+k-5)
-        end do
-
-
         print *, "Creating input tensor"
         call input_tensors%create
         print *, "Adding input data"
@@ -304,6 +407,18 @@ end if
         do k=1,outputlength
           output(i,k) = output_torch(k,1)
         end do
+        if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
+          do k=1,strato_lev
+            output(i,1*pver+k) = 0. ! qv
+            output(i,2*pver+k) = 0. ! qc
+            output(i,3*pver+k) = 0. ! qi
+          end do 
+#ifdef CLIMSIMDEBUG
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIMDEBUG q output is pruned above level: ',strato_lev
+      endif
+#endif    
+        end if
 
       endif
     end do
@@ -647,7 +762,8 @@ end subroutine neural_net
                            cb_use_input_prectm1, &
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
                            cb_random_ens_size, &
-                           cb_nn_var_combo
+                           cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
+                           cb_torch_model
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -692,6 +808,11 @@ end subroutine neural_net
       call mpibcast(cb_ens_fkb_model_list,    len(cb_ens_fkb_model_list(1))*max_nn_ens, mpichar, 0, mpicom)
       call mpibcast(cb_random_ens_size,    1,        mpiint,  0, mpicom)
       call mpibcast(cb_nn_var_combo, len(cb_nn_var_combo), mpichar,  0, mpicom)
+      call mpibcast(qinput_log,   1, mpilog,  0, mpicom)
+      call mpibcast(qinput_prune,   1, mpilog,  0, mpicom)
+      call mpibcast(qoutput_prune,   1, mpilog,  0, mpicom)
+      call mpibcast(strato_lev,   1, mpiint,  0, mpicom)
+      call mpibcast(cb_torch_model, len(cb_torch_model), mpichar, 0, mpicom)
       ! [TODO] check ierr for each mpibcast call
       ! if (ierr /= 0) then
       !    call endrun(subname // ':: ERROR broadcasting namelist variable cb_partial_coupling_vars')
