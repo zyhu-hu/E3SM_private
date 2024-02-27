@@ -837,7 +837,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   end do
   close(unit)
 
-  use_gpu = 0 !module_use_device
+  use_gpu = 1 !module_use_device
 
   print *, "Creating input tensor"
   call input_tensors%create
