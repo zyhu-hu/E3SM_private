@@ -110,7 +110,7 @@ contains
    type(torch_module) :: torch_mod
    type(torch_tensor_wrap) :: input_tensors
    type(torch_tensor) :: out_tensor
-   real(real32) :: input_torch(inputlength, 1)
+   real(real32) :: input_torch(inputlength, pcols)
    real(real32), pointer :: output_torch(:, :)
 
 
@@ -356,73 +356,92 @@ end if
         write (iulog,*) 'CLIMSIMDEBUG input post norm=',input(1,:)
       endif
 #endif
-
+    
+    input_torch(:,:) = 0.
     do i=1,ncol
-      if (cb_do_ensemble) then
-        output(i,:) = 0.
-        !! Random ensemble averaging
-        if (cb_do_random_ensemble) then
-          ens_ind_shuffled = shuffle_1d(ens_ind_shuffled) ! randomly shuffle ens indices
-          do kens = 1,cb_random_ens_size
-            output(i,:) = output(i,:) +  (1._r8/cb_random_ens_size) * climsim_net(ens_ind_shuffled(kens)) % output(input(i,:))
-          enddo
-#ifdef CLIMSIMDEBUG
-          if (masterproc .and. i.eq.1) then
-            write (iulog,*) 'CLIMSIMDEBUG  random ensemble model IDs = ',ens_ind_shuffled(1:cb_random_ens_size)
-          endif
-#endif
-        !! All ensemble averaging
-        else
-          do kens = 1,cb_ens_size
-            output(i,:) = output(i,:) +  (1._r8/cb_ens_size) * climsim_net(kens) % output(input(i,:))
-          enddo
-        endif
-      !! Using a single model
-      else ! cb_do_ensemble
-        !output(i,:) = climsim_net(1) % output(input(i,:))
-
-        !input_torch(inputlength, 1)
-        input_torch(:,1) = 0.
-        ! do k=1,inputlength-16*3 ! 16*3 is the number of gas variables which does not use the full column in the original MLP model
-        !   input_torch(k,1) = input(i,k)
-        ! end do
-        ! do k=6,21
-        !   input_torch(inputlength-16*3+k,1) = input(i,inputlength-16*3+k-5)
-        ! end do
-        ! do k=6,21
-        !   input_torch(inputlength-16*3+60+k,1) = input(i,inputlength-16*2+k-5)
-        ! end do
-        ! do k=6,21
-        !   input_torch(inputlength-16*3+120+k,1) = input(i,inputlength-16*1+k-5)
-        ! end do
-        do k=1,inputlength
-          input_torch(k,1) = input(i,k)
-        end do
-        print *, "Creating input tensor"
-        call input_tensors%create
-        print *, "Adding input data"
-        call input_tensors%add_array(input_torch)
-        print *, "Running forward pass"
-        call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
-        call out_tensor%to_array(output_torch)
-        do k=1,outputlength
-          output(i,k) = output_torch(k,1)
-        end do
-        if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
-          do k=1,strato_lev
-            output(i,1*pver+k) = 0. ! qv
-            output(i,2*pver+k) = 0. ! qc
-            output(i,3*pver+k) = 0. ! qi
-          end do 
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG q output is pruned above level: ',strato_lev
-      endif
-#endif    
-        end if
-
-      endif
+      do k=1,inputlength
+        input_torch(k,i) = input(i,k)
+      end do
     end do
+
+    print *, "Creating input tensor"
+    call input_tensors%create
+    print *, "Adding input data"
+    call input_tensors%add_array(input_torch)
+    print *, "Running forward pass"
+    call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
+    call out_tensor%to_array(output_torch)
+
+    do i=1, ncol
+      do k=1,outputlength
+        output(i,k) = output_torch(k,i)
+      end do
+    end do
+
+    if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
+      do k=1,strato_lev
+        output(:,1*pver+k) = 0. ! qv
+        output(:,2*pver+k) = 0. ! qc
+        output(:,3*pver+k) = 0. ! qi
+      end do
+    end if
+
+!     do i=1,ncol
+!       if (cb_do_ensemble) then
+! !         output(i,:) = 0.
+! !         !! Random ensemble averaging
+! !         if (cb_do_random_ensemble) then
+! !           ens_ind_shuffled = shuffle_1d(ens_ind_shuffled) ! randomly shuffle ens indices
+! !           do kens = 1,cb_random_ens_size
+! !             output(i,:) = output(i,:) +  (1._r8/cb_random_ens_size) * climsim_net(ens_ind_shuffled(kens)) % output(input(i,:))
+! !           enddo
+! ! #ifdef CLIMSIMDEBUG
+! !           if (masterproc .and. i.eq.1) then
+! !             write (iulog,*) 'CLIMSIMDEBUG  random ensemble model IDs = ',ens_ind_shuffled(1:cb_random_ens_size)
+! !           endif
+! ! #endif
+! !         !! All ensemble averaging
+! !         else
+! !           do kens = 1,cb_ens_size
+! !             output(i,:) = output(i,:) +  (1._r8/cb_ens_size) * climsim_net(kens) % output(input(i,:))
+! !           enddo
+! !         endif
+!       !! Using a single model
+!       else ! cb_do_ensemble
+!         !output(i,:) = climsim_net(1) % output(input(i,:))
+
+!         !input_torch(inputlength, 1)
+!         ! input_torch(:,1) = 0.
+  
+!         ! do k=1,inputlength
+!         !   input_torch(k,1) = input(i,k)
+!         ! end do
+!         print *, "Creating input tensor"
+!         call input_tensors%create
+!         print *, "Adding input data"
+!         call input_tensors%add_array(input_torch)
+!         print *, "Running forward pass"
+!         call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
+!         call out_tensor%to_array(output_torch)
+!         do k=1,outputlength
+!           output(i,k) = output_torch(k,1)
+!         end do
+!         if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
+!           do k=1,strato_lev
+!             output(i,1*pver+k) = 0. ! qv
+!             output(i,2*pver+k) = 0. ! qc
+!             output(i,3*pver+k) = 0. ! qi
+!           end do 
+! #ifdef CLIMSIMDEBUG
+!       if (masterproc) then
+!         write (iulog,*) 'CLIMSIMDEBUG q output is pruned above level: ',strato_lev
+!       endif
+! #endif    
+!         end if
+
+!       endif
+!     end do
+
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
         write (iulog,*) 'CLIMSIMDEBUG output = ',output(1,:)
