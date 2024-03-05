@@ -223,6 +223,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    
    use physpkg,          only: phys_run1, climsim_driver
    use stepon,           only: stepon_run1
+   use physics_types,    only: physics_type_alloc
 #if ( defined SPMD )
    use mpishorthand,     only: mpicom
 #endif
@@ -234,7 +235,6 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 
    type(cam_in_t)  :: cam_in(begchunk:endchunk)
    type(cam_out_t) :: cam_out(begchunk:endchunk)
-   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
 
    integer, intent(in), optional :: yr   ! Simulation year
    integer, intent(in), optional :: mn   ! Simulation month
@@ -243,6 +243,9 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    integer :: lchnk
    integer :: i, j
    integer :: ptracker, ncol
+
+   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
+   type(physics_tend ), dimension(begchunk:endchunk)  :: phys_tend_placeholder_2
 
 #if ( defined SPMD )
    real(r8) :: mpi_wtime
@@ -256,6 +259,8 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    if (masterproc .and. print_step_cost) then
       call t_stampf (wcstart, usrstart, sysstart)
    end if
+
+   call physics_type_alloc(phys_state_tmp, phys_tend_placeholder_2, begchunk, endchunk, pcols)
    !----------------------------------------------------------
    ! First phase of dynamics (at least couple from dynamics to physics)
    ! Return time-step for physics from dynamics.
