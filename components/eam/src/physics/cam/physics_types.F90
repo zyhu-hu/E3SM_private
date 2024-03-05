@@ -1946,12 +1946,12 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   state%zm(:,:) = inf
   state%q(:,:,:) = inf
 
-  stat%t_adv(:,:,:) = inf
-  stat%u_adv(:,:,:) = inf
-  stat%t_phy(:,:,:) = inf
-  stat%u_phy(:,:,:) = inf
-  stat%q_adv(:,:,:,:) = inf
-  stat%q_phy(:,:,:,:) = inf
+  state%t_adv(:,:,:) = inf
+  state%u_adv(:,:,:) = inf
+  state%t_phy(:,:,:) = inf
+  state%u_phy(:,:,:) = inf
+  state%q_adv(:,:,:,:) = inf
+  state%q_phy(:,:,:,:) = inf
   state%tm_ps(:,:) = inf
   state%tm_solin(:,:) = inf
   state%tm_lhf(:,:) = inf
