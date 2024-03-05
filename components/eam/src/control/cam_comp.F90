@@ -244,8 +244,10 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    integer :: i, j
    integer :: ptracker, ncol
 
-   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
-   type(physics_tend ), dimension(begchunk:endchunk)  :: phys_tend_placeholder_2
+   ! type(physics_state), pointer :: phys_state_aphys1(:) => null() ! save phys_state after call to phys_run1
+   ! type(physics_tend ), pointer :: phys_tend(:) => null()
+   type(physics_state), pointer :: phys_state_tmp(:) => null() ! save phys_state after call to phys_run1
+   type(physics_tend ), pointer :: phys_tend_placeholder_2(:) => null()
 
 #if ( defined SPMD )
    real(r8) :: mpi_wtime
