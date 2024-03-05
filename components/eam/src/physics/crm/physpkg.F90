@@ -1219,7 +1219,7 @@ subroutine phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,
                       phys_buffer_chunk, &
                       cam_in(lchnk), cam_out(lchnk), &
                       coszrs(:,lchnk), solin(:,lchnk), &
-                      ztodt)
+                      ztodt, lchnk)
      call physics_update (phys_state(lchnk), ptend, ztodt, phys_tend(lchnk))
   end do
 
