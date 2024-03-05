@@ -234,12 +234,16 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 
    type(cam_in_t)  :: cam_in(begchunk:endchunk)
    type(cam_out_t) :: cam_out(begchunk:endchunk)
+   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
 
    integer, intent(in), optional :: yr   ! Simulation year
    integer, intent(in), optional :: mn   ! Simulation month
    integer, intent(in), optional :: dy   ! Simulation day
    integer, intent(in), optional :: sec  ! Seconds into current simulation day
    integer :: lchnk
+   integer :: i, j
+   integer :: ptracker, ncol
+
 #if ( defined SPMD )
    real(r8) :: mpi_wtime
 #endif
@@ -283,6 +287,27 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    call t_startf ('phys_run1')
 #if defined(MMF_SAMXX) || defined(MMF_PAM)
 
+   !update time tracker for adv forcing
+   ptracker = phys_state(begchunk)%ntracker
+   do lchnk=begchunk,endchunk
+      do i=1,ptracker
+         j = 1+ptracker-i
+         if (j>1) then
+            phys_state(lchnk)%t_adv[j,:,:] = phys_state(lchnk)%t_adv[j-1,:,:]
+            phys_state(lchnk)%u_adv[j,:,:] = phys_state(lchnk)%u_adv[j-1,:,:]
+            phys_state(lchnk)%q_adv[j,:,:,:] = phys_state(lchnk)%u_adv[j-1,:,:,:]
+         else
+            phys_state(lchnk)%t_adv[j,:,:] = (phys_state(lchnk)%t[:,:] - phys_state_aphys1(lchnk)%t[:,:])/1200.
+            phys_state(lchnk)%u_adv[j,:,:] = (phys_state(lchnk)%u[:,:] - phys_state_aphys1(lchnk)%u[:,:])/1200.
+            phys_state(lchnk)%q_adv[j,:,:,:] = (phys_state(lchnk)%q[:,:,:] - phys_state_aphys1(lchnk)%q[:,:,:])/1200.
+         end if
+      end do
+      phys_state_tmp(lchnk)%t[:,:] = phys_state(lchnk)%t[:,:]
+      phys_state_tmp(lchnk)%u[:,:] = phys_state(lchnk)%u[:,:]
+      phys_state_tmp(lchnk)%q[:,:,:] = phys_state(lchnk)%q[:,:,:]
+   end do
+   
+
 #ifdef CLIMSIM
    call climsim_driver(phys_state, phys_state_aphys1, dtime, phys_tend, pbuf2d,  cam_in, cam_out)
 #else
@@ -300,6 +325,22 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       phys_state_aphys1(lchnk)%v(:,:) = phys_state(lchnk)%v(:,:)
       phys_state_aphys1(lchnk)%s(:,:) = phys_state(lchnk)%s(:,:)
       phys_state_aphys1(lchnk)%q(:,:,:) = phys_state(lchnk)%q(:,:,:)
+   end do
+
+   !update time tracker for phy forcing
+   do lchnk=begchunk,endchunk
+      do i=1,ptracker
+         j = 1+ptracker-i
+         if (j>1) then
+            phys_state(lchnk)%t_phy[j,:,:] = phys_state(lchnk)%t_phy[j-1,:,:]
+            phys_state(lchnk)%u_phy[j,:,:] = phys_state(lchnk)%u_phy[j-1,:,:]
+            phys_state(lchnk)%q_phy[j,:,:,:] = phys_state(lchnk)%u_phy[j-1,:,:,:]
+         else
+            phys_state(lchnk)%t_phy[j,:,:] = (phys_state(lchnk)%t[:,:] - phys_state_tmp(lchnk)%t[:,:])/1200.
+            phys_state(lchnk)%u_phy[j,:,:] = (phys_state(lchnk)%u[:,:] - phys_state_tmp(lchnk)%u[:,:])/1200.
+            phys_state(lchnk)%q_phy[j,:,:,:] = (phys_state(lchnk)%q[:,:,:] - phys_state_tmp(lchnk)%q[:,:,:])/1200.
+         end if
+      end do
    end do
 
    call t_stopf  ('phys_run1')
