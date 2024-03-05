@@ -295,7 +295,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
          if (j>1) then
             phys_state(lchnk)%t_adv(j,:,:) = phys_state(lchnk)%t_adv(j-1,:,:)
             phys_state(lchnk)%u_adv(j,:,:) = phys_state(lchnk)%u_adv(j-1,:,:)
-            phys_state(lchnk)%q_adv(j,:,:,:) = phys_state(lchnk)%u_adv(j-1,:,:,:)
+            phys_state(lchnk)%q_adv(j,:,:,:) = phys_state(lchnk)%q_adv(j-1,:,:,:)
          else
             phys_state(lchnk)%t_adv(j,:,:) = (phys_state(lchnk)%t(:,:) - phys_state_aphys1(lchnk)%t(:,:))/1200.
             phys_state(lchnk)%u_adv(j,:,:) = (phys_state(lchnk)%u(:,:) - phys_state_aphys1(lchnk)%u(:,:))/1200.
@@ -334,7 +334,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
          if (j>1) then
             phys_state(lchnk)%t_phy(j,:,:) = phys_state(lchnk)%t_phy(j-1,:,:)
             phys_state(lchnk)%u_phy(j,:,:) = phys_state(lchnk)%u_phy(j-1,:,:)
-            phys_state(lchnk)%q_phy(j,:,:,:) = phys_state(lchnk)%u_phy(j-1,:,:,:)
+            phys_state(lchnk)%q_phy(j,:,:,:) = phys_state(lchnk)%q_phy(j-1,:,:,:)
          else
             phys_state(lchnk)%t_phy(j,:,:) = (phys_state(lchnk)%t(:,:) - phys_state_tmp(lchnk)%t(:,:))/1200.
             phys_state(lchnk)%u_phy(j,:,:) = (phys_state(lchnk)%u(:,:) - phys_state_tmp(lchnk)%u(:,:))/1200.
