@@ -312,21 +312,21 @@ select case (to_lower(trim(cb_nn_var_combo)))
       ! state_q0_dyn
       input(:ncol,7*pver+1:8*pver) = (state%q(1:ncol,1:pver,1)-state_aphys1%q(1:ncol,1:pver,1) + state%q(1:ncol,1:pver,ixcldliq)-state_aphys1%q(1:ncol,1:pver,ixcldliq) + state%q(1:ncol,1:pver,ixcldice)-state_aphys1%q(1:ncol,1:pver,ixcldice))/1200.
       input(:ncol,8*pver+1:9*pver) = (state%u(1:ncol,1:pver)-state_aphys1%u(1:ncol,1:pver))/1200. ! state_u_dyn
-      input(:ncol,9*pver+1:10*pver) = state%t_adv[2,1:ncol,1:pver]
-      input(:ncol,10*pver+1:11*pver) = state%q_adv[2,1:ncol,1:pver,1]
-      input(:ncol,11*pver+1:12*pver) = state%u_adv[2,1:ncol,1:pver]
+      input(:ncol,9*pver+1:10*pver) = state%t_adv(2,1:ncol,1:pver)
+      input(:ncol,10*pver+1:11*pver) = state%q_adv(2,1:ncol,1:pver,1)
+      input(:ncol,11*pver+1:12*pver) = state%u_adv(2,1:ncol,1:pver)
       ! previous state physics tendencies
-      input(:ncol,12*pver+1:13*pver) = state%t_phy[1,1:ncol,1:pver]
-      input(:ncol,13*pver+1:14*pver) = state%q_phy[1,1:ncol,1:pver,1]
-      input(:ncol,14*pver+1:15*pver) = state%q_phy[1,1:ncol,1:pver,ixcldliq]
-      input(:ncol,15*pver+1:16*pver) = state%q_phy[1,1:ncol,1:pver,ixcldice]
-      input(:ncol,16*pver+1:17*pver) = state%u_phy[1,1:ncol,1:pver]
+      input(:ncol,12*pver+1:13*pver) = state%t_phy(1,1:ncol,1:pver)
+      input(:ncol,13*pver+1:14*pver) = state%q_phy(1,1:ncol,1:pver,1)
+      input(:ncol,14*pver+1:15*pver) = state%q_phy(1,1:ncol,1:pver,ixcldliq)
+      input(:ncol,15*pver+1:16*pver) = state%q_phy(1,1:ncol,1:pver,ixcldice)
+      input(:ncol,16*pver+1:17*pver) = state%u_phy(1,1:ncol,1:pver)
       ! 2-step in the past physics tendencies
-      input(:ncol,17*pver+1:18*pver) = state%t_phy[2,1:ncol,1:pver]
-      input(:ncol,18*pver+1:19*pver) = state%q_phy[2,1:ncol,1:pver,1]
-      input(:ncol,19*pver+1:20*pver) = state%q_phy[2,1:ncol,1:pver,ixcldliq]
-      input(:ncol,20*pver+1:21*pver) = state%q_phy[2,1:ncol,1:pver,ixcldice]
-      input(:ncol,21*pver+1:22*pver) = state%u_phy[2,1:ncol,1:pver]
+      input(:ncol,17*pver+1:18*pver) = state%t_phy(2,1:ncol,1:pver)
+      input(:ncol,18*pver+1:19*pver) = state%q_phy(2,1:ncol,1:pver,1)
+      input(:ncol,19*pver+1:20*pver) = state%q_phy(2,1:ncol,1:pver,ixcldliq)
+      input(:ncol,20*pver+1:21*pver) = state%q_phy(2,1:ncol,1:pver,ixcldice)
+      input(:ncol,21*pver+1:22*pver) = state%u_phy(2,1:ncol,1:pver)
       !gas
       input(:ncol,22*pver+1:23*pver) = ozone(:ncol,1:pver)            ! pbuf_ozone
       input(:ncol,23*pver+1:24*pver) = ch4(:ncol,1:pver)             ! pbuf_CH4
