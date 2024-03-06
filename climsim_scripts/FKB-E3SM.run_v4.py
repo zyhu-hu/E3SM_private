@@ -76,6 +76,7 @@ f_qoutput_prune = '.true.'
 f_strato_lev = 15
 f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qc_exp_lambda_large.txt'
 f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
+f_decouple_cloud = '.true.'
 
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
@@ -149,6 +150,7 @@ qoutput_prune = {f_qoutput_prune}
 strato_lev = {f_strato_lev}
 cb_qc_lbd = '{f_qc_lbd}'
 cb_qi_lbd = '{f_qi_lbd}'
+cb_decouple_cloud = {f_decouple_cloud}
 
 cb_partial_coupling = .true.
 cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
