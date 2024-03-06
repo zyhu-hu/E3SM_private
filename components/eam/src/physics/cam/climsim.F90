@@ -611,6 +611,7 @@ end if
         end if
       end do
     end do
+   end if
 
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
