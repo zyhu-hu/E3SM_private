@@ -720,7 +720,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   !-----------------------------------------------------------------------------
   ! Purpose: climsim driver
   !-----------------------------------------------------------------------------
-  use climsim,          only: cb_partial_coupling, cb_partial_coupling_vars
+  use climsim,          only: cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step
   use physics_buffer,   only: physics_buffer_desc, pbuf_get_chunk, &
                               pbuf_allocate, pbuf_get_index, pbuf_get_field
   use time_manager,     only: get_nstep, get_step_size, & 
@@ -904,7 +904,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   ! Determine if MMF spin-up perioid is over
   ! (currently spin up time is set at 86400 sec ~ 1 day)
   ! [TO-DO] create a namelist variable for mmf spin-up time
-  nstep_NN = 86400 / get_step_size()
+  ! nstep_NN = 86400 / get_step_size()
+  nstep_NN = cb_spinup_step
+  
   if (nstep-nstep0 .eq. nstep_NN) then
      do_climsim_inference = .true.
      if (masterproc) then

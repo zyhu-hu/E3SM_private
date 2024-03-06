@@ -8050,4 +8050,9 @@ Absolute path of a txt file containing qi_lbd for exponential input transformati
 to set all cloud related input to 0 before send to NN
 </entry>
 
+<entry id="cb_spinup_step" type="integer" category="climsim"
+       group="climsim_nl" valid_values="" >
+steps to call SP before NN for spinup cloud resolving model
+</entry>
+
 </namelist_definition>

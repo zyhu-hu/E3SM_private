@@ -39,6 +39,7 @@ use iso_fortran_env
   logical :: qinput_prune = .false.  ! prune qv, qc and qi input in stratosphere
   logical :: qoutput_prune = .false. ! prune qv, qc and qi tendencies output in stratosphere
   integer :: strato_lev = 15 ! stratospheric level used for pruning
+  integer :: cb_spinup_step = 72 
   logical :: cb_use_input_prectm1 = .false.  ! use previous timestep PRECT for input variable 
   character(len=256)    :: cb_fkb_model   ! absolute filepath for a fkb model txt file
   character(len=256)    :: cb_inp_sub     ! absolute filepath for a inp_sub.txt
@@ -916,7 +917,7 @@ end subroutine neural_net
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
                            cb_random_ens_size, &
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
-                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud
+                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -969,6 +970,7 @@ end subroutine neural_net
       call mpibcast(cb_qc_lbd, len(cb_qc_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_qi_lbd, len(cb_qi_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_decouple_cloud,     1,                 mpilog,  0, mpicom)
+      call mpibcast(cb_spinup_step,   1, mpiint,  0, mpicom)
       ! [TODO] check ierr for each mpibcast call
       ! if (ierr /= 0) then
       !    call endrun(subname // ':: ERROR broadcasting namelist variable cb_partial_coupling_vars')
