@@ -74,7 +74,7 @@ use iso_fortran_env
   integer :: cb_n_levels_zero = 12 ! top n levels to zero out
 
   public neural_net, init_neural_net, climsim_readnl, &
-         cb_partial_coupling, cb_partial_coupling_vars
+         cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step
   
 contains
 
