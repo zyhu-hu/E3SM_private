@@ -31,7 +31,7 @@ use iso_fortran_env
   ! Define variables for this entire module
   ! These are nameliest variables.
   ! If not specified in atm_in, the following defaults values are used.
-  integer :: inputlength  = 425     ! length of NN input vector
+  integer :: inputlength  = 1525     ! length of NN input vector
   integer :: outputlength = 368     ! length of NN output vector
   logical :: input_rh     = .false.  ! toggle to switch from q --> RH input
   logical :: cb_decouple_cloud     = .false.  ! toggle to switch from q --> RH input
@@ -47,10 +47,13 @@ use iso_fortran_env
   character(len=256)    :: cb_out_scale   ! absolute filepath for a out_scale.txt
   logical :: cb_partial_coupling  = .false.
   character(len=fieldname_lenp2) :: cb_partial_coupling_vars(pflds)
-  character(len=256) :: cb_nn_var_combo = 'v2' ! nickname for a specific NN in/out variable combination
+  character(len=256) :: cb_nn_var_combo = 'v4' ! nickname for a specific NN in/out variable combination
   character(len=256)    :: cb_torch_model   ! absolute filepath for a torch model txt file
   character(len=256)    :: cb_qc_lbd   ! absolute filepath for qc_lbd for exponential input transformation
   character(len=256)    :: cb_qi_lbd   ! absolute filepath for qi_lbd for exponential input transformation
+  character(len=256)    :: cb_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'  ! absolute filepath for qc_lbd for exponential input transformation
+  character(len=256)    :: cb_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'  ! absolute filepath for qi_lbd for exponential input transformation
+  logical :: cb_do_limiter     = .false.  ! toggle to switch from q --> RH input
 
   type(network_type), allocatable :: climsim_net(:)
   real(r8), allocatable :: inp_sub(:)
@@ -58,6 +61,8 @@ use iso_fortran_env
   real(r8), allocatable :: out_scale(:)
   real(r8), allocatable :: qc_lbd(:)
   real(r8), allocatable :: qi_lbd(:)
+  real(r8), allocatable :: limiter_lower(:)
+  real(r8), allocatable :: limiter_upper(:)
 
   logical :: cb_do_ensemble  = .false. ! ensemble model inference
   integer :: cb_ens_size               ! # of ensemble models
@@ -595,6 +600,18 @@ end if
       output(i,k) = output(i,k) / out_scale(k)
      end do
    end do
+
+   if (cb_do_limiter) then
+    do k = 1, outputlength
+      do i = 1, ncol
+        if (output(i,k) .gt. limiter_upper(k)) then
+          output(i,k) = limiter_upper(k)
+        else if (output(i,k) .lt. limiter_lower(k)) then
+          output(i,k) = limiter_lower(k)
+        end if
+      end do
+    end do
+
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
         write (iulog,*) 'CLIMSIMDEBUG output post scale = ',output(1,:)
@@ -727,6 +744,8 @@ end subroutine neural_net
     allocate(out_scale (outputlength))
     allocate(qc_lbd (60))
     allocate(qi_lbd (60))
+    allocate(limiter_lower (368))
+    allocate(limiter_upper (368))
     
     ! ens-mean inference
     if (cb_do_ensemble) then
@@ -793,6 +812,21 @@ end subroutine neural_net
     if (masterproc) then
        write (iulog,*) 'CLIMSIM: loaded input division factors from: ', trim(cb_qi_lbd)
     endif
+
+    open (unit=555,file=cb_limiter_lower,status='old',action='read')
+    read(555,*) limiter_lower(:)
+    close (555)
+    if (masterproc) then
+       write (iulog,*) 'CLIMSIM: loaded lower limiter from: ', trim(cb_limiter_lower)
+    endif
+
+    open (unit=555,file=cb_limiter_upper,status='old',action='read')
+    read(555,*) limiter_upper(:)
+    close (555)
+    if (masterproc) then
+       write (iulog,*) 'CLIMSIM: loaded upper limiter from: ', trim(cb_limiter_upper)
+    endif
+
 
 
 #ifdef CLIMSIMDEBUG
@@ -917,7 +951,8 @@ end subroutine neural_net
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
                            cb_random_ens_size, &
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
-                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step
+                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step, &
+                           cb_limiter_lower, cb_limiter_upper, cb_do_limiter
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -971,6 +1006,11 @@ end subroutine neural_net
       call mpibcast(cb_qi_lbd, len(cb_qi_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_decouple_cloud,     1,                 mpilog,  0, mpicom)
       call mpibcast(cb_spinup_step,   1, mpiint,  0, mpicom)
+
+      call mpibcast(cb_limiter_lower, len(cb_limiter_lower), mpichar, 0, mpicom)
+      call mpibcast(cb_limiter_upper, len(cb_limiter_upper), mpichar, 0, mpicom)
+      call mpibcast(cb_do_limiter,     1,                 mpilog,  0, mpicom)
+
       ! [TODO] check ierr for each mpibcast call
       ! if (ierr /= 0) then
       !    call endrun(subname // ':: ERROR broadcasting namelist variable cb_partial_coupling_vars')

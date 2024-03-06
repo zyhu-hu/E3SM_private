@@ -8055,4 +8055,20 @@ to set all cloud related input to 0 before send to NN
 steps to call SP before NN for spinup cloud resolving model
 </entry>
 
+<entry id="cb_limiter_lower" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a txt file containing lower bound for NN output on the raw data scale
+</entry>
+
+<entry id="cb_limiter_upper" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a txt file containing upper bound for NN output on the raw data scale
+</entry>
+
+<entry id="cb_do_limiter" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+to set whether to use limiter for NN output
+</entry>
+
+
 </namelist_definition>
