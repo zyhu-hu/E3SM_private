@@ -34,6 +34,7 @@ use iso_fortran_env
   integer :: inputlength  = 425     ! length of NN input vector
   integer :: outputlength = 368     ! length of NN output vector
   logical :: input_rh     = .false.  ! toggle to switch from q --> RH input
+  logical :: cb_decouple_cloud     = .false.  ! toggle to switch from q --> RH input
   logical :: qinput_log   = .false.  ! toggle to switch from qc/qi --> log10(1+1e6*qc/i) input
   logical :: qinput_prune = .false.  ! prune qv, qc and qi input in stratosphere
   logical :: qoutput_prune = .false. ! prune qv, qc and qi tendencies output in stratosphere
@@ -451,6 +452,17 @@ end if
         write (iulog,*) 'CLIMSIMDEBUG qinput is pruned above level: ',strato_lev
       endif
 #endif      
+    end if
+
+    if (cb_decouple_cloud) then
+      do k=1,pver
+        input(:,2*pver+k) = 0. ! qc
+        input(:,3*pver+k) = 0. ! qi
+        input(:,14*pver+k) = 0.
+        input(:,15*pver+k) = 0.
+        input(:,19*pver+k) = 0.
+        input(:,20*pver+k) = 0.
+      end do
     end if
 
 #ifdef CLIMSIMDEBUG
@@ -904,7 +916,7 @@ end subroutine neural_net
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
                            cb_random_ens_size, &
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
-                           cb_torch_model, cb_qc_lbd, cb_qi_lbd
+                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -956,6 +968,7 @@ end subroutine neural_net
       call mpibcast(cb_torch_model, len(cb_torch_model), mpichar, 0, mpicom)
       call mpibcast(cb_qc_lbd, len(cb_qc_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_qi_lbd, len(cb_qi_lbd), mpichar, 0, mpicom)
+      call mpibcast(cb_decouple_cloud,     1,                 mpilog,  0, mpicom)
       ! [TODO] check ierr for each mpibcast call
       ! if (ierr /= 0) then
       !    call endrun(subname // ':: ERROR broadcasting namelist variable cb_partial_coupling_vars')
