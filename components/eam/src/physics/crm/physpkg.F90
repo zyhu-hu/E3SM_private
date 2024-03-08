@@ -1000,22 +1000,23 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
       write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_option = ', trim(cb_ramp_option)
   
       select case (to_lower(trim(cb_ramp_option)))
-      case('constant')
-        ramp_ratio = cb_ramp_factor
-      case('linear')
-        
-        if (nstep-nstep0-nstep_NN .le. cb_ramp_linear_steps) then
-          ramp_ratio = cb_ramp_factor * (nstep-nstep0-nstep_NN)*1.0/(cb_ramp_linear_steps*1.0)
-        else
+        case('constant')
           ramp_ratio = cb_ramp_factor
-        end if
-    case('step')
-      
-      if (mod(nstep-nstep0-nstep_NN, (cb_ramp_step_0steps + cb_ramp_step_1steps)) .le. cb_ramp_step_1steps) then
-        ramp_ratio = cb_ramp_factor
-      else
-        ramp_ratio = 0.0
-      end if
+        case('linear')
+          
+          if (nstep-nstep0-nstep_NN .le. cb_ramp_linear_steps) then
+            ramp_ratio = cb_ramp_factor * (nstep-nstep0-nstep_NN)*1.0/(cb_ramp_linear_steps*1.0)
+          else
+            ramp_ratio = cb_ramp_factor
+          end if
+        case('step')
+          
+          if (mod(nstep-nstep0-nstep_NN, (cb_ramp_step_0steps + cb_ramp_step_1steps)) .le. cb_ramp_step_1steps) then
+            ramp_ratio = cb_ramp_factor
+          else
+            ramp_ratio = 0.0
+          end if
+      end select
 
       write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
       write (iulog,*) 'CLIMSIM partial coupling: nstep-nstep0-nstep_NN = ', nstep-nstep0-nstep_NN
