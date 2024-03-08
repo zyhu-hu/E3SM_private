@@ -720,7 +720,8 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   !-----------------------------------------------------------------------------
   ! Purpose: climsim driver
   !-----------------------------------------------------------------------------
-  use climsim,          only: cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step
+  use climsim,          only: cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, &
+                              cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps
   use physics_buffer,   only: physics_buffer_desc, pbuf_get_chunk, &
                               pbuf_allocate, pbuf_get_index, pbuf_get_field
   use time_manager,     only: get_nstep, get_step_size, & 
@@ -793,6 +794,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
                                                   prec_dp_mmf, snow_dp_mmf
   logical  :: do_geopotential = .false.
   real(r8) :: zvirv_loc(pcols,pver), rairv_loc(pcols,pver)  
+  real(r8) :: ramp_ratio 
   ! - !
 
   real(r8) :: calday       ! current calendar day
@@ -906,7 +908,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   ! [TO-DO] create a namelist variable for mmf spin-up time
   ! nstep_NN = 86400 / get_step_size()
   nstep_NN = cb_spinup_step
-  
+
   if (nstep-nstep0 .eq. nstep_NN) then
      do_climsim_inference = .true.
      if (masterproc) then
@@ -993,87 +995,114 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   !         'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_PRECSC', 'cam_out_PRECC',
   !         'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD'           ]
   if (do_climsim_inference .and. cb_partial_coupling) then
+  
+    if (cb_do_ramp) then
+      write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_option = ', trim(cb_ramp_option)
+  
+      select case (to_lower(trim(cb_ramp_option)))
+      case('constant')
+        ramp_ratio = cb_ramp_factor
+      case('linear')
+        
+        if (nstep-nstep0-nstep_NN .le. cb_ramp_linear_steps) then
+          ramp_ratio = cb_ramp_factor * (nstep-nstep0-nstep_NN)*1.0/(cb_ramp_linear_steps*1.0)
+        else
+          ramp_ratio = cb_ramp_factor
+        end if
+    case('step')
+      
+      if (mod(nstep-nstep0-nstep_NN, (cb_ramp_step_0steps + cb_ramp_step_1steps)) .le. cb_ramp_step_1steps) then
+        ramp_ratio = cb_ramp_factor
+      else
+        ramp_ratio = 0.0
+      end if
+
+      write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
+      write (iulog,*) 'CLIMSIM partial coupling: nstep-nstep0-nstep_NN = ', nstep-nstep0-nstep_NN
+      write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_linear_steps = ', cb_ramp_linear_steps
+    end if
+
      call cnst_get_ind('CLDICE', ixcldice)
      call cnst_get_ind('CLDLIQ', ixcldliq)
      do c = begchunk, endchunk
         k = 1
         do while (k < pflds  .and. cb_partial_coupling_vars(k) /= ' ')
            if (trim(cb_partial_coupling_vars(k)) == 'ptend_t') then
-              phys_state(c)%t(:,:)   = phys_state_nn(c)%t(:,:)
-              phys_tend(c)%dtdt(:,:) = phys_tend_nn(c)%dtdt(:,:)
+              phys_state(c)%t(:,:)   = phys_state_nn(c)%t(:,:)*ramp_ratio + phys_state(c)%t(:,:)*(1.0_r8-ramp_ratio)
+              phys_tend(c)%dtdt(:,:) = phys_tend_nn(c)%dtdt(:,:)*ramp_ratio + phys_tend(c)%dtdt(:,:)*(1.0_r8-ramp_ratio)
               do_geopotential = .true.
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_q0001') then
-              phys_state(c)%q(:,:,1) = phys_state_nn(c)%q(:,:,1) 
+              phys_state(c)%q(:,:,1) = phys_state_nn(c)%q(:,:,1)*ramp_ratio + phys_state(c)%q(:,:,1)*(1.0_r8-ramp_ratio) 
               do_geopotential = .true.
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_q0002') then
-              phys_state(c)%q(:,:,ixcldliq) = phys_state_nn(c)%q(:,:,ixcldliq)
+              phys_state(c)%q(:,:,ixcldliq) = phys_state_nn(c)%q(:,:,ixcldliq)*ramp_ratio + phys_state(c)%q(:,:,ixcldliq)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_q0003') then
-              phys_state(c)%q(:,:,ixcldice) = phys_state_nn(c)%q(:,:,ixcldice)
+              phys_state(c)%q(:,:,ixcldice) = phys_state_nn(c)%q(:,:,ixcldice)*ramp_ratio + phys_state(c)%q(:,:,ixcldice)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_u') then
-              phys_state(c)%u(:,:)   = phys_state_nn(c)%u(:,:)
-              phys_tend(c)%dudt(:,:) = phys_tend_nn(c)%dudt(:,:)
+              phys_state(c)%u(:,:)   = phys_state_nn(c)%u(:,:)*ramp_ratio + phys_state(c)%u(:,:)*(1.0_r8-ramp_ratio)
+              phys_tend(c)%dudt(:,:) = phys_tend_nn(c)%dudt(:,:)*ramp_ratio + phys_tend(c)%dudt(:,:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_v') then
-              phys_state(c)%v(:,:)   = phys_state_nn(c)%v(:,:)
-              phys_tend(c)%dvdt(:,:) = phys_tend_nn(c)%dvdt(:,:)
+              phys_state(c)%v(:,:)   = phys_state_nn(c)%v(:,:)*ramp_ratio + phys_state(c)%v(:,:)*(1.0_r8-ramp_ratio)
+              phys_tend(c)%dvdt(:,:) = phys_tend_nn(c)%dvdt(:,:)*ramp_ratio + phys_tend(c)%dvdt(:,:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_NETSW') then
-              cam_out(c)%netsw(:) = cam_out_nn(c)%netsw(:)
+              cam_out(c)%netsw(:) = cam_out_nn(c)%netsw(:)*ramp_ratio + cam_out(c)%netsw(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_FLWDS') then
-              cam_out(c)%flwds(:) = cam_out_nn(c)%flwds(:)
+              cam_out(c)%flwds(:) = cam_out_nn(c)%flwds(:)*ramp_ratio + cam_out(c)%flwds(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_SOLS') then
-              cam_out(c)%sols(:) = cam_out_nn(c)%sols(:)
+              cam_out(c)%sols(:) = cam_out_nn(c)%sols(:)*ramp_ratio + cam_out(c)%sols(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_SOLL') then
-              cam_out(c)%soll(:) = cam_out_nn(c)%soll(:)
+              cam_out(c)%soll(:) = cam_out_nn(c)%soll(:)*ramp_ratio + cam_out(c)%soll(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_SOLSD') then
-              cam_out(c)%solsd(:) = cam_out_nn(c)%solsd(:)
+              cam_out(c)%solsd(:) = cam_out_nn(c)%solsd(:)*ramp_ratio + cam_out(c)%solsd(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_SOLLD') then
-              cam_out(c)%solld(:) = cam_out_nn(c)%solld(:)
+              cam_out(c)%solld(:) = cam_out_nn(c)%solld(:)*ramp_ratio + cam_out(c)%solld(:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_PRECSC') then
               phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)
               call pbuf_get_field(phys_buffer_chunk, snow_dp_idx, snow_dp)
-              snow_dp(:) = snow_dp_nn(:,c) 
+              snow_dp(:) = snow_dp_nn(:,c)*ramp_ratio + snow_dp(:)*(1.0_r8-ramp_ratio) 
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'cam_out_PRECC') then
               phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)
               call pbuf_get_field(phys_buffer_chunk, prec_dp_idx, prec_dp)
-              prec_dp(:) = prec_dp_nn(:,c) 
+              prec_dp(:) = prec_dp_nn(:,c)*ramp_ratio + prec_dp(:)*(1.0_r8-ramp_ratio) 
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif

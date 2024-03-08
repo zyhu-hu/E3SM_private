@@ -54,6 +54,15 @@ use iso_fortran_env
   character(len=256)    :: cb_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'  ! absolute filepath for qc_lbd for exponential input transformation
   character(len=256)    :: cb_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'  ! absolute filepath for qi_lbd for exponential input transformation
   logical :: cb_do_limiter     = .false.  ! toggle to switch from q --> RH input
+  logical :: cb_do_ramp = .false. ! ramping up the NN output
+  integer :: cb_ramp_linear_steps = 0
+  character(len=256)    :: cb_ramp_option = 'constant'
+  real(r8) :: cb_ramp_factor = 1.0
+  integer :: cb_ramp_step_0steps = 10
+  integer :: cb_ramp_step_1steps = 20
+
+
+
 
   type(network_type), allocatable :: climsim_net(:)
   real(r8), allocatable :: inp_sub(:)
@@ -79,7 +88,7 @@ use iso_fortran_env
   integer :: cb_n_levels_zero = 12 ! top n levels to zero out
 
   public neural_net, init_neural_net, climsim_readnl, &
-         cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step
+         cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps
   
 contains
 
@@ -953,7 +962,8 @@ end subroutine neural_net
                            cb_random_ens_size, &
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
                            cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step, &
-                           cb_limiter_lower, cb_limiter_upper, cb_do_limiter
+                           cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
+                           cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1011,6 +1021,14 @@ end subroutine neural_net
       call mpibcast(cb_limiter_lower, len(cb_limiter_lower), mpichar, 0, mpicom)
       call mpibcast(cb_limiter_upper, len(cb_limiter_upper), mpichar, 0, mpicom)
       call mpibcast(cb_do_limiter,     1,                 mpilog,  0, mpicom)
+      call mpibcast(cb_do_ramp, 1,                  mpilog,  0, mpicom)
+      call mpibcast(cb_ramp_linear_steps, 1,            mpiint,  0, mpicom)
+      call mpibcast(cb_ramp_option, len(cb_ramp_option), mpichar,  0, mpicom)
+      call mpibcast(cb_ramp_factor, 1,            mpir8,  0, mpicom)
+      call mpibcast(cb_ramp_step_0steps, 1,            mpiint,  0, mpicom)
+      call mpibcast(cb_ramp_step_1steps, 1,            mpiint,  0, mpicom)
+
+
 
       ! [TODO] check ierr for each mpibcast call
       ! if (ierr /= 0) then

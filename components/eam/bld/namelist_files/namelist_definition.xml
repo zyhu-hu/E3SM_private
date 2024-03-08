@@ -8070,5 +8070,37 @@ Absolute path of a txt file containing upper bound for NN output on the raw data
 to set whether to use limiter for NN output
 </entry>
 
+<entry id="cb_do_ramp" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to gradually transit from MMF to NN;
+</entry>
+
+<entry id="cb_ramp_option" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to choose ramping schedule; available options are 'constant', 'linear', 'step'
+</entry>
+
+<entry id="cb_ramp_factor" type="real" category="climsim"
+       group="climsim_nl" valid_values="" >
+if choose 'constant' ramping schedule, the factor to multiply the NN output
+</entry>
+
+<entry id="cb_ramp_linear_steps" type="int" category="climsim"
+       group="climsim_nl" valid_values="" >
+if choose 'linear' ramping schedule, the steps took to transit from 0 to cb_ramp_factor
+</entry>
+
+<entry id="cb_ramp_step_0steps" type="int" category="climsim"
+       group="climsim_nl" valid_values="" >
+if choose 'step' ramping schedule, the steps took to with 0 NN output and 1 SP output
+</entry>
+
+<entry id="cb_ramp_step_1steps" type="int" category="climsim"
+       group="climsim_nl" valid_values="" >
+if choose 'step' ramping schedule, the steps took to with cb_ramp_factor NN output and 1-cb_ramp_factor SP output
+</entry>
+
+
+
 
 </namelist_definition>
