@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'ramp_constant_0.1'
+case_prefix = 'ramp_constant_0.8'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
