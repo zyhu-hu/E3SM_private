@@ -85,7 +85,9 @@ f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocess
 
 f_cb_do_ramp = '.true.'
 f_cb_ramp_option = 'constant'
-cb_ramp_factor = 0.1
+cb_ramp_factor = 0.8
+cb_ramp_step_0steps = 10
+cb_ramp_step_1steps = 20
 
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
@@ -166,6 +168,11 @@ cb_limiter_lower = '{f_limiter_lower}'
 cb_limiter_upper = '{f_limiter_upper}'
 cb_partial_coupling = .true.
 cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
+cb_do_ramp = {f_cb_do_ramp}
+cb_ramp_option = '{f_cb_ramp_option}'
+cb_ramp_factor = {cb_ramp_factor}
+cb_ramp_step_0steps = {cb_ramp_step_0steps}
+cb_ramp_step_1steps = {cb_ramp_step_1steps}
 /
 
 &cam_history_nl

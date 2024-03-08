@@ -1018,11 +1018,21 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
             ramp_ratio = 0.0
           end if
       end select
-
-      write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
-      write (iulog,*) 'CLIMSIM partial coupling: nstep-nstep0-nstep_NN = ', nstep-nstep0-nstep_NN
-      write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_linear_steps = ', cb_ramp_linear_steps
+    else
+      ramp_ratio = 1.0
     end if
+    
+    if (cb_do_ramp) then
+      write (iulog,*) 'CLIMSIM partial coupling: cb_do_ramp is on'
+      write (iulog,*) 'CLIMSIM partial coupling: 1 is fully NN, ramp_ratio = ', ramp_ratio
+      write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_option = ', trim(cb_ramp_option)
+    else
+      write (iulog,*) 'CLIMSIM partial coupling: cb_do_ramp is off'
+      write (iulog,*) 'CLIMSIM partial coupling: 1 is fully NN, ramp_ratio = ', ramp_ratio
+    end if
+    ! write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
+    ! write (iulog,*) 'CLIMSIM partial coupling: nstep-nstep0-nstep_NN = ', nstep-nstep0-nstep_NN
+    ! write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_linear_steps = ', cb_ramp_linear_steps
 
      call cnst_get_ind('CLDICE', ixcldice)
      call cnst_get_ind('CLDLIQ', ixcldliq)
