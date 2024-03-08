@@ -742,6 +742,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   use geopotential,        only: geopotential_t
   use cam_history_support, only: pflds
   use physconst,        only: cpair, zvir, rair, gravit
+  use string_utils,    only: to_lower
 
 #ifdef TORCH_CLIMSIM_TEST
   use torch_ftn
