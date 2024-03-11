@@ -65,6 +65,7 @@ use iso_fortran_env
 
 
   type(network_type), allocatable :: climsim_net(:)
+  type(torch_module), allocatable :: torch_mod(:)
   real(r8), allocatable :: inp_sub(:)
   real(r8), allocatable :: inp_div(:)
   real(r8), allocatable :: out_scale(:)
@@ -72,6 +73,7 @@ use iso_fortran_env
   real(r8), allocatable :: qi_lbd(:)
   real(r8), allocatable :: limiter_lower(:)
   real(r8), allocatable :: limiter_upper(:)
+
 
   logical :: cb_do_ensemble  = .false. ! ensemble model inference
   integer :: cb_ens_size               ! # of ensemble models
@@ -128,7 +130,7 @@ contains
    real(r8), pointer, dimension(:)   :: lhflx, shflx, taux, tauy ! (/pcols/)
    real(r8), pointer, dimension(:,:) :: ozone, ch4, n2o ! (/pcols,pver/)
 
-   type(torch_module) :: torch_mod
+  !  type(torch_module) :: torch_mod
    type(torch_tensor_wrap) :: input_tensors
    type(torch_tensor) :: out_tensor
    real(real32) :: input_torch(inputlength, pcols)
@@ -438,9 +440,9 @@ end if
 #endif
 
     !load torch model
-    print *, "Loading model"
-    call torch_mod%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
-    print *, "finish loading model"
+    ! print *, "Loading model"
+    ! call torch_mod%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
+    ! print *, "finish loading model"
 
 
     ! 2. Normalize input
@@ -498,7 +500,7 @@ end if
     print *, "Adding input data"
     call input_tensors%add_array(input_torch)
     print *, "Running forward pass"
-    call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
+    call torch_mod(1)%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
     call out_tensor%to_array(output_torch)
 
     do i=1, ncol
@@ -787,6 +789,10 @@ end subroutine neural_net
           write (iulog,*) 'CLIMSIM: loaded network from txt file, ', trim(cb_fkb_model)
        endif
     endif
+
+    allocate(torch_mod (1))
+    ! call torch_mod(1)%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
+    call torch_mod(1)%load(trim(cb_torch_model), module_use_device) !0 is not using gpu? for now just use cpu
 
     open (unit=555,file=cb_inp_sub,status='old',action='read')
     read(555,*) inp_sub(:)

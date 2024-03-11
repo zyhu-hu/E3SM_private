@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'ramp_constant_0.6_2nodes'
+case_prefix = 'ramp_constant_0.6_2nodes_nngpu'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
