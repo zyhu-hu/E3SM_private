@@ -495,9 +495,9 @@ end if
       end do
     end do
 
-    print *, "Creating input tensor"
+    !print *, "Creating input tensor"
     call input_tensors%create
-    print *, "Adding input data"
+    !print *, "Adding input data"
     call input_tensors%add_array(input_torch)
     print *, "Running forward pass"
     call torch_mod(1)%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
@@ -681,13 +681,13 @@ end if
        qafter = state%q(i,k,ixcldliq) + qc_bctend(i,k)*ztodt ! predicted liquid after NN tendency
        if (qafter .lt. 0.) then ! can only happen when qbctend < 0...
          qc_bctend(i,k) = qc_bctend(i,k) + abs(qafter)/ztodt ! in which case reduce drying rate
-         write (iulog,*) 'HEY CLIMSIM made a negative absolute qc, corrected but BEWARE!!!'
+         !write (iulog,*) 'HEY CLIMSIM made a negative absolute qc, corrected but BEWARE!!!'
        endif
 ! ice positivity:
        qafter = state%q(i,k,ixcldice) + qi_bctend(i,k)*ztodt ! predicted ice after NN tendency
        if (qafter .lt. 0.) then ! can only happen when qbctend < 0...
          qi_bctend(i,k) = qi_bctend(i,k) + abs(qafter)/ztodt ! in which case reduce drying rate
-         write (iulog,*) 'HEY CLIMSIM made a negative absolute qi, corrected but BEWARE!!!'
+         !write (iulog,*) 'HEY CLIMSIM made a negative absolute qi, corrected but BEWARE!!!'
        endif
      end do
    end do

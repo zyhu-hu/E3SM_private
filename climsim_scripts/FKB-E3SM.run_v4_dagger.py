@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'ramp_constant_0.6_2nodes_nngpu'
+case_prefix = 'ramp_constant_0.6_2nodes_debug'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -39,12 +39,12 @@ submit       = True
 # continue_run = True
 src_mod_atm  = False
 
-debug_mode = False
+debug_mode = True
 
 dtime = 1200 # set to 0 to use a default value 
 
 # stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',60, 0,'08:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',60, 0,'03:00:00'
 
 ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -55,8 +55,8 @@ compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
 
-# queue = 'regular'
-queue = 'debug'
+queue = 'regular'
+#queue = 'debug'
 
 # case_list = [case_prefix,arch,compset,grid]
 case_list = [case_prefix, compset]
