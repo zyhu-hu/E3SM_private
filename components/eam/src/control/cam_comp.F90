@@ -279,11 +279,11 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    !----------------------------------------------------------------------------
    ! write data for ML training
    !----------------------------------------------------------------------------
-#ifdef MMF_ML_TRAINING
-   if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then
-      call write_ml_training(pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, 1)
-   end if
-#endif /* MMF_ML_TRAINING */
+! #ifdef MMF_ML_TRAINING
+!    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then
+!       call write_ml_training(pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, 1)
+!    end if
+! #endif /* MMF_ML_TRAINING */
 
    !
    !----------------------------------------------------------
@@ -314,6 +314,13 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       phys_state_tmp(lchnk)%q(:,:,:) = phys_state(lchnk)%q(:,:,:)
    end do
    
+
+#ifdef MMF_ML_TRAINING
+   if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then
+      call write_ml_training(pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, 1)
+   end if
+#endif /* MMF_ML_TRAINING */
+
 
 #ifdef CLIMSIM
    call climsim_driver(phys_state, phys_state_aphys1, dtime, phys_tend, pbuf2d,  cam_in, cam_out)
