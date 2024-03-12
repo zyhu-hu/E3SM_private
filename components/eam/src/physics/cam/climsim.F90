@@ -791,8 +791,8 @@ end subroutine neural_net
     endif
 
     allocate(torch_mod (1))
-    ! call torch_mod(1)%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
-    call torch_mod(1)%load(trim(cb_torch_model), module_use_device) !0 is not using gpu? for now just use cpu
+    call torch_mod(1)%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
+    !call torch_mod(1)%load(trim(cb_torch_model), module_use_device) !0 is not using gpu? for now just use cpu
 
     open (unit=555,file=cb_inp_sub,status='old',action='read')
     read(555,*) inp_sub(:)
