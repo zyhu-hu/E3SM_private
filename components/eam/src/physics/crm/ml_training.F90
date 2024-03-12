@@ -109,6 +109,8 @@ CONTAINS
       logical              :: add_cam_in
       logical              :: add_cam_out
 
+      real(r8) :: math_pi
+
       ! file variable descriptions
 
       ! cam_out
