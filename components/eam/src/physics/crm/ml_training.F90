@@ -53,7 +53,7 @@ CONTAINS
    end function get_ml_filename
    !------------------------------------------------------------------------------------------------
    subroutine write_ml_training( pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, mode )
-      use phys_grid,           only: phys_decomp, get_lat_p
+      use phys_grid,           only: phys_decomp, get_lat_p, get_rlat_p
       use physics_buffer,      only: pbuf_init_restart_alt, pbuf_write_restart_alt
       use time_manager,        only: timemgr_init_restart, timemgr_write_restart
       use chemistry,           only: chem_init_restart, chem_write_restart
@@ -807,7 +807,7 @@ CONTAINS
             do i=begchunk,endchunk
                !tmp2D(:ncol(i), i) = 0.0
                do k=1,ncol(i) !cos(get_lat_p(lchnk,i)*math_pi/180.)
-                  tmp2D(k, i) = cos(get_lat_p(i,k)*math_pi/180.)
+                  tmp2D(k, i) = cos(get_rlat_p(i,k))
                end do
             end do
             call pio_write_darray(file, state_desc_clat, iodesc2d, tmp2D, ierr)
@@ -815,7 +815,7 @@ CONTAINS
             do i=begchunk,endchunk
                !tmp2D(:ncol(i), i) = 0.0
                do k=1,ncol(i) !sin(get_lat_p(lchnk,i)*math_pi/180.)
-                  tmp2D(k, i) = sin(get_lat_p(i,k)*math_pi/180.)
+                  tmp2D(k, i) = sin(get_rlat_p(i,k))
                end do
             end do
             call pio_write_darray(file, state_desc_slat, iodesc2d, tmp2D, ierr)
