@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'ramp_constant_0.6_2nodes_debug'
+case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -21,7 +21,7 @@ case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 # user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
-user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG' # NN hybrid test
+user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DMMF_ML_TRAINING' # NN hybrid test
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
@@ -30,7 +30,7 @@ os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 # RESTART
 runtype = 'branch' # startup, hybrid,  branch
 refdate = '0001-01-15' # only works for branch (and hybrid?)
-
+reftod = '00000' # or 21600, 43200, 64800
 # clean        = True
 newcase      = True
 config       = True
@@ -39,12 +39,12 @@ submit       = True
 # continue_run = True
 src_mod_atm  = False
 
-debug_mode = True
+debug_mode = False
 
 dtime = 1200 # set to 0 to use a default value 
 
-# stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',3, 0,'03:00:00'
+#stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',3, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -55,8 +55,8 @@ compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
 
-queue = 'regular'
-#queue = 'debug'
+#queue = 'regular'
+queue = 'debug'
 
 # case_list = [case_prefix,arch,compset,grid]
 case_list = [case_prefix, compset]
@@ -85,7 +85,7 @@ f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocess
 
 f_cb_do_ramp = '.true.'
 f_cb_ramp_option = 'constant'
-cb_ramp_factor = 0.6
+cb_ramp_factor = 0.5
 cb_ramp_step_0steps = 10
 cb_ramp_step_1steps = 20
 
@@ -117,17 +117,21 @@ if newcase :
    run_cmd(f'./xmlchange EXEROOT={case_build_dir}')
    run_cmd(f'./xmlchange RUNDIR={case_run_dir}')
    run_cmd(f'./xmlchange DOUT_S_ROOT={short_term_archive_root_dir}')
+   run_cmd('./xmlchange DOUT_S=TRUE')
+   rest_option = 'ndays'
+   run_cmd(f'./xmlchange REST_OPTION={rest_option}')
+   run_cmd('./xmlchange REST_N=1')
    if 'max_mpi_per_node'  in locals(): run_cmd(f'./xmlchange MAX_MPITASKS_PER_NODE={max_mpi_per_node} ')
    if 'max_task_per_node' in locals(): run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={max_task_per_node} ')
 
    # setup branch/hybrid
    if runtype == 'branch':
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_TYPE   --val {runtype}') # 'branch' won't allow change model time steps
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /pscratch/sd/s/zeyuanhu/e3sm_mlt_scratch/E3SM_ML_ne4_rerun.F2010-MMF1/archive/rest/{refdate}-00000')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/E3SM_ML_ne4_rerun.F2010-MMF1/archive/rest/{refdate}-{reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id GET_REFCASE --val TRUE')
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val REST.GNUGPU.F2010-MMF1.ne4pg2_ne4pg2')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val E3SM_ML_ne4_rerun.F2010-MMF1')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDATE --val {refdate}')
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFTOD  --val 00000')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFTOD  --val {reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_STARTDATE --val {refdate}') # only used for startup or hybrid
 
 #---------------------------------------------------------------------------------------------------
@@ -176,15 +180,11 @@ cb_ramp_step_1steps = {cb_ramp_step_1steps}
 /
 
 &cam_history_nl
-fincl2 = 'state_t_0:I:I', 'state_q0001_0:I', 'state_q0002_0:I', 'state_q0003_0:I', 'state_u_0:I', 'state_v_0:I', 'cam_out_NETSW_0:I', 'cam_out_FLWDS_0:I', 'cam_out_PRECSC_0:I', 'cam_out_PRECC_0:I', 'cam_out_SOLS_0:I', 'cam_out_SOLL_0:I', 'cam_out_SOLSD_0:I', 'cam_out_SOLLD_0:I'
-fincl3 = 'state_t_1:I', 'state_q0001_1:I', 'state_q0002_1:I', 'state_q0003_1:I', 'state_u_1:I', 'state_v_1:I', 'cam_out_NETSW_1:I', 'cam_out_FLWDS_1:I', 'cam_out_PRECSC_1:I', 'cam_out_PRECC_1:I', 'cam_out_SOLS_1:I', 'cam_out_SOLL_1:I', 'cam_out_SOLSD_1:I', 'cam_out_SOLLD_1:I'
-fincl4 = 'state_t_2:I', 'state_q0001_2:I', 'state_q0002_2:I', 'state_q0003_2:I', 'state_u_2:I', 'state_v_2:I', 'cam_out_NETSW_2:I', 'cam_out_FLWDS_2:I', 'cam_out_PRECSC_2:I', 'cam_out_PRECC_2:I', 'cam_out_SOLS_2:I', 'cam_out_SOLL_2:I', 'cam_out_SOLSD_2:I', 'cam_out_SOLLD_2:I'
-fincl5 = 'state_t_3:I', 'state_q0001_3:I', 'state_q0002_3:I', 'state_q0003_3:I', 'state_u_3:I', 'state_v_3:I', 'cam_out_NETSW_3:I', 'cam_out_FLWDS_3:I', 'cam_out_PRECSC_3:I', 'cam_out_PRECC_3:I', 'cam_out_SOLS_3:I', 'cam_out_SOLL_3:I', 'cam_out_SOLSD_3:I', 'cam_out_SOLLD_3:I'
 
-fincl6 = 'T:I', 'Q:I', 'CLDLIQ:I', 'CLDICE:I', 'U:I', 'V:I', 'TS:I', 'PS:I', 'LHFLX:I', 'SHFLX:I', 'SOLIN:I', 'PRECC:I', 'PRECSC:I'
+fincl2 = 'T:I', 'Q:I', 'CLDLIQ:I', 'CLDICE:I', 'U:I', 'V:I', 'TS:I', 'PS:I', 'LHFLX:I', 'SHFLX:I', 'SOLIN:I', 'PRECC:I', 'PRECSC:I'
 
-nhtfrq = 0,1,1,1,1,1
-mfilt  = 0,1,1,1,1,1
+nhtfrq = 0,1
+mfilt  = 0,1
 /
 
                      ''')
