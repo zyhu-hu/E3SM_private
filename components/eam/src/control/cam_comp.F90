@@ -340,14 +340,15 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    do lchnk=begchunk,endchunk
       phys_state_sp_backup(lchnk) = phys_state_sp(lchnk)
       phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
-      phys_state_sp(lchnk)%t_adv(:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:)
-      phys_state_sp(lchnk)%u_adv(:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:)
-      phys_state_sp(lchnk)%t_phy(:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:)
-      phys_state_sp(lchnk)%u_phy(:,:) = phys_state_sp_backup(lchnk)%u_phy(:,:)
-      phys_state_sp(lchnk)%q_adv(:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:)
-      phys_state_sp(lchnk)%q_phy(:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:)
+      phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
+      phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
+      phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
+      phys_state_sp(lchnk)%u_phy(:,:,:) = phys_state_sp_backup(lchnk)%u_phy(:,:,:)
+      phys_state_sp(lchnk)%q_adv(:,:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:,:)
+      phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
    end do
    
+   cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
 
 #ifdef MMF_ML_TRAINING
    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then

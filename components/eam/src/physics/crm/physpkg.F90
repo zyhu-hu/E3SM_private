@@ -763,7 +763,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   type(physics_buffer_desc), pointer, dimension(:,:)               :: pbuf2d
   type(cam_in_t),                     dimension(begchunk:endchunk) :: cam_in
   type(cam_out_t),                    dimension(begchunk:endchunk) :: cam_out
-  type(cam_out_t),      intent(out)      dimension(begchunk:endchunk) :: cam_out_sp
+  type(cam_out_t),      intent(out),      dimension(begchunk:endchunk) :: cam_out_sp
 
   !-----------------------------------------------------------------------------
   ! Local Variables
@@ -979,12 +979,12 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
 
         do lchnk = begchunk, endchunk
           phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
-          phys_state_sp(lchnk)%t_adv(:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:)
-          phys_state_sp(lchnk)%u_adv(:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:)
-          phys_state_sp(lchnk)%t_phy(:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:)
-          phys_state_sp(lchnk)%u_phy(:,:) = phys_state_sp_backup(lchnk)%u_phy(:,:)
-          phys_state_sp(lchnk)%q_adv(:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:)
-          phys_state_sp(lchnk)%q_phy(:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:)
+          phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
+          phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
+          phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
+          phys_state_sp(lchnk)%u_phy(:,:,:) = phys_state_sp_backup(lchnk)%u_phy(:,:,:)
+          phys_state_sp(lchnk)%q_adv(:,:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:,:)
+          phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
           cam_out_sp(lchnk) = cam_out(lchnk)
         end do
 
