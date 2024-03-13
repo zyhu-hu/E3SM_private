@@ -371,8 +371,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
       input(:ncol,25*pver+18:25*pver+22) = 0._r8
       ! cos lat and sin lat
       do i = 1,ncol ! lat is get_lat_p(lchnk,i), 23/24 needs cos/sin
-        input(i,25*pver+23) = cos(get_lat_p(lchnk,i)*math_pi/180.)
-        input(i,25*pver+24) = sin(get_lat_p(lchnk,i)*math_pi/180.)
+        input(i,25*pver+23) = cos(get_rlat_p(lchnk,i))
+        input(i,25*pver+24) = sin(get_rlat_p(lchnk,i))
       end do
       input(:ncol,25*pver+25) = 0._r8               ! icol ! can be 1-384 in future
       ! RH conversion
