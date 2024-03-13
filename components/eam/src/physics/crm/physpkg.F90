@@ -506,7 +506,7 @@ end subroutine phys_inidat
 !===================================================================================================
 !===================================================================================================
 
-subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, pbuf2d, cam_out )
+subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, phys_state_sp, phys_tend_placeholder_sp, pbuf2d, cam_out )
   !-----------------------------------------------------------------------------
   ! Purpose: Initialization of physics package
   !-----------------------------------------------------------------------------
@@ -568,6 +568,8 @@ subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeh
   type(physics_tend ), pointer       :: phys_tend(:)
   type(physics_state), pointer       :: phys_state_aphys1(:)
   type(physics_tend ), pointer       :: phys_tend_placeholder(:) 
+  type(physics_state), pointer       :: phys_state_sp(:)
+  type(physics_tend ), pointer       :: phys_tend_placeholder_sp(:)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
   type(cam_out_t),intent(inout)      :: cam_out(begchunk:endchunk)
   !-----------------------------------------------------------------------------
@@ -582,10 +584,12 @@ subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeh
 
   call physics_type_alloc(phys_state, phys_tend, begchunk, endchunk, pcols)
   call physics_type_alloc(phys_state_aphys1, phys_tend_placeholder, begchunk, endchunk, pcols)
+  call physics_type_alloc(phys_state_sp, phys_tend_placeholder_sp, begchunk, endchunk, pcols)
 
   do lchnk = begchunk, endchunk
      call physics_state_set_grid(lchnk, phys_state(lchnk))
      call physics_state_set_grid(lchnk, phys_state_aphys1(lchnk))
+      call physics_state_set_grid(lchnk, phys_state_sp(lchnk))
   end do
 
   !-----------------------------------------------------------------------------
@@ -716,7 +720,7 @@ end subroutine phys_init
 !===================================================================================================
 
 #ifdef CLIMSIM
-subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
+subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, phys_tend, pbuf2d,  cam_in, cam_out, cam_out_sp)
   !-----------------------------------------------------------------------------
   ! Purpose: climsim driver
   !-----------------------------------------------------------------------------
@@ -754,10 +758,12 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   real(r8), intent(in) :: ztodt            ! physics time step unless nstep=0
   type(physics_state), intent(inout), dimension(begchunk:endchunk) :: phys_state
   type(physics_state), intent(in),    dimension(begchunk:endchunk) :: phys_state_aphys1
+  type(physics_state), intent(inout),    dimension(begchunk:endchunk) :: phys_state_sp
   type(physics_tend ), intent(inout), dimension(begchunk:endchunk) :: phys_tend
   type(physics_buffer_desc), pointer, dimension(:,:)               :: pbuf2d
   type(cam_in_t),                     dimension(begchunk:endchunk) :: cam_in
   type(cam_out_t),                    dimension(begchunk:endchunk) :: cam_out
+  type(cam_out_t),      intent(out)      dimension(begchunk:endchunk) :: cam_out_sp
 
   !-----------------------------------------------------------------------------
   ! Local Variables
@@ -786,6 +792,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
 
   ! - for partial coupling - !
   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_nn
+  type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
   type(physics_tend ), dimension(begchunk:endchunk)  :: phys_tend_nn
   type(cam_out_t),     dimension(begchunk:endchunk)  :: cam_out_nn
   integer :: ixcldice, ixcldliq
@@ -929,6 +936,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   if (do_climsim_inference .and. cb_partial_coupling) then
      do lchnk = begchunk, endchunk
         phys_state_nn(lchnk) = phys_state(lchnk) 
+        phys_state_sp_backup(lchnk) = phys_state_sp(lchnk)
         phys_tend_nn(lchnk)  = phys_tend(lchnk) 
         cam_out_nn(lchnk)    = cam_out(lchnk) 
      end do
@@ -937,6 +945,10 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
   ! Run phys_run1 physics
   if (.not. do_climsim_inference) then  ! MMFspin-up
      call phys_run1(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
+     do lchnk = begchunk, endchunk
+        phys_state_sp(lchnk) = phys_state(lchnk)
+        cam_out_sp(lchnk)    = cam_out(lchnk)
+     end do
 
   else  ! NN inference
      if (cb_partial_coupling) then ! NN partial coupling
@@ -963,6 +975,17 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2
            call pbuf_get_field(phys_buffer_chunk, snow_dp_idx, snow_dp)
            prec_dp_mmf(:,lchnk) = prec_dp(:) 
            snow_dp_mmf(:,lchnk) = snow_dp(:)
+        end do
+
+        do lchnk = begchunk, endchunk
+          phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
+          phys_state_sp(lchnk)%t_adv(:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:)
+          phys_state_sp(lchnk)%u_adv(:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:)
+          phys_state_sp(lchnk)%t_phy(:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:)
+          phys_state_sp(lchnk)%u_phy(:,:) = phys_state_sp_backup(lchnk)%u_phy(:,:)
+          phys_state_sp(lchnk)%q_adv(:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:)
+          phys_state_sp(lchnk)%q_phy(:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:)
+          cam_out_sp(lchnk) = cam_out(lchnk)
         end do
 
         call phys_run1_NN(phys_state_nn, phys_state_aphys1, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&

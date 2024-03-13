@@ -381,6 +381,17 @@ CONTAINS
          add_phys_state = .true.
          add_cam_out    = .true.
       end if
+      if (mode==3) then
+         fspec = 'mlisp'
+         add_pbuf = .true.
+         add_phys_state  = .true.
+         add_cam_in      = .true.
+      end if
+      if (mode==4) then
+         fspec = 'mlosp'
+         add_phys_state = .true.
+         add_cam_out    = .true.
+      end if
 
       do i=begchunk,endchunk
          ncol(i) = phys_state(i)%ncol
@@ -416,9 +427,10 @@ CONTAINS
       !-------------------------------------------------------------------------
       ! define physics state variables
       if (add_phys_state) then
-         if (mode==1) then
+         if (mode==1 .OR. mode == 3) then
            ierr = pio_def_var(file, 'state_ps',        pio_double, dimids_hrz, state_desc_ps)
          end if
+         
          ! ierr = pio_def_var(file, 'state_psdry',     pio_double, dimids_hrz, state_desc_psdry)
          ! ierr = pio_def_var(file, 'state_phis',        pio_double, dimids_hrz, state_desc_phis)
          do m=1,3 !m=1,pcnst
@@ -437,11 +449,11 @@ CONTAINS
          ierr = pio_def_var(file, 'state_v',         pio_double, dimids_3D1, state_desc_v)
          ! ierr = pio_def_var(file, 'state_s',         pio_double, dimids_3D1, state_desc_s)
          ! ierr = pio_def_var(file, 'state_omega',     pio_double, dimids_3D1, state_desc_omega)
-         if (mode==1) then
+         if (mode==1 .OR. mode == 3) then
            ierr = pio_def_var(file, 'state_pmid',      pio_double, dimids_3D1, state_desc_pmid)
          end if
 
-         if (mode==1) then
+         if (mode==1 .OR. mode == 3) then
             ierr = pio_def_var(file, 'state_t_dyn',      pio_double, dimids_3D1, state_desc_t_dyn)
             ierr = pio_def_var(file, 'state_q0_dyn',      pio_double, dimids_3D1, state_desc_q0_dyn)
             ierr = pio_def_var(file, 'state_u_dyn',      pio_double, dimids_3D1, state_desc_u_dyn)
@@ -628,7 +640,7 @@ CONTAINS
       !-------------------------------------------------------------------------
       ! write physics state variables
       if (add_phys_state) then
-         if (mode==1) then
+         if (mode==1 .OR. mode == 3) then
            do i=begchunk,endchunk
               tmp2D(:ncol(i), i) = phys_state(i)%ps(:ncol(i))
            end do
@@ -678,14 +690,14 @@ CONTAINS
          ! call pio_write_darray(file, state_desc_omega, iodesc3d, tmp3D, ierr)
          
          ! state%pmid is only for ml input 
-         if (mode==1) then
+         if (mode==1 .OR. mode == 3) then
            do i=begchunk,endchunk
               tmp3D(:ncol(i),:,i) = phys_state(i)%pmid(:ncol(i),:) 
            end do
            call pio_write_darray(file, state_desc_pmid, iodesc3d, tmp3D, ierr)
          end if
          
-         if (mode==1) then
+         if (mode==1 .OR. mode == 3) then
             do i=begchunk,endchunk
                tmp3D(:ncol(i),:,i) = phys_state(i)%t_adv(1,:ncol(i),:) 
             end do

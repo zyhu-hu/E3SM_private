@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'v4net_baseline_mlio_test'
+case_prefix = 'v4net_baseline_mlio_test_withspoutput'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
