@@ -102,7 +102,7 @@ CONTAINS
       integer, parameter, dimension(2) :: dimids_3D2 = (/1,3/)   ! horz + pverp
 
       character(len=8)     :: num      ! used for writing numeric charaters (i.e. constituent index)
-      character(len=4)     :: fspec    ! string used after ".eam." in file name 
+      character(len=6)     :: fspec    ! string used after ".eam." in file name 
       logical              :: add_pbuf
       logical              :: add_phys_state
       logical              :: add_phys_tend
