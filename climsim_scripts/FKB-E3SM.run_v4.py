@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'v4net_baseline_fulldata_limiter'
+case_prefix = 'v4net_baseline_fulldata_correctlat'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -70,7 +70,7 @@ f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11
 f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/inp_sub.txt'
 f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/inp_div.txt'
 f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/out_scale.txt'
-f_qinput_log = '.true.'
+f_qinput_log = '.false.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
 f_strato_lev = 15
@@ -78,7 +78,7 @@ f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/nor
 f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
 cb_spinup_step = 72
-f_do_limiter = '.true.'
+f_do_limiter = '.false.'
 f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
 f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
 
