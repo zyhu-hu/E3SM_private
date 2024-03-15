@@ -871,10 +871,10 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   call pbuf_allocate(pbuf2d, 'physpkg')
   call diag_allocate()
 
-  ! Advance time information
-  call t_startf ('phys_timestep_init')
-  call phys_timestep_init( phys_state, cam_out, pbuf2d)
-  call t_stopf ('phys_timestep_init')
+  ! ! Advance time information
+  ! call t_startf ('phys_timestep_init')
+  ! call phys_timestep_init( phys_state, cam_out, pbuf2d)
+  ! call t_stopf ('phys_timestep_init')
 
   ! Calculate  COSZRS and SOLIN
   call get_ref_solar_band_irrad( solar_band_irrad ) ! this can move to init subroutine
@@ -897,6 +897,12 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   end do
   ! [TO-DO] Check solin and coszrs from this calculation vs. pbuf_XXX
 
+    ! Advance time information
+  call t_startf ('phys_timestep_init')
+  call phys_timestep_init( phys_state, cam_out, pbuf2d)
+  call t_stopf ('phys_timestep_init')
+
+  
   prec_dp_idx = pbuf_get_index('PREC_DP', errcode=i) ! Query physics buffer index
   snow_dp_idx = pbuf_get_index('SNOW_DP', errcode=i)
 
