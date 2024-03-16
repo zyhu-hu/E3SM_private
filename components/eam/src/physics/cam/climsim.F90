@@ -133,8 +133,8 @@ contains
   !  type(torch_module) :: torch_mod
    type(torch_tensor_wrap) :: input_tensors
    type(torch_tensor) :: out_tensor
-   real(r8) :: input_torch(inputlength, pcols)
-   real(r8), pointer :: output_torch(:, :)
+   real(real32) :: input_torch(inputlength, pcols)
+   real(real32), pointer :: output_torch(:, :)
    real(r8) :: math_pi
    real(r8) :: delta_lat, delta_lon
    real(r8), parameter :: tol = 1.e-4
