@@ -482,49 +482,19 @@ end if
       end do
     end if
 
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG input post norm=',input(1,:)
-      endif
-#endif
+! #ifdef CLIMSIMDEBUG
+!       if (masterproc) then
+!         write (iulog,*) 'CLIMSIMDEBUG input post norm=',input(1,:)
+!       endif
+! #endif
 
 #ifdef CLIMSIMDEBUG
-if (masterproc) then ! (logging ncol=1 only)
+! if (masterproc) then ! (logging ncol=1 only)
 select case (to_lower(trim(cb_nn_var_combo)))
    case('v4')
-      ! write (iulog,*) 'CLIMSIMDEBUG state_t = ', state%t(1:ncol,1:pver)          ! state_t
-      ! write (iulog,*) 'CLIMSIMDEBUG state_q0001 = ', state%q(1:ncol,1:pver,1)        ! state_q0001
-      ! write (iulog,*) 'CLIMSIMDEBUG state_q0002 = ', state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
-      ! write (iulog,*) 'CLIMSIMDEBUG state_q0003 = ', state%q(1:ncol,1:pver,ixcldice) ! state_q0003
-      ! write (iulog,*) 'CLIMSIMDEBUG state_u = ', state%u(1:ncol,1:pver)          ! state_u
-      ! write (iulog,*) 'CLIMSIMDEBUG state_v = ', state%v(1:ncol,1:pver)          ! state_v
-      ! write (iulog,*) 'CLIMSIMDEBUG state_ps = ', state%ps(1:ncol)                ! state_ps
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_SOLIN = ', solin(1:ncol)                   ! pbuf_SOLIN
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_LHFLX = ', lhflx(1:ncol)                   ! pbuf_LHFLX
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_SHFLX = ', shflx(1:ncol)                   ! pbuf_SHFLX
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_TAUX = ', taux(1:ncol)                    ! pbuf_TAUX
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_TAUY = ', tauy(1:ncol)                    ! pbuf_TAUY
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_COSZRS = ', coszrs(1:ncol)                  ! pbuf_COSZRS
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_ALDIF = ', cam_in%ALDIF(:ncol)             ! cam_in_ALDIF
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_ALDIR = ', cam_in%ALDIR(:ncol)             ! cam_in_ALDIR
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_ASDIF = ', cam_in%ASDIF(:ncol)             ! cam_in_ASDIF
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_ASDIR = ', cam_in%ASDIR(:ncol)             ! cam_in_ASDIR
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_LWUP = ', cam_in%LWUP(:ncol)              ! cam_in_LWUP
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_ICEFRAC = ', cam_in%ICEFRAC(:ncol)           ! cam_in_ICEFRAC
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_LANDFRAC = ', cam_in%LANDFRAC(:ncol)          ! cam_in_LANDFRAC
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_OCNFRAC = ', cam_in%OCNFRAC(:ncol)           ! cam_in_OCNFRAC
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_SNOWHICE = ', cam_in%SNOWHICE(:ncol)          ! cam_in_SNOWHICE
-      ! write (iulog,*) 'CLIMSIMDEBUG cam_in_SNOWHLAND = ', cam_in%SNOWHLAND(:ncol)         ! cam_in_SNOWHLAND
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_ozone = ', ozone(:ncol,6:21)           ! pbuf_ozone
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_CH4 = ', ch4(:ncol,6:21)             ! pbuf_CH4
-      ! write (iulog,*) 'CLIMSIMDEBUG pbuf_N2O = ', n2o(:ncol,6:21)             ! pbuf_N2O
-      ! if (input_rh) then ! relative humidity conversion for input
-      !    write (iulog,*) 'CLIMSIMDEBUG RH = ', input(:ncol,1*pver+1:2*pver) ! relhum 
-      ! end if
+
   do i = 1,ncol
-      write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i)
-      write (iulog,*) 'CLIMSIMDEBUG nndebug lon =', get_rlon_p(lchnk,i)
-      write (iulog,*) 'icol = ', i
+      write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i
       write (iulog,*) 'CLIMSIMDEBUG nndebug input post norm 1-30=',input(i,1:30)
       write (iulog,*) 'CLIMSIMDEBUG nndebug input post norm 31-60=',input(i,31:60)
       write (iulog,*) 'CLIMSIMDEBUG nndebug input post norm 61-90=',input(i,61:90)
@@ -577,98 +547,9 @@ select case (to_lower(trim(cb_nn_var_combo)))
       write (iulog,*) 'CLIMSIMDEBUG input post norm 1471-1500=',input(i,1471:1500)
       write (iulog,*) 'CLIMSIMDEBUG input post norm 1501-1525=',input(i,1501:1525)
   end do
-  !  case('v4')
-  !   input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
-  !   input(:ncol,1*pver+1:2*pver) = state%q(1:ncol,1:pver,1)        ! state_q0001
-!       if (qinput_log) then
-!         input(:ncol,2*pver+1:3*pver) = log10(1._r8+1.e6*state%q(1:ncol,1:pver,ixcldliq)) ! state_q0002
-!         input(:ncol,3*pver+1:4*pver) = log10(1._r8+1.e6*state%q(1:ncol,1:pver,ixcldice)) ! state_q0003
-! #ifdef CLIMSIMDEBUG
-!       if (masterproc) then
-!         write (iulog,*) 'CLIMSIMDEBUG log10 transform is applied to q1-3'
-!       endif
-! #endif     
-!       else
-!         input(:ncol,2*pver+1:3*pver) = state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
-!         input(:ncol,3*pver+1:4*pver) = state%q(1:ncol,1:pver,ixcldice) ! state_q0003
-!       end if
-    ! input(:ncol,2*pver+1:3*pver) = state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
-    ! input(:ncol,3*pver+1:4*pver) = state%q(1:ncol,1:pver,ixcldice) ! state_q0003
-    ! do exp transform for qc, qi
-!     do i = 1,ncol
-!       do k=1,pver
-!         input(i,2*pver+k) = 1 - exp(-state%q(i,k,ixcldliq)*qc_lbd(k))
-!         input(i,3*pver+k) = 1 - exp(-state%q(i,k,ixcldice)*qi_lbd(k))
-!       end do
-!     end do
-!     input(:ncol,4*pver+1:5*pver) = state%u(1:ncol,1:pver)          ! state_u
-!     input(:ncol,5*pver+1:6*pver) = state%v(1:ncol,1:pver)          ! state_v
-!     input(:ncol,6*pver+1:7*pver) = (state%t(1:ncol,1:pver)-state_aphys1%t(1:ncol,1:pver))/1200. ! state_t_dyn
-!     ! state_q0_dyn
-!     input(:ncol,7*pver+1:8*pver) = (state%q(1:ncol,1:pver,1)-state_aphys1%q(1:ncol,1:pver,1) + state%q(1:ncol,1:pver,ixcldliq)-state_aphys1%q(1:ncol,1:pver,ixcldliq) + state%q(1:ncol,1:pver,ixcldice)-state_aphys1%q(1:ncol,1:pver,ixcldice))/1200.
-!     input(:ncol,8*pver+1:9*pver) = (state%u(1:ncol,1:pver)-state_aphys1%u(1:ncol,1:pver))/1200. ! state_u_dyn
-!     input(:ncol,9*pver+1:10*pver) = state%t_adv(2,1:ncol,1:pver)
-!     input(:ncol,10*pver+1:11*pver) = state%q_adv(2,1:ncol,1:pver,1) + state%q_adv(2,1:ncol,1:pver,ixcldliq) + state%q_adv(2,1:ncol,1:pver,ixcldice)
-!     input(:ncol,11*pver+1:12*pver) = state%u_adv(2,1:ncol,1:pver)
-!     ! previous state physics tendencies
-!     input(:ncol,12*pver+1:13*pver) = state%t_phy(1,1:ncol,1:pver)
-!     input(:ncol,13*pver+1:14*pver) = state%q_phy(1,1:ncol,1:pver,1)
-!     input(:ncol,14*pver+1:15*pver) = state%q_phy(1,1:ncol,1:pver,ixcldliq)
-!     input(:ncol,15*pver+1:16*pver) = state%q_phy(1,1:ncol,1:pver,ixcldice)
-!     input(:ncol,16*pver+1:17*pver) = state%u_phy(1,1:ncol,1:pver)
-!     ! 2-step in the past physics tendencies
-!     input(:ncol,17*pver+1:18*pver) = state%t_phy(2,1:ncol,1:pver)
-!     input(:ncol,18*pver+1:19*pver) = state%q_phy(2,1:ncol,1:pver,1)
-!     input(:ncol,19*pver+1:20*pver) = state%q_phy(2,1:ncol,1:pver,ixcldliq)
-!     input(:ncol,20*pver+1:21*pver) = state%q_phy(2,1:ncol,1:pver,ixcldice)
-!     input(:ncol,21*pver+1:22*pver) = state%u_phy(2,1:ncol,1:pver)
-!     !gas
-!     input(:ncol,22*pver+1:23*pver) = ozone(:ncol,1:pver)            ! pbuf_ozone
-!     input(:ncol,23*pver+1:24*pver) = ch4(:ncol,1:pver)             ! pbuf_CH4
-!     input(:ncol,24*pver+1:25*pver) = n2o(:ncol,1:pver)             ! pbuf_N2O
-!     ! 2d vars e.g., ps, solin
-!     input(:ncol,25*pver+1) = state%ps(1:ncol)                      ! state_ps
-!     input(:ncol,25*pver+2) = solin(1:ncol)                         ! pbuf_SOLIN
-!     input(:ncol,25*pver+3) = lhflx(1:ncol)                         ! pbuf_LHFLX
-!     input(:ncol,25*pver+4) = shflx(1:ncol)                         ! pbuf_SHFLX
-!     input(:ncol,25*pver+5) = taux(1:ncol)                          ! pbuf_TAUX
-!     input(:ncol,25*pver+6) = tauy(1:ncol)                          ! pbuf_TAUY
-!     input(:ncol,25*pver+7) = coszrs(1:ncol)                        ! pbuf_COSZRS
-!     input(:ncol,25*pver+8) = cam_in%ALDIF(:ncol)                   ! cam_in_ALDIF
-!     input(:ncol,25*pver+9) = cam_in%ALDIR(:ncol)                   ! cam_in_ALDIR
-!     input(:ncol,25*pver+10) = cam_in%ASDIF(:ncol)                  ! cam_in_ASDIF
-!     input(:ncol,25*pver+11) = cam_in%ASDIR(:ncol)                  ! cam_in_ASDIR
-!     input(:ncol,25*pver+12) = cam_in%LWUP(:ncol)                   ! cam_in_LWUP
-!     input(:ncol,25*pver+13) = cam_in%ICEFRAC(:ncol)                ! cam_in_ICEFRAC
-!     input(:ncol,25*pver+14) = cam_in%LANDFRAC(:ncol)               ! cam_in_LANDFRAC
-!     input(:ncol,25*pver+15) = cam_in%OCNFRAC(:ncol)                ! cam_in_OCNFRAC
-!     input(:ncol,25*pver+16) = cam_in%SNOWHICE(:ncol)               ! cam_in_SNOWHICE
-!     input(:ncol,25*pver+17) = cam_in%SNOWHLAND(:ncol)              ! cam_in_SNOWHLAND
-!     !5 placeholder for future input
-!     input(:ncol,25*pver+18:25*pver+22) = 0._r8
-!     ! cos lat and sin lat
-!     do i = 1,ncol ! lat is get_lat_p(lchnk,i), 23/24 needs cos/sin
-!       input(i,25*pver+23) = cos(get_rlat_p(lchnk,i))
-!       input(i,25*pver+24) = sin(get_rlat_p(lchnk,i))
-!     end do
-!     input(:ncol,25*pver+25) = 0._r8               ! icol ! can be 1-384 in future
-!     ! RH conversion
-!     if (input_rh) then ! relative humidity conversion for input
-!        do i = 1,ncol
-!          do k=1,pver
-!            ! Port of tom's RH =  Rv*p*qv/(R*esat(T))
-!            rh_loc = 461.*state%pmid(i,k)*state%q(i,k,1)/(287.*tom_esat(state%t(i,k))) ! note function tom_esat below refercing SAM's sat.F90
-! #ifdef RHDEBUG
-!            if (masterproc) then
-!              write (iulog,*) 'RHDEBUG:p,q,T,RH=',state%pmid(i,k),state%q(i,k,1),state%t(i,k),rh_loc
-!            endif
-! #endif
-!            input(i,1*pver+k) = rh_loc
-!          end do
-!        end do
-!     end if
+
 end select
-end if
+! end if
 #endif 
 
 
@@ -760,9 +641,7 @@ end if
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
         do i = 1,ncol
-          write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i)
-          write (iulog,*) 'CLIMSIMDEBUG nndebug lon =', get_rlon_p(lchnk,i)
-          write (iulog,*) 'icol = ', i
+          write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i
           write (iulog,*) 'CLIMSIMDEBUG nndebug output = ',output(i,:)
         end do
         ! write (iulog,*) 'CLIMSIMDEBUG nndebugoutput lat = ', get_rlat_p(lchnk,1)
@@ -791,11 +670,11 @@ end if
        output(i,6*pver+8) = 0. ! solld
      endif
    end do
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG nndebugoutput output after ReLU = ',output(1,:)
-      endif
-#endif
+! #ifdef CLIMSIMDEBUG
+!       if (masterproc) then
+!         write (iulog,*) 'CLIMSIMDEBUG nndebugoutput output after ReLU = ',output(1,:)
+!       endif
+! #endif
 
    ! output normalization (un-weighting, really).
    do i=1,ncol
@@ -816,11 +695,11 @@ end if
     end do
    end if
 
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG nndebugoutput output post scale = ',output(1,:)
-      endif
-#endif
+! #ifdef CLIMSIMDEBUG
+!       if (masterproc) then
+!         write (iulog,*) 'CLIMSIMDEBUG nndebugoutput output post scale = ',output(1,:)
+!       endif
+! #endif
 
 ! ---------- 1. NN output to atmosphere forcing --------
 ! ['TBCTEND', 'QBCTEND','CLDLIQBCTEND','CLDICEBCTEND']
