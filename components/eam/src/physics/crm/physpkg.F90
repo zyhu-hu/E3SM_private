@@ -747,6 +747,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   use cam_history_support, only: pflds
   use physconst,        only: cpair, zvir, rair, gravit
   use string_utils,    only: to_lower
+  use phys_grid,       only: get_lat_p, get_lon_p, get_rlat_p, get_rlon_p
 
 #ifdef TORCH_CLIMSIM_TEST
   use torch_ftn
