@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'ramp_step_nndebug_1step15_0step70_1col_timeoffset'
+case_prefix = 'ramp_step_nndebug_1step15_0step70_1col_ttest'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')

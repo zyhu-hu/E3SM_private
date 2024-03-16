@@ -816,6 +816,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   real(r8) :: dt_avg = 0.0_r8   ! time step to use for the shr_orb_cosz calculation, if use_rad_dt_cosz set to true
   real(r8) :: delta    ! Solar declination angle  in radians
   real(r8) :: eccf     ! Earth orbit eccentricity factor
+
+  real(r8) :: delta_lat, delta_lon
+  real(r8), parameter :: tol = 1.e-4
 !-----------------------------------------------------------------------------
   ! phys_run1 opening
   ! - phys_timestep_init advances ghg gases,
@@ -865,6 +868,18 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   end do
 #endif
 
+  do lchnk = begchunk, endchunk
+    ncol = phys_state(lchnk)%ncol
+    do i = 1,ncol
+      delta_lat = get_rlat_p(lchnk,i) - 0.0978469
+      delta_lon = get_rlon_p(lchnk,i) - 3.23991135
+      if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+        write (iulog,*) 'Climsimdriver debug at beginning of driver: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state(lchnk)%t(i,1:60)
+      endif
+    end do
+  end do
+
+
   nstep = get_nstep()
   dtime = get_step_size()
 
@@ -875,6 +890,18 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   call t_startf ('phys_timestep_init')
   call phys_timestep_init( phys_state, cam_out, pbuf2d)
   call t_stopf ('phys_timestep_init')
+
+  do lchnk = begchunk, endchunk
+    ncol = phys_state(lchnk)%ncol
+    do i = 1,ncol
+      delta_lat = get_rlat_p(lchnk,i) - 0.0978469
+      delta_lon = get_rlon_p(lchnk,i) - 3.23991135
+      if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+        write (iulog,*) 'Climsimdriver debug after timestep init: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state(lchnk)%t(i,1:60)
+      endif
+    end do
+  end do
+
 
   ! Calculate  COSZRS and SOLIN
   call get_ref_solar_band_irrad( solar_band_irrad ) ! this can move to init subroutine
@@ -987,7 +1014,19 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
           phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
           cam_out_sp(lchnk) = cam_out(lchnk)
         end do
+        
+        do lchnk = begchunk, endchunk
+          ncol = phys_state_nn(lchnk)%ncol
+          do i = 1,ncol
+            delta_lat = get_rlat_p(lchnk,i) - 0.0978469
+            delta_lon = get_rlon_p(lchnk,i) - 3.23991135
+            if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+              write (iulog,*) 'Climsimdriver debug at before call run1_NN: nstep - nstep0, nstep_NN, do_climsim = ', nstep - nstep0, nstep_NN, 'lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state_nn(lchnk)%t(i,1:60)
+            endif
+          end do
+        end do
 
+        
         call phys_run1_NN(phys_state_nn, phys_state_aphys1, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&
                           solin, coszrs)
 #ifdef CLIMSIM_DIAG_PARTIAL
