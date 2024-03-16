@@ -133,8 +133,8 @@ contains
   !  type(torch_module) :: torch_mod
    type(torch_tensor_wrap) :: input_tensors
    type(torch_tensor) :: out_tensor
-   real(real32) :: input_torch(inputlength, pcols)
-   real(real32), pointer :: output_torch(:, :)
+   real(r8) :: input_torch(inputlength, pcols)
+   real(r8), pointer :: output_torch(:, :)
    real(r8) :: math_pi
    real(r8) :: delta_lat, delta_lon
    real(r8), parameter :: tol = 1.e-4
@@ -553,7 +553,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
       write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input post norm 1441-1470=',input(i,1441:1470)
       write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input post norm 1471-1500=',input(i,1471:1500)
       write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input post norm 1501-1525=',input(i,1501:1525)
-    end if
+    endif
   end do
 
 end select
@@ -649,10 +649,13 @@ end select
 #ifdef CLIMSIMDEBUG
       ! if (masterproc) then
         do i = 1,ncol
-          if (get_rlat_p(lchnk,i)-0.0978469)<1.e-4  and (get_rlon_p(lchnk,i)-3.239911)<1.e-4 then
+          delta_lat = get_rlat_p(lchnk,i) - 0.0978469
+          delta_lon = get_rlon_p(lchnk,i) - 3.23991135
+          if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+          ! if ((get_rlat_p(lchnk,i)-0.0978469)<1.e-4  .and. (get_rlon_p(lchnk,i)-3.239911)<1.e-4) then
             ! write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i
             write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG nndebug output = ',output(i,:)
-          end if  
+          endif  
         end do
         ! write (iulog,*) 'CLIMSIMDEBUG nndebugoutput lat = ', get_rlat_p(lchnk,1)
         ! write (iulog,*) 'CLIMSIMDEBUG nndebugoutput lon = ', get_rlon_p(lchnk,1)
