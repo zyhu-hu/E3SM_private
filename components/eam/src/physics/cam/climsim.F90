@@ -1068,7 +1068,7 @@ end subroutine neural_net
     if (T .gt. cice(1)) then
       tom_eice = tom_eliq(T)
     else if (T .le. cice(2)) then
-      tom_eice = 100.*(cice(4) + max(cice(2),dt)*(cice(5)+max(cice(3),dt)*cice(6))) 
+      tom_eice = 100.*(cice(4) + max(cice(3),dt)*(cice(5)+max(cice(3),dt)*cice(6))) 
     else
       tom_eice = 100.*(a0 +dt*(a1+dt*(a2+dt*(a3+dt*(a4+dt*(a5+dt*(a6+dt*(a7+a8*dt))))))))
     end if
