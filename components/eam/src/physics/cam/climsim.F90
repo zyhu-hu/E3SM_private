@@ -587,7 +587,7 @@ end if
        output(i,k) = max(output(i,k), 0.)
      end do
      ! tiny flwds
-     k=4*pver+3
+     k=6*pver+2
      output(i,k) = max(output(i,k), tiny(output(i,k))) ! flwds
                                                        ! preventing flwds==0 error
      ! zero out surface solar fluxes when local time is at night
@@ -918,7 +918,7 @@ end subroutine neural_net
     if (T .gt. cice(1)) then
       tom_eice = tom_eliq(T)
     else if (T .le. cice(2)) then
-      tom_eice = 100.*(cice(4) + max(cice(2),dt)*(cice(5)+max(cice(3),dt)*cice(6))) 
+      tom_eice = 100.*(cice(4) + max(cice(3),dt)*(cice(5)+max(cice(3),dt)*cice(6))) 
     else
       tom_eice = 100.*(a0 +dt*(a1+dt*(a2+dt*(a3+dt*(a4+dt*(a5+dt*(a6+dt*(a7+a8*dt))))))))
     end if

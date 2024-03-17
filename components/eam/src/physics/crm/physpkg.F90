@@ -881,7 +881,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   call get_variability(sfac)                        ! "
   do lchnk=begchunk,endchunk
      ncol = phys_state(lchnk)%ncol
-     calday = get_curr_calday()
+     calday = get_curr_calday(-dtime) ! get current calendar day with a negative offset to match the time in mli
      ! coszrs
      call get_rlat_all_p(lchnk, ncol, clat)
      call get_rlon_all_p(lchnk, ncol, clon)
