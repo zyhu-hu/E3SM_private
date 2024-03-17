@@ -231,6 +231,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 #endif
    use time_manager,     only: get_nstep
    use iop_data_mod,     only: single_column
+   use phys_grid,       only: get_lat_p, get_lon_p, get_rlat_p, get_rlon_p
 #ifdef MMF_ML_TRAINING
    use ml_training,      only: write_ml_training
 #endif /* MMF_ML_TRAINING */
@@ -245,6 +246,8 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    integer :: lchnk
    integer :: i, j
    integer :: ptracker, ncol
+   real(r8) :: delta_lat, delta_lon
+   real(r8), parameter :: tol = 1.e-4
 
    ! type(physics_state), pointer :: phys_state_aphys1(:) => null() ! save phys_state after call to phys_run1
    ! type(physics_tend ), pointer :: phys_tend(:) => null()
@@ -349,6 +352,18 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    end do
    
    cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
+
+   do lchnk = begchunk, endchunk
+      ncol = phys_state(lchnk)%ncol
+      do i = 1,ncol
+        delta_lat = get_rlat_p(lchnk,i) - 0.0978469
+        delta_lon = get_rlon_p(lchnk,i) - 3.23991135
+        if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+          write (iulog,*) 'cam_cmop debug before calling driver: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state(lchnk)%t(i,1:60)
+          write (iulog,*) 'cam_cmop debug before calling driver: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't_adv = ', phys_state(lchnk)%t_adv(1,i,1:60)
+        endif
+      end do
+    end do
 
 #ifdef MMF_ML_TRAINING
    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then

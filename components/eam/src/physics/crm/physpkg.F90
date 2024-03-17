@@ -876,6 +876,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
       delta_lon = get_rlon_p(lchnk,i) - 3.23991135
       if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
         write (iulog,*) 'Climsimdriver debug at beginning of driver: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state(lchnk)%t(i,1:60)
+        write (iulog,*) 'Climsimdriver debug at beginning of driver: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't_adv = ', phys_state(lchnk)%t_adv(1,i,1:60)
       endif
     end do
   end do
@@ -899,6 +900,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
       delta_lon = get_rlon_p(lchnk,i) - 3.23991135
       if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
         write (iulog,*) 'Climsimdriver debug after timestep init: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state(lchnk)%t(i,1:60)
+        write (iulog,*) 'Climsimdriver debug after timestep init: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't_adv = ', phys_state(lchnk)%t_adv(1,i,1:60)
       endif
     end do
   end do
@@ -1023,6 +1025,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
             delta_lon = get_rlon_p(lchnk,i) - 3.23991135
             if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
               write (iulog,*) 'Climsimdriver debug at before call run1_NN: nstep - nstep0, nstep_NN, do_climsim = ', nstep - nstep0, nstep_NN, 'lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state_nn(lchnk)%t(i,1:60)
+              write (iulog,*) 'Climsimdriver debug at before call run1_NN: nstep - nstep0, nstep_NN, do_climsim = ', nstep - nstep0, nstep_NN, 'lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't_adv = ', phys_state_nn(lchnk)%t_adv(1,i,1:60)
             endif
           end do
         end do

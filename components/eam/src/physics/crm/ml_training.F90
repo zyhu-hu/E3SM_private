@@ -53,7 +53,7 @@ CONTAINS
    end function get_ml_filename
    !------------------------------------------------------------------------------------------------
    subroutine write_ml_training( pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, mode )
-      use phys_grid,           only: phys_decomp, get_lat_p, get_rlat_p
+      use phys_grid,           only: phys_decomp, get_lat_p, get_rlat_p, get_lon_p, get_rlon_p
       use physics_buffer,      only: pbuf_init_restart_alt, pbuf_write_restart_alt
       use time_manager,        only: timemgr_init_restart, timemgr_write_restart
       use chemistry,           only: chem_init_restart, chem_write_restart
@@ -92,7 +92,7 @@ CONTAINS
       real(r8):: tmp3D(pcols, pver, begchunk:endchunk)    ! temp variable for derived type data
       real(r8):: tmp3Dp(pcols, pverp, begchunk:endchunk)  ! temp variable for derived type data
 
-      integer :: ierr, i, m, k
+      integer :: ierr, i, m, k, lchnk
       integer :: physgrid
       integer :: gdims(3)
       integer :: nhdims
@@ -110,6 +110,8 @@ CONTAINS
       logical              :: add_cam_out
 
       real(r8) :: math_pi
+      real(r8) :: delta_lat, delta_lon
+      real(r8), parameter :: tol = 1.e-4
 
       ! file variable descriptions
 
@@ -404,6 +406,22 @@ CONTAINS
          call cam_grid_get_decomp(grid_id, (/pcols,pver,endchunk-begchunk+1/), (/gdims(1),pver/), pio_double, iodesc3d)
          call cam_grid_get_decomp(grid_id, (/pcols,pverp,endchunk-begchunk+1/), (/gdims(1),pverp/), pio_double, iodesc3dp)
       end if
+
+      !debug
+      if (mode==1) then
+         do lchnk = begchunk, endchunk
+            ! ncol = phys_state(lchnk)%ncol
+            do i = 1,ncol(lchnk)
+              delta_lat = get_rlat_p(lchnk,i) - 0.0978469
+              delta_lon = get_rlon_p(lchnk,i) - 3.23991135
+              if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+                write (iulog,*) 'within ml_training: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't = ', phys_state(lchnk)%t(i,1:60)
+                write (iulog,*) 'within ml_training: lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 't_adv = ', phys_state(lchnk)%t_adv(1,i,1:60)
+              endif
+            end do
+          end do
+      end if
+
       !-------------------------------------------------------------------------
       !-------------------------------------------------------------------------
       ! Initialize file and define variables
