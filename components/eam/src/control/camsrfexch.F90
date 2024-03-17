@@ -811,7 +811,7 @@ subroutine cam_export(state,cam_out,pbuf)
       if (cam_out%precl(i) .lt.0._r8) cam_out%precl(i)=0._r8
       if (cam_out%precsc(i).lt.0._r8) cam_out%precsc(i)=0._r8
       if (cam_out%precsl(i).lt.0._r8) cam_out%precsl(i)=0._r8
-      if (cam_out%precsc(i).gt.cam_out%precc(i)) cam_out%precsc(i)=cam_out%precc(i)
+      !if (cam_out%precsc(i).gt.cam_out%precc(i)) cam_out%precsc(i)=cam_out%precc(i)
       if (cam_out%precsl(i).gt.cam_out%precl(i)) cam_out%precsl(i)=cam_out%precl(i)
       ! end jrm
    end do

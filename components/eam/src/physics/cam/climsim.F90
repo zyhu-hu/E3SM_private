@@ -789,14 +789,14 @@ end select
    u_bctend (:ncol,1:pver) = output(1:ncol,4*pver+1:5*pver)       ! m/s/s
    v_bctend (:ncol,1:pver) = output(1:ncol,5*pver+1:6*pver)       ! m/s/s
 
-! deny any moisture activity in the stratosphere:
-   do i=1,ncol
-     call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
-     q_bctend (i,1:idx_trop(i)) = 0.
-     qc_bctend(i,1:idx_trop(i)) = 0.
-     qi_bctend(i,1:idx_trop(i)) = 0.
-   end do
-   call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
+! ! deny any moisture activity in the stratosphere:
+!    do i=1,ncol
+!      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
+!      q_bctend (i,1:idx_trop(i)) = 0.
+!      qc_bctend(i,1:idx_trop(i)) = 0.
+!      qi_bctend(i,1:idx_trop(i)) = 0.
+!    end do
+!    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
 
 ! -- atmos positivity constraints ---- 
    if (do_constraints) then
