@@ -155,7 +155,7 @@ contains
                            lv=.true.  &
                           )
 
-   do_constraints = .true.
+   do_constraints = .false.
    
    s_bctend(:,:)  = 0.
    q_bctend(:,:)  = 0.
