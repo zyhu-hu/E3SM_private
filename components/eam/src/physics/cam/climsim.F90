@@ -60,7 +60,8 @@ use iso_fortran_env
   real(r8) :: cb_ramp_factor = 1.0
   integer :: cb_ramp_step_0steps = 10
   integer :: cb_ramp_step_1steps = 20
-
+  logical :: cb_do_clip = .false.
+  logical :: cb_do_aggressive_pruning = .false.
 
 
 
@@ -479,6 +480,51 @@ end if
         input(:,15*pver+k) = 0.
         input(:,19*pver+k) = 0.
         input(:,20*pver+k) = 0.
+      end do
+    end if
+
+    if (cb_do_aggressive_pruning) then
+      do k=1,strato_lev
+        input(:,1*pver+k) = 0.  
+        input(:,2*pver+k) = 0.  
+        input(:,3*pver+k) = 0. 
+        input(:,4*pver+k) = 0.
+        input(:,5*pver+k) = 0.
+        input(:,6*pver+k) = 0.
+        input(:,7*pver+k) = 0.
+        input(:,8*pver+k) = 0.
+        input(:,9*pver+k) = 0.
+        input(:,10*pver+k) = 0.
+        input(:,11*pver+k) = 0.
+        input(:,12*pver+k) = 0.
+        input(:,13*pver+k) = 0.
+        input(:,14*pver+k) = 0.
+        input(:,15*pver+k) = 0.
+        input(:,16*pver+k) = 0.
+        input(:,17*pver+k) = 0.
+        input(:,18*pver+k) = 0.
+        input(:,19*pver+k) = 0.
+        input(:,20*pver+k) = 0.
+        input(:,21*pver+k) = 0.
+        input(:,1516) = 0.
+      end do
+
+      do k=1,30
+        input(:,2*pver+k) = 0. 
+        input(:,14*pver+k) = 0.
+        input(:,19*pver+k) = 0.
+      end do
+    end if
+
+    if (cb_do_clip) then
+      do k=61,120
+        input(:,k) = max(min(input(:,k),1.2),0.0)
+      end do
+      do k=361,720
+        input(:,k) = max(min(input(:,k),0.5),-0.5)
+      end do
+      do k=721,1320
+        input(:,k) = max(min(input(:,k),3.0),-3.0)
       end do
     end if
 
@@ -969,7 +1015,8 @@ end subroutine neural_net
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
                            cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step, &
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
-                           cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps
+                           cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
+                           cb_do_aggressive_pruning, cb_do_clip
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1033,6 +1080,8 @@ end subroutine neural_net
       call mpibcast(cb_ramp_factor, 1,            mpir8,  0, mpicom)
       call mpibcast(cb_ramp_step_0steps, 1,            mpiint,  0, mpicom)
       call mpibcast(cb_ramp_step_1steps, 1,            mpiint,  0, mpicom)
+      call mpibcast(cb_do_clip,     1,                 mpilog,  0, mpicom)
+      call mpibcast(cb_do_aggressive_pruning,     1,                 mpilog,  0, mpicom)
 
 
 

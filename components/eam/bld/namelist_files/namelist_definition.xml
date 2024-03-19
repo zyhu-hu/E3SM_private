@@ -8100,6 +8100,16 @@ if choose 'step' ramping schedule, the steps took to with 0 NN output and 1 SP o
 if choose 'step' ramping schedule, the steps took to with cb_ramp_factor NN output and 1-cb_ramp_factor SP output
 </entry>
 
+<entry id="cb_do_clip" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to clip input;
+</entry>
+
+<entry id="cb_do_aggressive_pruning" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to aggressively prune input;
+</entry>
+
 
 
 
