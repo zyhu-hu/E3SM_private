@@ -13,7 +13,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
-case_prefix = 'corrected_nndebug_prune_clip_test2'
+case_prefix = 'corrected_nndebug_prune_clip_seed'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -36,8 +36,8 @@ reftod = '00000' # or 21600, 43200, 64800
 newcase      = True
 config       = True
 build        = True
-submit       = False
-# continue_run = True
+submit       = True
+#continue_run = True
 src_mod_atm  = False
 
 debug_mode = False
@@ -45,7 +45,7 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',15, 0,'00:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',5, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -80,16 +80,16 @@ f_strato_lev = 15
 f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qc_exp_lambda_large.txt'
 f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
-cb_spinup_step = 72
+cb_spinup_step = 5
 f_do_limiter = '.false.'
 f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
 f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
 
-f_cb_do_ramp = '.false.'
-f_cb_ramp_option = 'constant'
+f_cb_do_ramp = '.true.'
+f_cb_ramp_option = 'step'
 cb_ramp_factor = 1.0
-cb_ramp_step_0steps = 10
-cb_ramp_step_1steps = 20
+cb_ramp_step_0steps = 80
+cb_ramp_step_1steps = 10
 cb_do_clip = '.true.'
 cb_do_aggressive_pruning = '.true.'
 #---------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ if newcase :
    run_cmd(f'./xmlchange EXEROOT={case_build_dir}')
    run_cmd(f'./xmlchange RUNDIR={case_run_dir}')
    run_cmd(f'./xmlchange DOUT_S_ROOT={short_term_archive_root_dir}')
-   run_cmd('./xmlchange DOUT_S=TRUE')
+   run_cmd('./xmlchange DOUT_S=FALSE')
    rest_option = 'ndays'
    run_cmd(f'./xmlchange REST_OPTION={rest_option}')
    run_cmd('./xmlchange REST_N=1')
@@ -185,15 +185,11 @@ cb_do_aggressive_pruning = {cb_do_aggressive_pruning}
 /
 
 &cam_history_nl
-fincl2 = 'state_t_0:I:I', 'state_q0001_0:I', 'state_q0002_0:I', 'state_q0003_0:I', 'state_u_0:I', 'state_v_0:I', 'cam_out_NETSW_0:I', 'cam_out_FLWDS_0:I', 'cam_out_PRECSC_0:I', 'cam_out_PRECC_0:I', 'cam_out_SOLS_0:I', 'cam_out_SOLL_0:I', 'cam_out_SOLSD_0:I', 'cam_out_SOLLD_0:I'
-fincl3 = 'state_t_1:I', 'state_q0001_1:I', 'state_q0002_1:I', 'state_q0003_1:I', 'state_u_1:I', 'state_v_1:I', 'cam_out_NETSW_1:I', 'cam_out_FLWDS_1:I', 'cam_out_PRECSC_1:I', 'cam_out_PRECC_1:I', 'cam_out_SOLS_1:I', 'cam_out_SOLL_1:I', 'cam_out_SOLSD_1:I', 'cam_out_SOLLD_1:I'
-fincl4 = 'state_t_2:I', 'state_q0001_2:I', 'state_q0002_2:I', 'state_q0003_2:I', 'state_u_2:I', 'state_v_2:I', 'cam_out_NETSW_2:I', 'cam_out_FLWDS_2:I', 'cam_out_PRECSC_2:I', 'cam_out_PRECC_2:I', 'cam_out_SOLS_2:I', 'cam_out_SOLL_2:I', 'cam_out_SOLSD_2:I', 'cam_out_SOLLD_2:I'
-fincl5 = 'state_t_3:I', 'state_q0001_3:I', 'state_q0002_3:I', 'state_q0003_3:I', 'state_u_3:I', 'state_v_3:I', 'cam_out_NETSW_3:I', 'cam_out_FLWDS_3:I', 'cam_out_PRECSC_3:I', 'cam_out_PRECC_3:I', 'cam_out_SOLS_3:I', 'cam_out_SOLL_3:I', 'cam_out_SOLSD_3:I', 'cam_out_SOLLD_3:I'
 
-fincl6 = 'T:I', 'Q:I', 'CLDLIQ:I', 'CLDICE:I', 'U:I', 'V:I', 'TS:I', 'PS:I', 'LHFLX:I', 'SHFLX:I', 'SOLIN:I', 'PRECC:I', 'PRECSC:I'
+fincl2 = 'T:I', 'Q:I', 'CLDLIQ:I', 'CLDICE:I', 'U:I', 'V:I', 'TS:I', 'PS:I', 'LHFLX:I', 'SHFLX:I', 'SOLIN:I', 'PRECC:I', 'PRECSC:I'
 
-nhtfrq = 0,1,1,1,1,1
-mfilt  = 0,1,1,1,1,1
+nhtfrq = 0,1
+mfilt  = 0,1
 /
 
                      ''')
