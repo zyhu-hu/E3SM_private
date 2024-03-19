@@ -13,7 +13,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
-case_prefix = 'corrected_nndebug_prune_clip'
+case_prefix = 'corrected_nndebug_prune_clip_test2'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -36,7 +36,7 @@ reftod = '00000' # or 21600, 43200, 64800
 newcase      = True
 config       = True
 build        = True
-submit       = True
+submit       = False
 # continue_run = True
 src_mod_atm  = False
 
@@ -79,7 +79,7 @@ f_qoutput_prune = '.true.'
 f_strato_lev = 15
 f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qc_exp_lambda_large.txt'
 f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
-f_decouple_cloud = '.true.'
+f_decouple_cloud = '.false.'
 cb_spinup_step = 72
 f_do_limiter = '.false.'
 f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
@@ -174,7 +174,7 @@ cb_do_limiter = {f_do_limiter}
 cb_limiter_lower = '{f_limiter_lower}'
 cb_limiter_upper = '{f_limiter_upper}'
 cb_partial_coupling = .true.
-cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
+cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
 cb_do_ramp = {f_cb_do_ramp}
 cb_ramp_option = '{f_cb_ramp_option}'
 cb_ramp_factor = {cb_ramp_factor}
