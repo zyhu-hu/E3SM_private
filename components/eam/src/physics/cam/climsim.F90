@@ -561,6 +561,9 @@ end if
         output(:,2*pver+k) = 0. ! qc
         output(:,3*pver+k) = 0. ! qi
       end do
+      do k=1,30
+        output(:,2*pver+k) = 0. 
+      end do
     end if
 
 !     do i=1,ncol
