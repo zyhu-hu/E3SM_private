@@ -561,7 +561,7 @@ end if
         output(:,2*pver+k) = 0. ! qc
         output(:,3*pver+k) = 0. ! qi
       end do
-      do k=1,30
+      do k=1,28
         output(:,2*pver+k) = 0. 
       end do
     end if
