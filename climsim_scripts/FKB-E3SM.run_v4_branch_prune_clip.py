@@ -69,7 +69,7 @@ case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
 # f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata_prune_clip/model.pt'
+f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/dagger_iter1_shuffled_10step1_test3/model.pt'
 f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
 f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/inp_sub.txt'
 f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/inp_div.txt'
