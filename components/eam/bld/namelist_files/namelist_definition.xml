@@ -8110,6 +8110,11 @@ Option to clip input;
 Option to aggressively prune input;
 </entry>
 
+<entry id="cb_solin_nolag" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option have solin/coszr without lag for nn input;
+</entry>
+
 
 
 

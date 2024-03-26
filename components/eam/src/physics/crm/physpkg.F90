@@ -725,7 +725,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   ! Purpose: climsim driver
   !-----------------------------------------------------------------------------
   use climsim,          only: cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, &
-                              cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps
+                              cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, cb_solin_nolag
   use physics_buffer,   only: physics_buffer_desc, pbuf_get_chunk, &
                               pbuf_allocate, pbuf_get_index, pbuf_get_field
   use time_manager,     only: get_nstep, get_step_size, & 
@@ -881,7 +881,11 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   call get_variability(sfac)                        ! "
   do lchnk=begchunk,endchunk
      ncol = phys_state(lchnk)%ncol
-     calday = get_curr_calday(-dtime) ! get current calendar day with a negative offset to match the time in mli
+     if (cb_solin_nolag) then
+      calday = get_curr_calday()
+     else
+      calday = get_curr_calday(-dtime) ! get current calendar day with a negative offset to match the time in mli
+     end if
      ! coszrs
      call get_rlat_all_p(lchnk, ncol, clat)
      call get_rlon_all_p(lchnk, ncol, clon)

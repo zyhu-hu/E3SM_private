@@ -62,6 +62,7 @@ use iso_fortran_env
   integer :: cb_ramp_step_1steps = 20
   logical :: cb_do_clip = .false.
   logical :: cb_do_aggressive_pruning = .false.
+  logical :: cb_solin_nolag  = .false.
 
 
 
@@ -91,7 +92,7 @@ use iso_fortran_env
   integer :: cb_n_levels_zero = 12 ! top n levels to zero out
 
   public neural_net, init_neural_net, climsim_readnl, &
-         cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps
+         cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, cb_solin_nolag
   
 contains
 
@@ -1019,7 +1020,7 @@ end subroutine neural_net
                            cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step, &
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
-                           cb_do_aggressive_pruning, cb_do_clip
+                           cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1085,6 +1086,7 @@ end subroutine neural_net
       call mpibcast(cb_ramp_step_1steps, 1,            mpiint,  0, mpicom)
       call mpibcast(cb_do_clip,     1,                 mpilog,  0, mpicom)
       call mpibcast(cb_do_aggressive_pruning,     1,                 mpilog,  0, mpicom)
+      call mpibcast(cb_solin_nolag, 1,          mpilog,  0, mpicom)
 
 
 
