@@ -63,6 +63,10 @@ use iso_fortran_env
   logical :: cb_do_clip = .false.
   logical :: cb_do_aggressive_pruning = .false.
   logical :: cb_solin_nolag  = .false.
+  logical :: cb_clip_rhonly = .false.
+  integer :: strato_lev_qinput = -1
+  integer :: strato_lev_tinput = -1
+
 
 
 
@@ -515,18 +519,41 @@ end if
         input(:,14*pver+k) = 0.
         input(:,19*pver+k) = 0.
       end do
+
+      if (strato_lev_qinput>0) then
+        do k=1,strato_lev_qinput
+          input(:,1*pver+k) = 0.  
+          input(:,3*pver+k) = 0. 
+          input(:,13*pver+k) = 0.  
+          input(:,15*pver+k) = 0. 
+          input(:,18*pver+k) = 0.  
+          input(:,20*pver+k) = 0. 
+        end do
+      end if
+
+      if (strato_lev_tinput>0) then
+        do k=1,strato_lev_tinput
+          input(:,k) = 0.  
+        end do
+      end if
     end if
 
     if (cb_do_clip) then
-      do k=61,120
-        input(:,k) = max(min(input(:,k),1.2),0.0)
-      end do
-      do k=361,720
-        input(:,k) = max(min(input(:,k),0.5),-0.5)
-      end do
-      do k=721,1320
-        input(:,k) = max(min(input(:,k),3.0),-3.0)
-      end do
+      if (cb_clip_rhonly) then
+        do k=61,120
+          input(:,k) = max(min(input(:,k),1.2),0.0)
+        end do
+      else
+        do k=61,120
+          input(:,k) = max(min(input(:,k),1.2),0.0)
+        end do
+        do k=361,720
+          input(:,k) = max(min(input(:,k),0.5),-0.5)
+        end do
+        do k=721,1320
+          input(:,k) = max(min(input(:,k),3.0),-3.0)
+        end do
+      end if
     end if
 
 #ifdef CLIMSIMDEBUG
@@ -1020,7 +1047,8 @@ end subroutine neural_net
                            cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_decouple_cloud, cb_spinup_step, &
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
-                           cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag
+                           cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
+                           strato_lev_qinput, strato_lev_tinput
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1087,6 +1115,9 @@ end subroutine neural_net
       call mpibcast(cb_do_clip,     1,                 mpilog,  0, mpicom)
       call mpibcast(cb_do_aggressive_pruning,     1,                 mpilog,  0, mpicom)
       call mpibcast(cb_solin_nolag, 1,          mpilog,  0, mpicom)
+      call mpibcast(cb_clip_rhonly,     1,                 mpilog,  0, mpicom)
+      call mpibcast(strato_lev_qinput,   1, mpiint,  0, mpicom)
+      call mpibcast(strato_lev_tinput,   1, mpiint,  0, mpicom)
 
 
 

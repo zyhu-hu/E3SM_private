@@ -8115,7 +8115,20 @@ Option to aggressively prune input;
 Option have solin/coszr without lag for nn input;
 </entry>
 
+<entry id="cb_clip_rhonly" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to clip only rh input;
+</entry>
 
+<entry id="strato_lev_qinput" type="integer" category="climsim"
+       group="climsim_nl" valid_values="" >
+define the stratosphere level for pruning qv and qi related input
+</entry>
+
+<entry id="strato_lev_tinput" type="integer" category="climsim"
+       group="climsim_nl" valid_values="" >
+define the stratosphere level for pruning t
+</entry>
 
 
 </namelist_definition>
