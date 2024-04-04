@@ -435,6 +435,8 @@ subroutine stepon_run1( dtime_out, phys_state, phys_tend, pbuf2d,        &
    call d_p_coupling(dyn_state%grid, phys_state, phys_tend,  pbuf2d, dyn_out)
    call t_stopf('d_p_coupling')
 
+   write(*,*) 'dynamical core is using fv'
+
 !EOC
 end subroutine stepon_run1
 

@@ -12,7 +12,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-case_prefix = 'v4net_baseline_fulldata_correctlat'
+case_prefix = 'v4net_baseline_fulldata_dyncore_test'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -44,7 +44,7 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 # stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',15, 0,'00:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
