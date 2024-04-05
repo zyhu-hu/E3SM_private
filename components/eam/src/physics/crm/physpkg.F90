@@ -1532,7 +1532,7 @@ subroutine phys_run2(phys_state, ztodt, phys_tend, pbuf2d, cam_out, cam_in )
   !-----------------------------------------------------------------------------
   ! Local Variables
   !-----------------------------------------------------------------------------
-  integer :: c                                 ! chunk index
+  integer :: c, k,i,j                                 ! chunk index
   integer :: ncol                              ! number of columns
   integer :: nstep                             ! current timestep number
   !-----------------------------------------------------------------------------
@@ -1546,6 +1546,16 @@ subroutine phys_run2(phys_state, ztodt, phys_tend, pbuf2d, cam_out, cam_in )
 
   call t_barrierf('sync_ac_physics', mpicom)
   call t_startf ('ac_physics')
+
+  ! save state values to calculate ac tendencies
+  do c=begchunk,endchunk
+    ncol = get_ncols_p(c)
+    do i=1,ncol
+      phys_state(c)%t_ac(i,:) = phys_state(c)%t(i,:)
+      phys_state(c)%u_ac(i,:) = phys_state(c)%u(i,:)
+      phys_state(c)%q_ac(i,:,:) = phys_state(c)%q(i,:,:)
+    end do
+  end do
 
   nstep = get_nstep()
 
@@ -1593,6 +1603,17 @@ subroutine phys_run2(phys_state, ztodt, phys_tend, pbuf2d, cam_out, cam_in )
 #ifdef TRACER_CHECK
   call gmean_mass ('after tphysac FV:WET)', phys_state)
 #endif
+
+
+  do c=begchunk,endchunk
+    ncol = get_ncols_p(c)
+    do i=1,ncol
+      phys_state(c)%t_ac(i,:) = (phys_state(c)%t(i,:) - phys_state(c)%t_ac(i,:))/1200.0
+      phys_state(c)%u_ac(i,:) = (phys_state(c)%u(i,:) - phys_state(c)%u_ac(i,:))/1200.0
+      phys_state(c)%q_ac(i,:,:) = (phys_state(c)%q(i,:,:) - phys_state(c)%q_ac(i,:,:))/1200.0
+    end do
+  end do
+
 
   call pbuf_deallocate(pbuf2d, 'physpkg')
 

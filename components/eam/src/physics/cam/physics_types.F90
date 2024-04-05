@@ -110,6 +110,13 @@ module physics_types
       tm_shf,  &
       tm_coszn
 
+      real(r8), dimension(:,:),allocatable      :: &
+         t_ac,   &
+         u_ac
+
+      real(r8), dimension(:,:,:),allocatable      :: &
+         q_adv
+
 
 
      real(r8), dimension(:,:),allocatable        :: &
@@ -1480,6 +1487,22 @@ end subroutine physics_ptend_copy
       end do
    end do
 
+   do k = 1, pver
+      do i = 1, ncol
+         state_out%t_ac(i,k) = state_in%t_ac(i,k)
+         state_out%u_ac(i,k) = state_in%u_ac(i,k)
+      end do
+   end do
+
+   do m = 1, pcnst
+      do k = 1, pver
+         do i = 1, ncol
+            state_out%q_ac(i,k,m) = state_in%q_ac(i,k,m) 
+         end do
+      end do
+   end do
+
+
     do k = 1, pverp
        do i = 1, ncol
           state_out%pint(i,k)      = state_in%pint(i,k) 
@@ -1831,6 +1854,14 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   allocate(state%tm_shf(ptracker, psetcols), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tm_shf')
 
+  allocate(state%t_ac(psetcols,pver), stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%t_ac')
+  
+  allocate(state%u_ac(psetcols,pver), stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%u_ac')
+
+  allocate(state%q_ac(psetcols,pver, pcnst), stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%q_ac')
 
   if(print_additional_diagn_phys_control)then
      allocate(state%te_before_physstep(psetcols), stat=ierr)
@@ -1958,6 +1989,10 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   state%tm_shf(:,:) = inf
   state%tm_coszn(:,:) = inf
   
+  state%t_ac(:,:) = inf
+  state%u_ac(:,:) = inf
+  state%q_ac(:,:,:) = inf
+
       
   state%pint(:,:) = inf
   state%pintdry(:,:) = inf
