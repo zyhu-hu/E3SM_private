@@ -115,7 +115,7 @@ module physics_types
          u_ac
 
       real(r8), dimension(:,:,:),allocatable      :: &
-         q_adv
+         q_ac
 
 
 
