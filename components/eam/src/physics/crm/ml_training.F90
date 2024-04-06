@@ -861,17 +861,17 @@ CONTAINS
             ! do the same thing for other _dyc1/2/3 variables
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0001_dyc1(:ncol(i),:,1) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc1(:ncol(i),:,1) 
             end do
             call pio_write_darray(file, state_desc_q0001_dyc1, iodesc3d, tmp3D, ierr)
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0002_dyc1(:ncol(i),:,2) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc1(:ncol(i),:,2) 
             end do
             call pio_write_darray(file, state_desc_q0002_dyc1, iodesc3d, tmp3D, ierr)
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0003_dyc1(:ncol(i),:,3) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc1(:ncol(i),:,3) 
             end do
             call pio_write_darray(file, state_desc_q0003_dyc1, iodesc3d, tmp3D, ierr)
 
@@ -888,17 +888,17 @@ CONTAINS
             ! do the same thing for other _dyc1/2/3 variables
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0001_dyc2(:ncol(i),:,1) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc2(:ncol(i),:,1) 
             end do
             call pio_write_darray(file, state_desc_q0001_dyc2, iodesc3d, tmp3D, ierr)
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0002_dyc2(:ncol(i),:,2) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc2(:ncol(i),:,2) 
             end do
             call pio_write_darray(file, state_desc_q0002_dyc2, iodesc3d, tmp3D, ierr)
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0003_dyc2(:ncol(i),:,3) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc2(:ncol(i),:,3) 
             end do
             call pio_write_darray(file, state_desc_q0003_dyc2, iodesc3d, tmp3D, ierr)
 
@@ -915,17 +915,17 @@ CONTAINS
             ! do the same thing for other _dyc1/2/3 variables
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0001_dyc3(:ncol(i),:,1) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc3(:ncol(i),:,1) 
             end do
             call pio_write_darray(file, state_desc_q0001_dyc3, iodesc3d, tmp3D, ierr)
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0002_dyc3(:ncol(i),:,2) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc3(:ncol(i),:,2) 
             end do
             call pio_write_darray(file, state_desc_q0002_dyc3, iodesc3d, tmp3D, ierr)
 
             do i=begchunk,endchunk
-               tmp3D(:ncol(i),:,i) = phys_state(i)%q0003_dyc3(:ncol(i),:,3) 
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q_dyc3(:ncol(i),:,3) 
             end do
             call pio_write_darray(file, state_desc_q0003_dyc3, iodesc3d, tmp3D, ierr)
 
