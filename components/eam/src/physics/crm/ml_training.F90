@@ -258,6 +258,24 @@ CONTAINS
       type(var_desc_t)     :: state_desc_q0003_ac
       type(var_desc_t)     :: state_desc_u_ac
 
+      type(var_desc_t)     :: state_desc_t_dyc1
+      type(var_desc_t)     :: state_desc_q0001_dyc1
+      type(var_desc_t)     :: state_desc_q0002_dyc1
+      type(var_desc_t)     :: state_desc_q0003_dyc1
+      type(var_desc_t)     :: state_desc_u_dyc1
+
+      type(var_desc_t)     :: state_desc_t_dyc2
+      type(var_desc_t)     :: state_desc_q0001_dyc2
+      type(var_desc_t)     :: state_desc_q0002_dyc2
+      type(var_desc_t)     :: state_desc_q0003_dyc2
+      type(var_desc_t)     :: state_desc_u_dyc2
+
+      type(var_desc_t)     :: state_desc_t_dyc3
+      type(var_desc_t)     :: state_desc_q0001_dyc3
+      type(var_desc_t)     :: state_desc_q0002_dyc3
+      type(var_desc_t)     :: state_desc_q0003_dyc3
+      type(var_desc_t)     :: state_desc_u_dyc3
+
       type(var_desc_t)     :: state_desc_ps_tm
       type(var_desc_t)     :: state_desc_solin_tm
       type(var_desc_t)     :: state_desc_lhf_tm
@@ -482,6 +500,25 @@ CONTAINS
             ierr = pio_def_var(file, 'state_q0002_ac',      pio_double, dimids_3D1, state_desc_q0002_ac)
             ierr = pio_def_var(file, 'state_q0003_ac',      pio_double, dimids_3D1, state_desc_q0003_ac)
             ierr = pio_def_var(file, 'state_u_ac',      pio_double, dimids_3D1, state_desc_u_ac)
+
+            ierr = pio_def_var(file, 'state_t_dyc1',      pio_double, dimids_3D1, state_desc_t_dyc1)
+            ierr = pio_def_var(file, 'state_q0001_dyc1',      pio_double, dimids_3D1, state_desc_q0001_dyc1)
+            ierr = pio_def_var(file, 'state_q0002_dyc1',      pio_double, dimids_3D1, state_desc_q0002_dyc1)
+            ierr = pio_def_var(file, 'state_q0003_dyc1',      pio_double, dimids_3D1, state_desc_q0003_dyc1)
+            ierr = pio_def_var(file, 'state_u_dyc1',      pio_double, dimids_3D1, state_desc_u_dyc1)
+
+            ierr = pio_def_var(file, 'state_t_dyc2',      pio_double, dimids_3D1, state_desc_t_dyc2)
+            ierr = pio_def_var(file, 'state_q0001_dyc2',      pio_double, dimids_3D1, state_desc_q0001_dyc2)
+            ierr = pio_def_var(file, 'state_q0002_dyc2',      pio_double, dimids_3D1, state_desc_q0002_dyc2)
+            ierr = pio_def_var(file, 'state_q0003_dyc2',      pio_double, dimids_3D1, state_desc_q0003_dyc2)
+            ierr = pio_def_var(file, 'state_u_dyc2',      pio_double, dimids_3D1, state_desc_u_dyc2)
+
+            ierr = pio_def_var(file, 'state_t_dyc3',      pio_double, dimids_3D1, state_desc_t_dyc3)
+            ierr = pio_def_var(file, 'state_q0001_dyc3',      pio_double, dimids_3D1, state_desc_q0001_dyc3)
+            ierr = pio_def_var(file, 'state_q0002_dyc3',      pio_double, dimids_3D1, state_desc_q0002_dyc3)
+            ierr = pio_def_var(file, 'state_q0003_dyc3',      pio_double, dimids_3D1, state_desc_q0003_dyc3)
+            ierr = pio_def_var(file, 'state_u_dyc3',      pio_double, dimids_3D1, state_desc_u_dyc3)
+         
 
             ierr = pio_def_var(file, 'tm_state_ps',      pio_double, dimids_hrz, state_desc_ps_tm)
             ierr = pio_def_var(file, 'tm_pbuf_SOLIN',      pio_double, dimids_hrz, state_desc_solin_tm)
@@ -815,6 +852,87 @@ CONTAINS
                tmp3D(:ncol(i),:,i) = phys_state(i)%q_ac(:ncol(i),:,3) 
             end do
             call pio_write_darray(file, state_desc_q0003_ac, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%t_dyc1(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_t_dyc1, iodesc3d, tmp3D, ierr)
+
+            ! do the same thing for other _dyc1/2/3 variables
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0001_dyc1(:ncol(i),:,1) 
+            end do
+            call pio_write_darray(file, state_desc_q0001_dyc1, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0002_dyc1(:ncol(i),:,2) 
+            end do
+            call pio_write_darray(file, state_desc_q0002_dyc1, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0003_dyc1(:ncol(i),:,3) 
+            end do
+            call pio_write_darray(file, state_desc_q0003_dyc1, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%u_dyc1(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_u_dyc1, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%t_dyc2(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_t_dyc2, iodesc3d, tmp3D, ierr)
+
+            ! do the same thing for other _dyc1/2/3 variables
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0001_dyc2(:ncol(i),:,1) 
+            end do
+            call pio_write_darray(file, state_desc_q0001_dyc2, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0002_dyc2(:ncol(i),:,2) 
+            end do
+            call pio_write_darray(file, state_desc_q0002_dyc2, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0003_dyc2(:ncol(i),:,3) 
+            end do
+            call pio_write_darray(file, state_desc_q0003_dyc2, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%u_dyc2(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_u_dyc2, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%t_dyc3(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_t_dyc3, iodesc3d, tmp3D, ierr)
+
+            ! do the same thing for other _dyc1/2/3 variables
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0001_dyc3(:ncol(i),:,1) 
+            end do
+            call pio_write_darray(file, state_desc_q0001_dyc3, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0002_dyc3(:ncol(i),:,2) 
+            end do
+            call pio_write_darray(file, state_desc_q0002_dyc3, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%q0003_dyc3(:ncol(i),:,3) 
+            end do
+            call pio_write_darray(file, state_desc_q0003_dyc3, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%u_dyc3(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_u_dyc3, iodesc3d, tmp3D, ierr)
 
             
 

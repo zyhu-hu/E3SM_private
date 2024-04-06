@@ -112,10 +112,19 @@ module physics_types
 
       real(r8), dimension(:,:),allocatable      :: &
          t_ac,   &
-         u_ac
+         u_ac,   &
+         t_dyc1,   &
+         u_dyc1,   &
+         t_dyc2,   &
+         u_dyc2,   &
+         t_dyc3,   &
+         u_dyc3
 
       real(r8), dimension(:,:,:),allocatable      :: &
-         q_ac
+         q_ac,   &
+         q_dyc1,   &
+         q_dyc2,   &
+         q_dyc3
 
 
 
@@ -1491,6 +1500,12 @@ end subroutine physics_ptend_copy
       do i = 1, ncol
          state_out%t_ac(i,k) = state_in%t_ac(i,k)
          state_out%u_ac(i,k) = state_in%u_ac(i,k)
+         state_out%t_dyc1(i,k) = state_in%t_dyc1(i,k)
+         state_out%t_dyc2(i,k) = state_in%t_dyc2(i,k)
+         state_out%t_dyc3(i,k) = state_in%t_dyc3(i,k)
+         state_out%u_dyc1(i,k) = state_in%u_dyc1(i,k)
+         state_out%u_dyc2(i,k) = state_in%u_dyc2(i,k)
+         state_out%u_dyc3(i,k) = state_in%u_dyc3(i,k)
       end do
    end do
 
@@ -1498,6 +1513,9 @@ end subroutine physics_ptend_copy
       do k = 1, pver
          do i = 1, ncol
             state_out%q_ac(i,k,m) = state_in%q_ac(i,k,m) 
+            state_out%q_dyc1(i,k,m) = state_in%q_dyc1(i,k,m)
+            state_out%q_dyc2(i,k,m) = state_in%q_dyc2(i,k,m)
+            state_out%q_dyc3(i,k,m) = state_in%q_dyc3(i,k,m)
          end do
       end do
    end do
@@ -1863,6 +1881,35 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   allocate(state%q_ac(psetcols,pver, pcnst), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%q_ac')
 
+  allocate(state%t_dyc1(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%t_dyc1')
+
+   allocate(state%t_dyc2(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%t_dyc2')
+
+   allocate(state%t_dyc3(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%t_dyc3')
+
+   allocate(state%u_dyc1(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%u_dyc1')
+
+   allocate(state%u_dyc2(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%u_dyc2')
+
+   allocate(state%u_dyc3(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%u_dyc3')
+
+   allocate(state%q_dyc1(psetcols,pver, pcnst), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%q_dyc1')
+
+   allocate(state%q_dyc2(psetcols,pver, pcnst), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%q_dyc2')
+
+   allocate(state%q_dyc3(psetcols,pver, pcnst), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%q_dyc3')
+
+
+
   if(print_additional_diagn_phys_control)then
      allocate(state%te_before_physstep(psetcols), stat=ierr)
      if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%te_before_pstep')
@@ -1993,6 +2040,16 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   state%u_ac(:,:) = inf
   state%q_ac(:,:,:) = inf
 
+   state%t_dyc1(:,:) = inf
+   state%t_dyc2(:,:) = inf
+   state%t_dyc3(:,:) = inf
+   state%u_dyc1(:,:) = inf
+   state%u_dyc2(:,:) = inf
+   state%u_dyc3(:,:) = inf
+   state%q_dyc1(:,:,:) = inf
+   state%q_dyc2(:,:,:) = inf
+   state%q_dyc3(:,:,:) = inf
+   
       
   state%pint(:,:) = inf
   state%pintdry(:,:) = inf

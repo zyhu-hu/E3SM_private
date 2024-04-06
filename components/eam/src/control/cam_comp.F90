@@ -273,10 +273,26 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! Return time-step for physics from dynamics.
    !----------------------------------------------------------
    call t_barrierf ('sync_stepon_run1', mpicom)
+
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state(lchnk)%t_dyc1(:,:) = phys_state(lchnk)%t(:,:)
+      phys_state(lchnk)%u_dyc1(:,:) = phys_state(lchnk)%u(:,:)
+      phys_state(lchnk)%q_dyc1(:,:,:) = phys_state(lchnk)%q(:,:,:)
+   end do
+
+
    call t_startf ('stepon_run1')
    call stepon_run1( dtime, phys_state, phys_tend, pbuf2d, dyn_in, dyn_out )
    call t_stopf  ('stepon_run1')
 
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state(lchnk)%t_dyc1(:,:) = (phys_state(lchnk)%t(:,:) - phys_state(lchnk)%t_dyc1(:,:))/1200.
+      phys_state(lchnk)%u_dyc1(:,:) = (phys_state(lchnk)%u(:,:) - phys_state(lchnk)%u_dyc1(:,:))/1200.   
+      phys_state(lchnk)%q_dyc1(:,:,:) = (phys_state(lchnk)%q(:,:,:) - phys_state(lchnk)%q_dyc1(:,:,:))/1200.
+   end do
+   
    if (single_column) then
      call scam_use_iop_srf( cam_in)
    endif
@@ -464,10 +480,25 @@ subroutine cam_run2( cam_out, cam_in )
    ! Second phase of dynamics (at least couple from physics to dynamics)
    !
    call t_barrierf ('sync_stepon_run2', mpicom)
+
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state(lchnk)%t_dyc2(:,:) = phys_state(lchnk)%t(:,:)
+      phys_state(lchnk)%u_dyc2(:,:) = phys_state(lchnk)%u(:,:)
+      phys_state(lchnk)%q_dyc2(:,:,:) = phys_state(lchnk)%q(:,:,:)
+   end do
+
    call t_startf ('stepon_run2')
    call stepon_run2( phys_state, phys_tend, dyn_in, dyn_out )
 
    call t_stopf  ('stepon_run2')
+
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state(lchnk)%t_dyc2(:,:) = (phys_state(lchnk)%t(:,:) - phys_state(lchnk)%t_dyc2(:,:))/1200.
+      phys_state(lchnk)%u_dyc2(:,:) = (phys_state(lchnk)%u(:,:) - phys_state(lchnk)%u_dyc2(:,:))/1200.   
+      phys_state(lchnk)%q_dyc2(:,:,:) = (phys_state(lchnk)%q(:,:,:) - phys_state(lchnk)%q_dyc2(:,:,:))/1200.
+   end do
 
    if (is_first_step() .or. is_first_restart_step()) then
       call t_startf ('cam_run2_memusage')
@@ -500,11 +531,26 @@ subroutine cam_run3( cam_out )
    ! Third phase of dynamics
    !
    call t_barrierf ('sync_stepon_run3', mpicom)
+
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state(lchnk)%t_dyc3(:,:) = phys_state(lchnk)%t(:,:)
+      phys_state(lchnk)%u_dyc3(:,:) = phys_state(lchnk)%u(:,:)
+      phys_state(lchnk)%q_dyc3(:,:,:) = phys_state(lchnk)%q(:,:,:)
+   end do
+
    call t_startf ('stepon_run3')
    call stepon_run3( dtime, cam_out, phys_state, dyn_in, dyn_out )
 
    call t_stopf  ('stepon_run3')
 
+   do lchnk=begchunk,endchunk
+      ! copy phys_state to phys_state_aphys1 for t, u, v, s, q
+      phys_state(lchnk)%t_dyc3(:,:) = (phys_state(lchnk)%t(:,:) - phys_state(lchnk)%t_dyc3(:,:))/1200.
+      phys_state(lchnk)%u_dyc3(:,:) = (phys_state(lchnk)%u(:,:) - phys_state(lchnk)%u_dyc3(:,:))/1200.   
+      phys_state(lchnk)%q_dyc3(:,:,:) = (phys_state(lchnk)%q(:,:,:) - phys_state(lchnk)%q_dyc3(:,:,:))/1200.
+   end do
+   
    if (is_first_step() .or. is_first_restart_step()) then
       call t_startf ('cam_run3_memusage')
       call t_stopf  ('cam_run3_memusage')
