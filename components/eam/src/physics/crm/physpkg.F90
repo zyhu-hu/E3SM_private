@@ -1014,6 +1014,10 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
      else ! NN full coupling
         call phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out,&
                           solin, coszrs)
+        do lchnk = begchunk, endchunk
+          phys_state_sp(lchnk) = phys_state(lchnk)
+          cam_out_sp(lchnk)    = cam_out(lchnk)
+        end do
      end if ! (cb_partial_coupling)
   end if ! (.not. do_climsim_inference)
 
