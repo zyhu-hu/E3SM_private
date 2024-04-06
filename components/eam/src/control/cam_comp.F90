@@ -463,6 +463,7 @@ subroutine cam_run2( cam_out, cam_in )
 
    type(cam_out_t), intent(inout) :: cam_out(begchunk:endchunk)
    type(cam_in_t),  intent(inout) :: cam_in(begchunk:endchunk)
+   integer :: lchnk
 
    !
    ! Second phase of physics (after surface model update)
@@ -526,6 +527,7 @@ subroutine cam_run3( cam_out )
 #endif
 
    type(cam_out_t), intent(inout) :: cam_out(begchunk:endchunk)
+   integer :: lchnk
 !-----------------------------------------------------------------------
    !
    ! Third phase of dynamics
@@ -550,7 +552,7 @@ subroutine cam_run3( cam_out )
       phys_state(lchnk)%u_dyc3(:,:) = (phys_state(lchnk)%u(:,:) - phys_state(lchnk)%u_dyc3(:,:))/1200.   
       phys_state(lchnk)%q_dyc3(:,:,:) = (phys_state(lchnk)%q(:,:,:) - phys_state(lchnk)%q_dyc3(:,:,:))/1200.
    end do
-   
+
    if (is_first_step() .or. is_first_restart_step()) then
       call t_startf ('cam_run3_memusage')
       call t_stopf  ('cam_run3_memusage')
