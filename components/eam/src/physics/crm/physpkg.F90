@@ -1022,6 +1022,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   ! e.g., [ 'ptend_t','ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v',
   !         'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_PRECSC', 'cam_out_PRECC',
   !         'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD'           ]
+
+  write (iulog,*) 'CLIMSIM partial coupling block is about to start'
+
   if (do_climsim_inference .and. cb_partial_coupling) then
   
     if (cb_do_ramp) then
@@ -1176,6 +1179,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
 #endif
   end if ! (cb_partial coupling)
 
+  write (iulog,*) 'CLIMSIM partial coupling block is finished'
 
   !-----------------------------------------------------------------------------
   ! phys_run1 closing
