@@ -355,13 +355,19 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! sync phys_state_sp with phys_state for state variables except for adv/phy tendencies, so that we can output the correct phys_state_sp for training
    do lchnk=begchunk,endchunk
       phys_state_sp_backup(lchnk) = phys_state_sp(lchnk)
-      phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
+      phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history and tend vars
       phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
       phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
       phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
       phys_state_sp(lchnk)%u_phy(:,:,:) = phys_state_sp_backup(lchnk)%u_phy(:,:,:)
       phys_state_sp(lchnk)%q_adv(:,:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:,:)
       phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
+      phys_state_sp(lchnk)%tend_dtdt(:,:) = phys_state_sp_backup(lchnk)%tend_dtdt(:,:)
+      phys_state_sp(lchnk)%tend_dudt(:,:) = phys_state_sp_backup(lchnk)%tend_dudt(:,:)
+      phys_state_sp(lchnk)%tend_dvdt(:,:) = phys_state_sp_backup(lchnk)%tend_dvdt(:,:)
+      phys_state_sp(lchnk)%tend_flx_net(:) = phys_state_sp_backup(lchnk)%tend_flx_net(:)
+      phys_state_sp(lchnk)%tend_te_tnd(:) = phys_state_sp_backup(lchnk)%tend_te_tnd(:)
+      phys_state_sp(lchnk)%tend_tw_tnd(:) = phys_state_sp_backup(lchnk)%tend_tw_tnd(:)
    end do
    
    cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
