@@ -118,14 +118,22 @@ module physics_types
          t_dyc2,   &
          u_dyc2,   &
          t_dyc3,   &
-         u_dyc3
+         u_dyc3,   &
+         tend_dtdt,   &
+         tend_dudt,   &
+         tend_dvdt
+         
 
       real(r8), dimension(:,:,:),allocatable      :: &
          q_ac,   &
          q_dyc1,   &
          q_dyc2,   &
          q_dyc3
-
+      
+      real(r8), dimension(:),allocatable          :: &
+         tend_flx_net,  &
+         tend_te_tnd,   &
+         tend_tw_tnd
 
 
      real(r8), dimension(:,:),allocatable        :: &
@@ -1506,6 +1514,9 @@ end subroutine physics_ptend_copy
          state_out%u_dyc1(i,k) = state_in%u_dyc1(i,k)
          state_out%u_dyc2(i,k) = state_in%u_dyc2(i,k)
          state_out%u_dyc3(i,k) = state_in%u_dyc3(i,k)
+         state_out%tend_dtdt(i,k) = state_in%tend_dtdt(i,k)
+         state_out%tend_dudt(i,k) = state_in%tend_dudt(i,k)
+         state_out%tend_dvdt(i,k) = state_in%tend_dvdt(i,k)
       end do
    end do
 
@@ -1518,6 +1529,12 @@ end subroutine physics_ptend_copy
             state_out%q_dyc3(i,k,m) = state_in%q_dyc3(i,k,m)
          end do
       end do
+   end do
+
+   do i = 1, ncol
+      state_out%tend_te_tnd(i) = state_in%tend_te_tnd(i)
+      state_out%tend_tw_tnd(i) = state_in%tend_tw_tnd(i)
+      state_out%tend_flx_net(i) = state_in%tend_flx_net(i)
    end do
 
 
@@ -1908,6 +1925,23 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
    allocate(state%q_dyc3(psetcols,pver, pcnst), stat=ierr)
    if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%q_dyc3')
 
+   allocate(state%tend_dtdt(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tend_dtdt')
+
+   allocate(state%tend_dudt(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tend_dudt')
+
+   allocate(state%tend_dvdt(psetcols,pver), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tend_dvdt')
+
+   allocate(state%tend_te_tnd(psetcols), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tend_te_tnd')
+
+   allocate(state%tend_tw_tnd(psetcols), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tend_tw_tnd')
+
+   allocate(state%tend_flx_net(psetcols), stat=ierr)
+   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tend_flx_net')
 
 
   if(print_additional_diagn_phys_control)then
@@ -2049,7 +2083,14 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
    state%q_dyc1(:,:,:) = inf
    state%q_dyc2(:,:,:) = inf
    state%q_dyc3(:,:,:) = inf
-   
+
+   state%tend_dtdt(:,:) = inf
+   state%tend_dudt(:,:) = inf
+   state%tend_dvdt(:,:) = inf
+   state%tend_te_tnd(:) = inf
+   state%tend_tw_tnd(:) = inf
+   state%tend_flx_net(:) = inf
+
       
   state%pint(:,:) = inf
   state%pintdry(:,:) = inf

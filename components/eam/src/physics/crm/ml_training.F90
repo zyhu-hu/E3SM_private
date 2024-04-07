@@ -258,6 +258,13 @@ CONTAINS
       type(var_desc_t)     :: state_desc_q0003_ac
       type(var_desc_t)     :: state_desc_u_ac
 
+      type(var_desc_t)     :: state_desc_tend_dtdt
+      type(var_desc_t)     :: state_desc_tend_dudt
+      type(var_desc_t)     :: state_desc_tend_dvdt
+      type(var_desc_t)     :: state_desc_tend_flx_net
+      type(var_desc_t)     :: state_desc_tend_te_tnd
+      type(var_desc_t)     :: state_desc_tend_tw_tnd
+
       type(var_desc_t)     :: state_desc_t_dyc1
       type(var_desc_t)     :: state_desc_q0001_dyc1
       type(var_desc_t)     :: state_desc_q0002_dyc1
@@ -500,6 +507,13 @@ CONTAINS
             ierr = pio_def_var(file, 'state_q0002_ac',      pio_double, dimids_3D1, state_desc_q0002_ac)
             ierr = pio_def_var(file, 'state_q0003_ac',      pio_double, dimids_3D1, state_desc_q0003_ac)
             ierr = pio_def_var(file, 'state_u_ac',      pio_double, dimids_3D1, state_desc_u_ac)
+
+            ierr = pio_def_var(file, 'state_tend_dtdt',      pio_double, dimids_3D1, state_desc_tend_dtdt)
+            ierr = pio_def_var(file, 'state_tend_dudt',      pio_double, dimids_3D1, state_desc_tend_dudt)
+            ierr = pio_def_var(file, 'state_tend_dvdt',      pio_double, dimids_3D1, state_desc_tend_dvdt)
+            ierr = pio_def_var(file, 'state_tend_flx_net',      pio_double, dimids_hrz, state_desc_tend_flx_net)
+            ierr = pio_def_var(file, 'state_tend_te_tnd',      pio_double, dimids_hrz, state_desc_tend_te_tnd)
+            ierr = pio_def_var(file, 'state_tend_tw_tnd',      pio_double, dimids_hrz, state_desc_tend_tw_tnd)
 
             ierr = pio_def_var(file, 'state_t_dyc1',      pio_double, dimids_3D1, state_desc_t_dyc1)
             ierr = pio_def_var(file, 'state_q0001_dyc1',      pio_double, dimids_3D1, state_desc_q0001_dyc1)
@@ -852,6 +866,36 @@ CONTAINS
                tmp3D(:ncol(i),:,i) = phys_state(i)%q_ac(:ncol(i),:,3) 
             end do
             call pio_write_darray(file, state_desc_q0003_ac, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%tend_dtdt(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_tend_dtdt, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%tend_dudt(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_tend_dudt, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp3D(:ncol(i),:,i) = phys_state(i)%tend_dvdt(:ncol(i),:) 
+            end do
+            call pio_write_darray(file, state_desc_tend_dvdt, iodesc3d, tmp3D, ierr)
+
+            do i=begchunk,endchunk
+               tmp2D(:ncol(i), i) = phys_state(i)%tend_flx_net(:ncol(i)) 
+            end do
+            call pio_write_darray(file, state_desc_tend_flx_net, iodesc2d, tmp2D, ierr)
+
+            do i=begchunk,endchunk
+               tmp2D(:ncol(i), i) = phys_state(i)%tend_te_tnd(:ncol(i)) 
+            end do
+            call pio_write_darray(file, state_desc_tend_te_tnd, iodesc2d, tmp2D, ierr)
+
+            do i=begchunk,endchunk
+               tmp2D(:ncol(i), i) = phys_state(i)%tend_tw_tnd(:ncol(i)) 
+            end do
+            call pio_write_darray(file, state_desc_tend_tw_tnd, iodesc2d, tmp2D, ierr)
 
             do i=begchunk,endchunk
                tmp3D(:ncol(i),:,i) = phys_state(i)%t_dyc1(:ncol(i),:) 

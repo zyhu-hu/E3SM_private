@@ -949,6 +949,16 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   ! Run phys_run1 physics
   if (.not. do_climsim_inference) then  ! MMFspin-up
      call phys_run1(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
+
+      do lchnk = begchunk, endchunk
+        phys_state(lchnk)%tend_dtdt(:,:) = phys_tend(lchnk)%dtdt(:,:)
+        phys_state(lchnk)%tend_dudt(:,:) = phys_tend(lchnk)%dudt(:,:)
+        phys_state(lchnk)%tend_dvdt(:,:) = phys_tend(lchnk)%dvdt(:,:)
+        phys_state(lchnk)%tend_flx_net(:) = phys_tend(lchnk)%flx_net(:)
+        phys_state(lchnk)%tend_te_tnd(:) = phys_tend(lchnk)%te_tnd(:)
+        phys_state(lchnk)%tend_tw_tnd(:) = phys_tend(lchnk)%tw_tnd(:)
+      end do
+
      do lchnk = begchunk, endchunk
         phys_state_sp(lchnk) = phys_state(lchnk)
         cam_out_sp(lchnk)    = cam_out(lchnk)
@@ -971,7 +981,17 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
            call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 1) ! 1 for 'SP calculation'
         end do
-#endif
+#endif  
+
+      do lchnk = begchunk, endchunk
+        phys_state(lchnk)%tend_dtdt(:,:) = phys_tend(lchnk)%dtdt(:,:)
+        phys_state(lchnk)%tend_dudt(:,:) = phys_tend(lchnk)%dudt(:,:)
+        phys_state(lchnk)%tend_dvdt(:,:) = phys_tend(lchnk)%dvdt(:,:)
+        phys_state(lchnk)%tend_flx_net(:) = phys_tend(lchnk)%flx_net(:)
+        phys_state(lchnk)%tend_te_tnd(:) = phys_tend(lchnk)%te_tnd(:)
+        phys_state(lchnk)%tend_tw_tnd(:) = phys_tend(lchnk)%tw_tnd(:)
+      end do
+
         ! store mmf calculation of prec_dp and snow_dp
         do lchnk = begchunk, endchunk
            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
@@ -992,6 +1012,18 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
           cam_out_sp(lchnk) = cam_out(lchnk)
         end do
 
+        ! ! update phys_state_sp with phys_tend to debug 
+        ! (no need anymore since I updated phys_state previously and phys_state_sp has synced with phys_state)
+        ! do lchnk = begchunk, endchunk
+        !   phys_state_sp(lchnk)%tend_dtdt(:,:) = phys_tend(lchnk)%dtdt(:,:)
+        !   phys_state_sp(lchnk)%tend_dudt(:,:) = phys_tend(lchnk)%dudt(:,:)
+        !   phys_state_sp(lchnk)%tend_dvdt(:,:) = phys_tend(lchnk)%dvdt(:,:)
+        !   phys_state_sp(lchnk)%tend_flx_net(:) = phys_tend(lchnk)%flx_net(:)
+        !   phys_state_sp(lchnk)%tend_te_tnd(:) = phys_tend(lchnk)%te_tnd(:)
+        !   phys_state_sp(lchnk)%tend_tw_tnd(:) = phys_tend(lchnk)%tw_tnd(:)
+
+        ! end do
+
         call phys_run1_NN(phys_state_nn, phys_state_aphys1, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&
                           solin, coszrs)
 #ifdef CLIMSIM_DIAG_PARTIAL
@@ -1011,9 +1043,28 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
            snow_dp(:) = snow_dp_mmf(:,lchnk) ! (prep for cb_partial_coupling)
         end do
 
+        do lchnk = begchunk, endchunk
+          phys_state_nn(lchnk)%tend_dtdt(:,:) = phys_tend_nn(lchnk)%dtdt(:,:)
+          phys_state_nn(lchnk)%tend_dudt(:,:) = phys_tend_nn(lchnk)%dudt(:,:)
+          phys_state_nn(lchnk)%tend_dvdt(:,:) = phys_tend_nn(lchnk)%dvdt(:,:)
+          phys_state_nn(lchnk)%tend_flx_net(:) = phys_tend_nn(lchnk)%flx_net(:)
+          phys_state_nn(lchnk)%tend_te_tnd(:) = phys_tend_nn(lchnk)%te_tnd(:)
+          phys_state_nn(lchnk)%tend_tw_tnd(:) = phys_tend_nn(lchnk)%tw_tnd(:)
+        end do
+
      else ! NN full coupling
         call phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out,&
                           solin, coszrs)
+
+        do lchnk = begchunk, endchunk
+          phys_state(lchnk)%tend_dtdt(:,:) = phys_tend(lchnk)%dtdt(:,:)
+          phys_state(lchnk)%tend_dudt(:,:) = phys_tend(lchnk)%dudt(:,:)
+          phys_state(lchnk)%tend_dvdt(:,:) = phys_tend(lchnk)%dvdt(:,:)
+          phys_state(lchnk)%tend_flx_net(:) = phys_tend(lchnk)%flx_net(:)
+          phys_state(lchnk)%tend_te_tnd(:) = phys_tend(lchnk)%te_tnd(:)
+          phys_state(lchnk)%tend_tw_tnd(:) = phys_tend(lchnk)%tw_tnd(:)
+        end do
+
         do lchnk = begchunk, endchunk
           phys_state_sp(lchnk) = phys_state(lchnk)
           cam_out_sp(lchnk)    = cam_out(lchnk)
@@ -1076,6 +1127,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
            if (trim(cb_partial_coupling_vars(k)) == 'ptend_t') then
               phys_state(c)%t(:,:)   = phys_state_nn(c)%t(:,:)*ramp_ratio + phys_state(c)%t(:,:)*(1.0_r8-ramp_ratio)
               phys_tend(c)%dtdt(:,:) = phys_tend_nn(c)%dtdt(:,:)*ramp_ratio + phys_tend(c)%dtdt(:,:)*(1.0_r8-ramp_ratio)
+              phys_state(c)%tend_dtdt(:,:) = phys_tend(c)%dtdt(:,:)
               do_geopotential = .true.
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
@@ -1099,12 +1151,14 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_u') then
               phys_state(c)%u(:,:)   = phys_state_nn(c)%u(:,:)*ramp_ratio + phys_state(c)%u(:,:)*(1.0_r8-ramp_ratio)
               phys_tend(c)%dudt(:,:) = phys_tend_nn(c)%dudt(:,:)*ramp_ratio + phys_tend(c)%dudt(:,:)*(1.0_r8-ramp_ratio)
+              phys_state(c)%tend_dudt(:,:) = phys_tend(c)%dudt(:,:)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_v') then
               phys_state(c)%v(:,:)   = phys_state_nn(c)%v(:,:)*ramp_ratio + phys_state(c)%v(:,:)*(1.0_r8-ramp_ratio)
               phys_tend(c)%dvdt(:,:) = phys_tend_nn(c)%dvdt(:,:)*ramp_ratio + phys_tend(c)%dvdt(:,:)*(1.0_r8-ramp_ratio)
+              phys_state(c)%tend_dvdt(:,:) = phys_tend(c)%dvdt(:,:)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
