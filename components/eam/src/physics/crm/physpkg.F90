@@ -1075,7 +1075,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
         do while (k < pflds  .and. cb_partial_coupling_vars(k) /= ' ')
            if (trim(cb_partial_coupling_vars(k)) == 'ptend_t') then
               phys_state(c)%t(:,:)   = phys_state_nn(c)%t(:,:)*ramp_ratio + phys_state(c)%t(:,:)*(1.0_r8-ramp_ratio)
-              phys_tend(c)%dtdt(:,:) = phys_tend_nn(c)%dtdt(:,:)*ramp_ratio + phys_tend(c)%dtdt(:,:)*(1.0_r8-ramp_ratio)
+              !phys_tend(c)%dtdt(:,:) = phys_tend_nn(c)%dtdt(:,:)*ramp_ratio + phys_tend(c)%dtdt(:,:)*(1.0_r8-ramp_ratio)
               do_geopotential = .true.
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
@@ -1098,13 +1098,13 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_u') then
               phys_state(c)%u(:,:)   = phys_state_nn(c)%u(:,:)*ramp_ratio + phys_state(c)%u(:,:)*(1.0_r8-ramp_ratio)
-              phys_tend(c)%dudt(:,:) = phys_tend_nn(c)%dudt(:,:)*ramp_ratio + phys_tend(c)%dudt(:,:)*(1.0_r8-ramp_ratio)
+              !phys_tend(c)%dudt(:,:) = phys_tend_nn(c)%dudt(:,:)*ramp_ratio + phys_tend(c)%dudt(:,:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
            else if (trim(cb_partial_coupling_vars(k)) == 'ptend_v') then
               phys_state(c)%v(:,:)   = phys_state_nn(c)%v(:,:)*ramp_ratio + phys_state(c)%v(:,:)*(1.0_r8-ramp_ratio)
-              phys_tend(c)%dvdt(:,:) = phys_tend_nn(c)%dvdt(:,:)*ramp_ratio + phys_tend(c)%dvdt(:,:)*(1.0_r8-ramp_ratio)
+              !phys_tend(c)%dvdt(:,:) = phys_tend_nn(c)%dvdt(:,:)*ramp_ratio + phys_tend(c)%dvdt(:,:)*(1.0_r8-ramp_ratio)
               if (nstep-nstep0 .eq. nstep_NN .and. masterproc) then
                  write (iulog,*) 'CLIMSIM partial coupling: ', trim(cb_partial_coupling_vars(k))
               endif
