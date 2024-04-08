@@ -1179,8 +1179,8 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   end if ! (cb_partial coupling)
 
   ! copy from the tphysbc2 to here. make sure the outputted history file is consistent with the partial coupling
-  do c=begchunk, endchunk
-    phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)
+  do lchnk=begchunk, endchunk
+    phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
     call t_startf('bc_history_write')
     call diag_phys_writeout(phys_state(lchnk), cam_out(lchnk)%psl)
     call diag_conv(phys_state(lchnk), ztodt, phys_buffer_chunk)
