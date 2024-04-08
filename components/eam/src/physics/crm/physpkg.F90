@@ -1176,6 +1176,18 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
 #endif
   end if ! (cb_partial coupling)
 
+  ! copy from the tphysbc2 to here. make sure the outputted history file is consistent with the partial coupling
+  call t_startf('bc_history_write')
+  call diag_phys_writeout(state, cam_out%psl)
+  call diag_conv(state, ztodt, pbuf)
+  call t_stopf('bc_history_write')
+
+  !-----------------------------------------------------------------------------
+  ! Write cloud diagnostics on history file
+  !-----------------------------------------------------------------------------
+  call t_startf('bc_cld_diag_history_write')
+  call cloud_diagnostics_calc(state, pbuf)
+  call t_stopf('bc_cld_diag_history_write')
 
   !-----------------------------------------------------------------------------
   ! phys_run1 closing
@@ -1255,7 +1267,7 @@ subroutine phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,
     phys_tend(lchnk)%dudt(:ncol,:pver)  = 0._r8
     phys_tend(lchnk)%dvdt(:ncol,:pver)  = 0._r8
  end do
- 
+
   ! The following initialization depends on the import state (cam_in)
   ! being initialized.  This isn't true when cam_init is called, so need
   ! to postpone this initialization to here.
@@ -2455,6 +2467,8 @@ subroutine tphysbc2(ztodt, fsns, fsnt, flns, flnt, &
     end if
   end if ! l_tracer_aero
 
+#ifndef CLIMSIM
+! even not executing this block, it won't influence the radiation_tend, which won't use cam_out%psl
   !-----------------------------------------------------------------------------
   ! Moist physical parameteriztions complete: 
   ! send dynamical variables, and derived variables to history file
@@ -2470,6 +2484,7 @@ subroutine tphysbc2(ztodt, fsns, fsnt, flns, flnt, &
   call t_startf('bc_cld_diag_history_write')
   call cloud_diagnostics_calc(state, pbuf)
   call t_stopf('bc_cld_diag_history_write')
+#endif
 
   !-----------------------------------------------------------------------------
   ! Radiation computations
