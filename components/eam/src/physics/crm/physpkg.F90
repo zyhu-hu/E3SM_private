@@ -1248,6 +1248,14 @@ subroutine phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,
   !-----------------------------------------------------------------------------
   nstep = get_nstep()
 
+    ! Set physics tendencies to 0
+  do lchnk=begchunk, endchunk
+    ncol = phys_state(lchnk)%ncol
+    phys_tend(lchnk)%dtdt(:ncol,:pver)  = 0._r8
+    phys_tend(lchnk)%dudt(:ncol,:pver)  = 0._r8
+    phys_tend(lchnk)%dvdt(:ncol,:pver)  = 0._r8
+ end do
+ 
   ! The following initialization depends on the import state (cam_in)
   ! being initialized.  This isn't true when cam_init is called, so need
   ! to postpone this initialization to here.
