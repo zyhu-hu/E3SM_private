@@ -747,6 +747,8 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   use cam_history_support, only: pflds
   use physconst,        only: cpair, zvir, rair, gravit
   use string_utils,    only: to_lower
+  use cam_diagnostics,        only: diag_phys_writeout, diag_conv
+  use cloud_diagnostics,      only: cloud_diagnostics_calc
 
 #ifdef TORCH_CLIMSIM_TEST
   use torch_ftn
