@@ -1177,18 +1177,20 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   end if ! (cb_partial coupling)
 
   ! copy from the tphysbc2 to here. make sure the outputted history file is consistent with the partial coupling
-  call t_startf('bc_history_write')
-  call diag_phys_writeout(state, cam_out%psl)
-  call diag_conv(state, ztodt, pbuf)
-  call t_stopf('bc_history_write')
+  do c=begchunk, endchunk
+    phys_buffer_chunk => pbuf_get_chunk(pbuf2d, c)
+    call t_startf('bc_history_write')
+    call diag_phys_writeout(phys_state(lchnk), cam_out(lchnk)%psl)
+    call diag_conv(phys_state(lchnk), ztodt, phys_buffer_chunk)
+    call t_stopf('bc_history_write')
 
-  !-----------------------------------------------------------------------------
-  ! Write cloud diagnostics on history file
-  !-----------------------------------------------------------------------------
-  call t_startf('bc_cld_diag_history_write')
-  call cloud_diagnostics_calc(state, pbuf)
-  call t_stopf('bc_cld_diag_history_write')
-
+    !-----------------------------------------------------------------------------
+    ! Write cloud diagnostics on history file
+    !-----------------------------------------------------------------------------
+    call t_startf('bc_cld_diag_history_write')
+    call cloud_diagnostics_calc(phys_state(lchnk), phys_buffer_chunk)
+    call t_stopf('bc_cld_diag_history_write')
+  end do 
   !-----------------------------------------------------------------------------
   ! phys_run1 closing
   ! - tphysbc2 diagnostic (including cam_export)
