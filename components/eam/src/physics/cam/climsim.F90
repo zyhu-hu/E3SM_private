@@ -820,10 +820,11 @@ end if
 #endif
    end do 
 
-! free memory, likely important for a potential memory leak
-if (associated(output_torch)) then
-    deallocate(output_torch)
-endif
+! ! free memory, likely important for a potential memory leak
+! should not do this, tried and lead to a double free error when end subroutine is called.
+! if (associated(output_torch)) then
+!     deallocate(output_torch)
+! endif
 
 end subroutine neural_net
 
