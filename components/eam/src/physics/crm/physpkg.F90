@@ -959,21 +959,21 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   else  ! NN inference
      if (cb_partial_coupling) then ! NN partial coupling
 
-#ifdef CLIMSIM_DIAG_PARTIAL
-        write(iulog,*) '[CLIMSIM] Partial coupling, ', nstep
+! #ifdef CLIMSIM_DIAG_PARTIAL
+!         write(iulog,*) '[CLIMSIM] Partial coupling, ', nstep
 
-        do lchnk = begchunk, endchunk
-           phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-           call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 0) ! 0 for 'before physics'
-        end do
-#endif 
+!         do lchnk = begchunk, endchunk
+!            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
+!            call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 0) ! 0 for 'before physics'
+!         end do
+! #endif 
         call phys_run1   (phys_state,    ztodt, phys_tend,    pbuf2d, cam_in, cam_out)
-#ifdef CLIMSIM_DIAG_PARTIAL
-        do lchnk = begchunk, endchunk
-           phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-           call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 1) ! 1 for 'SP calculation'
-        end do
-#endif
+! #ifdef CLIMSIM_DIAG_PARTIAL
+!         do lchnk = begchunk, endchunk
+!            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
+!            call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 1) ! 1 for 'SP calculation'
+!         end do
+! #endif
         ! store mmf calculation of prec_dp and snow_dp
         do lchnk = begchunk, endchunk
            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
@@ -996,12 +996,12 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
 
         call phys_run1_NN(phys_state_nn, phys_state_aphys1, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&
                           solin, coszrs)
-#ifdef CLIMSIM_DIAG_PARTIAL
-        do lchnk = begchunk, endchunk
-           phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-           call diag_climsim_debug(phys_state_nn(lchnk), cam_out_nn(lchnk), phys_buffer_chunk, 2) ! 2 for 'NN calculation'
-        end do
-#endif
+! #ifdef CLIMSIM_DIAG_PARTIAL
+!         do lchnk = begchunk, endchunk
+!            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
+!            call diag_climsim_debug(phys_state_nn(lchnk), cam_out_nn(lchnk), phys_buffer_chunk, 2) ! 2 for 'NN calculation'
+!         end do
+! #endif
         ! store nn calculation of prec_dp and snow_dp
         do lchnk = begchunk, endchunk
            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
@@ -1174,12 +1174,12 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
 
      end do ! c
 
-#ifdef CLIMSIM_DIAG_PARTIAL
-    do lchnk = begchunk, endchunk
-       phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-       call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 3) ! 3 for 'after partial coupling'
-    end do
-#endif
+! #ifdef CLIMSIM_DIAG_PARTIAL
+!     do lchnk = begchunk, endchunk
+!        phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
+!        call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 3) ! 3 for 'after partial coupling'
+!     end do
+! #endif
   end if ! (cb_partial coupling)
 
   ! copy from the tphysbc2 to here. make sure the outputted history file is consistent with the partial coupling
