@@ -820,6 +820,11 @@ end if
 #endif
    end do 
 
+! free memory, likely important for a potential memory leak
+if (associated(output_torch)) then
+    deallocate(output_torch)
+endif
+
 end subroutine neural_net
 
   subroutine init_neural_net()
