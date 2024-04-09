@@ -194,7 +194,7 @@ strato_lev_tinput = {strato_lev_tinput}
 
 &cam_history_nl
 fincl2 = 'T:I', 'Q:I', 'CLDLIQ:I', 'CLDICE:I', 'U:I', 'V:I', 'TS:I', 'PS:I', 'LHFLX:I', 'SHFLX:I', 'SOLIN:I', 'PRECC:I', 'PRECSC:I','PRECT:I', 'Z3:I', 'OMEGA:I', 'RELHUM:I'
-fincl3 = 'PRECC:A', 'PRECT:A', 'U850:A', 'U500:A', 'Z850:A', 'Z500:A'
+fincl3 = 'PRECC:A', 'PRECT:A', 'U850:A', 'U500:A', 'Z850:A', 'Z500:A', 'FLUT:A'
 
 nhtfrq = 0,-6,-24
 mfilt  = 0,1,1
