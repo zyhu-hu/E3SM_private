@@ -330,7 +330,7 @@ subroutine diag_init()
    call addfld ('DQ2PHYS',(/ 'lev' /), 'A','kg/kg/s','dQ2/dt from physics')
    call addfld ('DQ3PHYS',(/ 'lev' /), 'A','kg/kg/s','dQ3/dt from physics')
    call addfld ('DUPHYS',(/ 'lev' /), 'A','m/s/s','dU/dt from physics')
-   call addfld ('DVPHYS',(/ 'lev' /), 'A','m/s/s','dV/dt from physics')
+   ! call addfld ('DVPHYS',(/ 'lev' /), 'A','m/s/s','dV/dt from physics')
 
    call addfld ('fixerCLUBB',horiz_only,    'A','J/m2','dTE fixed by CLUBB')
 
@@ -1544,9 +1544,9 @@ end subroutine diag_conv_tend_ini
       call outfld('DUPHYS   ',state%u_phy(1,:,:), pcols, lchnk)
    end if
 
-   if (hist_fld_active('DVPHYS')) then
-      call outfld('DVPHYS   ',state%v_phy(1,:,:), pcols, lchnk)
-   end if
+   ! if (hist_fld_active('DVPHYS')) then
+   !    call outfld('DVPHYS   ',state%v_phy(1,:,:), pcols, lchnk)
+   ! end if
 
 !
 ! Output T,q,u,v fields on pressure surfaces
