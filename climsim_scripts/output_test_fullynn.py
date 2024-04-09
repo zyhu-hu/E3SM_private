@@ -41,7 +41,7 @@ submit       = True
 #continue_run = True
 src_mod_atm  = False
 
-debug_mode = False
+debug_mode = True
 
 dtime = 1200 # set to 0 to use a default value 
 
