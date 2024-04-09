@@ -223,7 +223,13 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 !
 !-----------------------------------------------------------------------
    
+#ifdef CLIMSIM
    use physpkg,          only: phys_run1, climsim_driver
+#else
+   use physpkg,          only: phys_run1
+#endif 
+   ! use physpkg,          only: phys_run1, climsim_driver
+
    use stepon,           only: stepon_run1
    use physics_types,    only: physics_type_alloc
 #if ( defined SPMD )
