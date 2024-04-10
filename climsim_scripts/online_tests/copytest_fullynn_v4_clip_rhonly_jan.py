@@ -15,6 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'copytest_fullynn_v4_clip_rhonly_jan'
+exe_refcase = 'seed_fullynn_v4_clip_rhonly_jan'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -227,8 +228,9 @@ if config :
 #    if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
 #    if clean : run_cmd('./case.build --clean')
 #    run_cmd('./case.build')
+
+run_cmd(f'cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/{exe_refcase}/build/e3sm.exe ./build/')
 run_cmd('./xmlchange BUILD_COMPLETE=TRUE')
-run_cmd('cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/seed_fullynn_v4_clip_rhonly_jan/build/e3sm.exe ./build/')
 #---------------------------------------------------------------------------------------------------
 if submit : 
    if 'queue' in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
