@@ -32,7 +32,7 @@ os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
 # RESTART
 runtype = 'branch' # startup, hybrid,  branch
-refdate = '0003-01-01' # only works for branch (and hybrid?)
+refdate = '0002-12-30' # only works for branch (and hybrid?)
 reftod = '00000' # or 21600, 43200, 64800
 # clean        = True
 newcase      = True
@@ -58,8 +58,8 @@ compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
 
-#queue = 'regular'
-queue = 'debug'
+queue = 'regular'
+#queue = 'debug'
 
 # case_list = [case_prefix,arch,compset,grid]
 case_list = [case_prefix, ]
