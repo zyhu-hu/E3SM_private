@@ -24,7 +24,7 @@ case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 # user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
-user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL' # NN hybrid test
+user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL'  # NN hybrid test
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
@@ -46,8 +46,8 @@ debug_mode = False
 
 dtime = 1200 # set to 0 to use a default value 
 
-#stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',3, 0,'00:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',15, 8, '00:30:00'
+#stop_opt,stop_n,resub,walltime = 'ndays',3, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -70,19 +70,19 @@ case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
 # f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/dagger_2year_dropextreme100_qstra22_cliprh_r2/model.pt'
+f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
 f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
-f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/dagger_2year_dropextreme100_qstra22_cliprh_r2/inp_sub.txt'
-f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/dagger_2year_dropextreme100_qstra22_cliprh_r2/inp_div.txt'
-f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/dagger_2year_dropextreme100_qstra22_cliprh_r2/out_scale.txt'
-f_qinput_log = '.true.'
+f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/inp_sub.txt'
+f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/inp_div.txt'
+f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/out_scale.txt'
+f_qinput_log = '.false.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
 f_strato_lev = 15
 f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qc_exp_lambda_large.txt'
 f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
-cb_spinup_step = 5
+cb_spinup_step = 4
 f_do_limiter = '.false.'
 f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
 f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
@@ -92,11 +92,11 @@ f_cb_ramp_option = 'step'
 cb_ramp_factor = 1.0
 cb_ramp_step_0steps = 80
 cb_ramp_step_1steps = 10
-cb_do_clip = '.true.'
-cb_do_aggressive_pruning = '.true.'
+cb_do_clip = '.false.'
+cb_do_aggressive_pruning = '.false.'
 
-cb_clip_rhonly = '.true.'
-strato_lev_qinput = 22
+cb_clip_rhonly = '.false.'
+strato_lev_qinput = -1
 strato_lev_tinput = -1
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
@@ -180,7 +180,7 @@ cb_do_limiter = {f_do_limiter}
 cb_limiter_lower = '{f_limiter_lower}'
 cb_limiter_upper = '{f_limiter_upper}'
 cb_partial_coupling = .true.
-cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
+cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
 cb_do_ramp = {f_cb_do_ramp}
 cb_ramp_option = '{f_cb_ramp_option}'
 cb_ramp_factor = {cb_ramp_factor}
@@ -194,7 +194,7 @@ strato_lev_tinput = {strato_lev_tinput}
 /
 
 &cam_history_nl
-fincl1 = 'DTPHYS', 'DQ1PHYS', 'DQ2PHYS', 'DQ3PHYS', 'DUPHYS'
+fincl1 = 'DTPHYS', 'DQ1PHYS', 'DQ2PHYS', 'DQ3PHYS', 'DUPHYS', 'CLDICE', 'CLDLIQ'
 fincl2 = 'PRECT', 'PRECC', 'FLUT', 'CLOUD', 'CLDTOT', 'CLDLOW', 'CLDMED', 'CLDHGH', 'LWCF', 'SWCF', 'LHFLX', 'SHFLX', 'TMQ', 'U850', 'T850', 'Z850', 'U500', 'T500', 'Z500', 'T', 'Q', 'U', 'V', 'CLDICE', 'CLDLIQ', 'DTPHYS', 'DQ1PHYS', 'DQ2PHYS', 'DQ3PHYS', 'DUPHYS'
 fincl3 = 'PRECT', 'PRECC', 'FLUT', 'CLOUD', 'CLDTOT', 'CLDLOW', 'CLDMED', 'CLDHGH', 'LWCF', 'SWCF', 'LHFLX', 'SHFLX', 'TMQ', 'T', 'Q', 'U', 'V', 'CLDICE', 'CLDLIQ', 'DTPHYS', 'DQ1PHYS', 'DQ2PHYS', 'DQ3PHYS', 'DUPHYS'
 avgflag_pertape = 'A','A','I'
@@ -231,7 +231,6 @@ if config :
 
 run_cmd(f'cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/{exe_refcase}/build/e3sm.exe ./build/')
 run_cmd('./xmlchange BUILD_COMPLETE=TRUE')
-
 #---------------------------------------------------------------------------------------------------
 if submit : 
    if 'queue' in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
