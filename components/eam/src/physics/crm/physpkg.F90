@@ -2507,6 +2507,7 @@ subroutine tphysbc2(ztodt, fsns, fsnt, flns, flnt, &
 
     ! We don't need to call physics_update or check_energy_chng for the MMF
     ! because the radiative tendency is added within the call to crm_physics_tend
+    ! seems that it will update the crm_rad etc in pbuf, this will update the state in the next call to crm_physics_tend and crm_module
 
   end if ! l_rad
 
