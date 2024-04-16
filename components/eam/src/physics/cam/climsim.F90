@@ -78,6 +78,7 @@ use iso_fortran_env
   real(r8), allocatable :: out_scale(:)
   real(r8), allocatable :: qc_lbd(:)
   real(r8), allocatable :: qi_lbd(:)
+  real(r8), allocatable :: qn_lbd(:)
   real(r8), allocatable :: limiter_lower(:)
   real(r8), allocatable :: limiter_upper(:)
 
@@ -989,11 +990,11 @@ select case (to_lower(trim(cb_nn_var_combo)))
         output(i,5*pver+8) = 0. ! solld
       endif
     end do
- #ifdef CLIMSIMDEBUG
-       if (masterproc) then
-         write (iulog,*) 'CLIMSIMDEBUG output after ReLU = ',output(1,:)
-       endif
- #endif
+#ifdef CLIMSIMDEBUG
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIMDEBUG output after ReLU = ',output(1,:)
+      endif
+#endif
  
     ! output normalization (un-weighting, really).
     do i=1,ncol
@@ -1014,11 +1015,11 @@ select case (to_lower(trim(cb_nn_var_combo)))
      end do
     end if
  
- #ifdef CLIMSIMDEBUG
-       if (masterproc) then
-         write (iulog,*) 'CLIMSIMDEBUG output post scale = ',output(1,:)
-       endif
- #endif
+#ifdef CLIMSIMDEBUG
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIMDEBUG output post scale = ',output(1,:)
+      endif
+#endif
  
  ! ---------- 1. NN output to atmosphere forcing --------
  ! ['TBCTEND', 'QBCTEND','CLDLIQBCTEND','CLDICEBCTEND']
@@ -1134,9 +1135,9 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do i = 1,ncol
  ! SY: debugging
  !     allowing surface coupling over ocean only
- #ifdef CLIMSIM_OCN_ONLY 
-      if (cam_in%ocnfrac(i) .eq. 1.0_r8) then
- #endif
+#ifdef CLIMSIM_OCN_ONLY 
+    if (cam_in%ocnfrac(i) .eq. 1.0_r8) then
+#endif
         cam_out%netsw(i) = output(i,5*pver+1)
         cam_out%flwds(i) = output(i,5*pver+2)
         snow_dp(i)       = output(i,5*pver+3)
@@ -1145,9 +1146,9 @@ select case (to_lower(trim(cb_nn_var_combo)))
         cam_out%soll(i)  = output(i,5*pver+6)
         cam_out%solsd(i) = output(i,5*pver+7)
         cam_out%solld(i) = output(i,5*pver+8)
- #ifdef CLIMSIM_OCN_ONLY
-      end if
- #endif
+#ifdef CLIMSIM_OCN_ONLY
+    end if
+#endif
     end do 
   end select ! end of case statement
 
@@ -1164,6 +1165,7 @@ end subroutine neural_net
     allocate(out_scale (outputlength))
     allocate(qc_lbd (60))
     allocate(qi_lbd (60))
+    allocate(qn_lbd (60))
     allocate(limiter_lower (368))
     allocate(limiter_upper (368))
     
@@ -1266,7 +1268,8 @@ end subroutine neural_net
        write (iulog,*) 'CLIMSIMDEBUG read input norm inp_div=', inp_div(:)       
        write (iulog,*) 'CLIMSIMDEBUG read output norm out_scale=', out_scale(:) 
        write (iulog,*) 'CLIMSIMDEBUG read qc_lbd=', qc_lbd(:)
-       write (iulog,*) 'CLIMSIMDEBUG read qi_lbd=', qi_lbd(:)      
+       write (iulog,*) 'CLIMSIMDEBUG read qi_lbd=', qi_lbd(:) 
+       write (iulog,*) 'CLIMSIMDEBUG read qn_lbd=', qn_lbd(:)      
     endif
 #endif
 
