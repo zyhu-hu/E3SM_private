@@ -8045,6 +8045,11 @@ Absolute path of a txt file containing qc_lbd for exponential input transformati
 Absolute path of a txt file containing qi_lbd for exponential input transformation
 </entry>
 
+<entry id="cb_qn_lbd" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a txt file containing qn_lbd for exponential input transformation
+</entry>
+
 <entry id="cb_decouple_cloud" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
 to set all cloud related input to 0 before send to NN
