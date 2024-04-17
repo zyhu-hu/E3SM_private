@@ -73,6 +73,8 @@ use iso_fortran_env
 
   type(network_type), allocatable :: climsim_net(:)
   type(torch_module), allocatable :: torch_mod(:)
+  type(torch_tensor_wrap), allocatable :: input_tensors
+  type(torch_tensor), allocatable :: out_tensor
   real(r8), allocatable :: inp_sub(:)
   real(r8), allocatable :: inp_div(:)
   real(r8), allocatable :: out_scale(:)
@@ -139,8 +141,8 @@ contains
    real(r8), pointer, dimension(:,:) :: ozone, ch4, n2o ! (/pcols,pver/)
 
   !  type(torch_module) :: torch_mod
-   type(torch_tensor_wrap) :: input_tensors
-   type(torch_tensor) :: out_tensor
+  !  type(torch_tensor_wrap) :: input_tensors
+  !  type(torch_tensor) :: out_tensor
    real(real32) :: input_torch(inputlength, pcols)
    real(real32), pointer :: output_torch(:, :)
    real(r8) :: math_pi
@@ -1167,6 +1169,8 @@ end subroutine neural_net
     allocate(qn_lbd (60))
     allocate(limiter_lower (368))
     allocate(limiter_upper (368))
+    allocate(input_tensors)
+    allocate(out_tensor)
     
     ! ens-mean inference
     if (cb_do_ensemble) then
