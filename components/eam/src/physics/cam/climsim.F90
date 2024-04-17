@@ -884,13 +884,13 @@ select case (to_lower(trim(cb_nn_var_combo)))
    do i=1,ncol
      do k=1,pver
 ! deny activity in the ice phase where it is above freezing.
-       if (state%t(i,k) .gt. 273.16) then
-          qi_bctend(i,k) = 0.
-! deny activitiy in the water phase where it is below freezing.
-! (253.16K: the lowest threshold temperature for supercooled cloud water to form)
-       elseif (state%t(i,k) .lt. 253.16) then
-          qc_bctend(i,k) = 0.
-       end if
+!        if (state%t(i,k) .gt. 273.16) then
+!           qi_bctend(i,k) = 0.
+! ! deny activitiy in the water phase where it is below freezing.
+! ! (253.16K: the lowest threshold temperature for supercooled cloud water to form)
+!        elseif (state%t(i,k) .lt. 253.16) then
+!           qc_bctend(i,k) = 0.
+!        end if
 !eliminate all activity in the water phase on top 10 levels:
 
 ! energy positivity:
