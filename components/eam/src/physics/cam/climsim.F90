@@ -1028,21 +1028,19 @@ select case (to_lower(trim(cb_nn_var_combo)))
     q_bctend (:ncol,1:pver) = output(1:ncol,1*pver+1:2*pver)       ! kg/kg/s
     do i=1,ncol
       do k=1,pver
-        if (state%t(i,k) .gt. 273.16) then
-           temperature_new(i,k) = state%t(i,k) + output(i,k)*1200.
-           qn_new(i,k) = state%q(i,k,ixcldliq) + state%q(i,k,ixcldice) + output(i,2*pver+k)*1200.
-           if (qn_new(i,k) < 0.0) then
-              qn_new(i,k) = 0.0
-           end if
-           liq_partition = (temperature_new(i,k) - 253.16) / 20.
-           if (temperature_new(i,k) > 273.16) then
-              liq_partition = 1
-            else if (temperature_new(i,k) < 253.16) then
-              liq_partition = 0
-            end if
-            qc_bctend(i,k) = (liq_partition*qn_new(i,k) - state%q(i,k,ixcldliq))/1200.
-            qi_bctend(i,k) = ((1.0-liq_partition)*qn_new(i,k) - state%q(i,k,ixcldice))/1200.
-        end if
+          temperature_new(i,k) = state%t(i,k) + output(i,k)*1200.
+          qn_new(i,k) = state%q(i,k,ixcldliq) + state%q(i,k,ixcldice) + output(i,2*pver+k)*1200.
+          if (qn_new(i,k) .lt. 0.0) then
+            qn_new(i,k) = 0.0
+          end if
+          liq_partition = (temperature_new(i,k) - 253.16) / 20.
+          if (temperature_new(i,k) .gt. 273.16) then
+            liq_partition = 1
+          else if (temperature_new(i,k) .lt. 253.16) then
+            liq_partition = 0
+          end if
+          qc_bctend(i,k) = (liq_partition*qn_new(i,k) - state%q(i,k,ixcldliq))/1200.
+          qi_bctend(i,k) = ((1.0-liq_partition)*qn_new(i,k) - state%q(i,k,ixcldice))/1200.
       end do
     end do
     u_bctend (:ncol,1:pver) = output(1:ncol,3*pver+1:4*pver)       ! m/s/s
