@@ -23,7 +23,7 @@ case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 # user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
-user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DMMF_ML_TRAINING' # NN hybrid test
+user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DMMF_ML_TRAINING -DCLIMSIMDEBUG' # NN hybrid test
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
@@ -46,7 +46,7 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',20, 0,'00:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',2, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'

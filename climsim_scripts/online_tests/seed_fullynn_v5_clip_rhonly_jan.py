@@ -159,7 +159,7 @@ do_aerosol_rad = .false.
 /
 
 &climsim_nl
-inputlength     = 1305
+inputlength     = 1405
 outputlength    = 308
 cb_nn_var_combo = 'v5'
 input_rh        = .true.
@@ -174,6 +174,7 @@ qoutput_prune = {f_qoutput_prune}
 strato_lev = {f_strato_lev}
 cb_qc_lbd = '{f_qc_lbd}'
 cb_qi_lbd = '{f_qi_lbd}'
+cb_qn_lbd = '{f_qn_lbd}'
 cb_decouple_cloud = {f_decouple_cloud}
 cb_spinup_step = {cb_spinup_step}
 cb_do_limiter = {f_do_limiter}

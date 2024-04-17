@@ -530,6 +530,10 @@ end if
       end if
     end do
 
+select case (to_lower(trim(cb_nn_var_combo)))
+
+  case('v4')
+
     if (qinput_prune) then
       do k=1,strato_lev
         !if to_lower(trim(cb_nn_var_combo)) == 'v4' then skip qv prune
@@ -557,10 +561,7 @@ end if
         input(:,20*pver+k) = 0.
       end do
     end if
-
-select case (to_lower(trim(cb_nn_var_combo)))
-
-  case('v4')
+    
     if (cb_do_aggressive_pruning) then
       do k=1,strato_lev
         input(:,1*pver+k) = 0.  
