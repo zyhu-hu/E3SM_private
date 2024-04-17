@@ -48,7 +48,7 @@ dtime = 1200 # set to 0 to use a default value
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
 stop_opt,stop_n,resub,walltime = 'nmonths',12, 0,'00:30:00'
 
-ne,npg=4,2;  num_nodes=6  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
+ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
@@ -57,8 +57,8 @@ compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
 
-#queue = 'regular'
-queue = 'debug'
+queue = 'regular'
+#queue = 'debug'
 
 # case_list = [case_prefix,arch,compset,grid]
 case_list = [case_prefix, ]
