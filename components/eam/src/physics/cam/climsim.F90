@@ -1055,7 +1055,6 @@ select case (to_lower(trim(cb_nn_var_combo)))
     end do
     call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
     
-    write (iulog,*) 'CLIMSIMDEBUG ztodt = ', ztodt
  ! -- atmos positivity constraints ---- 
     if (do_constraints) then
     do i=1,ncol
