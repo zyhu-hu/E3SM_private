@@ -155,7 +155,8 @@ contains
    ! for classifier inference
    real(r8) :: input_class(pcols,inputlength)
    real(r8) :: output_class(pcols,pver,3)
-   real(r8) :: output_class_reduce(pcols,pver)
+   integer :: output_class_reduce(pcols,pver)
+   real(r8) :: max_value
    real(real32) :: input_torch_class(inputlength, pcols)
    real(real32), pointer :: output_torch_class(:, :, :)
    type(torch_tensor_wrap) :: input_tensors_class
@@ -788,7 +789,16 @@ end select
           output_class(i,k,j) = output_torch_class(j,k,i)
         end do
         ! let output_class_reduce to be the max index of the three classes
-        output_class_reduce(i,k) = maxloc(output_class(i,k,:)) 
+        ! output_class_reduce(i,k) = maxloc(output_class(i,k,:)) 
+        output_class_reduce(i,k) = 1
+        max_value = output_class(i,k,1)
+        do j=2, 3
+          if (output_class(i,k,j) > max_value) then
+            max_value = output_class(i,k,j)
+            output_class_reduce(i,k) = j
+          end if
+        end do
+
       end do
     end do
 
