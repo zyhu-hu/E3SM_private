@@ -155,7 +155,7 @@ contains
    ! for classifier inference
    real(r8) :: input_class(pcols,inputlength)
    real(r8) :: output_class(pcols,pver,3)
-   real(r8) :: output_class_reduced(pcols,pver)
+   real(r8) :: output_class_reduce(pcols,pver)
    real(real32) :: input_torch_class(inputlength, pcols)
    real(real32), pointer :: output_torch_class(:, :, :)
    type(torch_tensor_wrap) :: input_tensors_class
