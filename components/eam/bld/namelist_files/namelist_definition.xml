@@ -8035,6 +8035,11 @@ define the stratosphere level for pruning
 Absolute path of a torch model txt file
 </entry>
 
+<entry id="cb_torch_model_class" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a torch model for classification txt file
+</entry>
+
 <entry id="cb_qc_lbd" type="char*256" category="climsim"
        group="climsim_nl" valid_values="" >
 Absolute path of a txt file containing qc_lbd for exponential input transformation
