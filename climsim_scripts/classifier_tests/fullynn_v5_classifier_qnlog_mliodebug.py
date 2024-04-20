@@ -14,7 +14,7 @@ acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
-case_prefix = 'fullynn_v5_classifier_qnlog_test5'
+case_prefix = 'fullynn_v5_classifier_qnlog_mliodebug1'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
