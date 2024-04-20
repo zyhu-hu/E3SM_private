@@ -149,6 +149,7 @@ contains
    real(real32), pointer :: output_torch(:, :)
    real(r8) :: math_pi
    real(r8) :: liq_partition
+   real(r8) :: qn_log_tmp
    real(real32) :: temperature_new(pcols,pver)
    real(real32) :: qn_new(pcols,pver)
 
@@ -545,6 +546,22 @@ end if
     end do
 
     input_class(:,:) = input(:,:)
+    write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
+    do i = 1,ncol
+      do k=1,pver
+        qn_log_tmp = state%q(i,k,ixcldliq)+state%q(i,k,ixcldice)
+        if (qn_log_tmp<1e-15) then
+          qn_log_tmp = 1e-15
+        end if
+        qn_log_tmp = log10(qn_log_tmp)
+        if (qn_log_tmp>-3.0) then
+          qn_log_tmp = -3.0
+        else if (qn_log_tmp<-15.0) then
+          qn_log_tmp = -15.0
+        end if
+        input_class(i,2*pver+k) = (qn_log_tmp+15.0) / 12.0
+      end do
+    end do
 
 select case (to_lower(trim(cb_nn_var_combo)))
 
@@ -709,8 +726,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
     end if
 
     ! dealing with pruning and clipping for input_class
-    write(*,*) 'CLIMSIM: right now, for classification, input pruning are hard-coded to level 12, and hardcoded to clip rh only to (0,1.2) may need to revisit this in the future if needed'
-    do k=1,12
+    write(*,*) 'CLIMSIM: right now, for classification, input pruning are hard-coded to level 15, and hardcoded to clip rh only to (0,1.2) may need to revisit this in the future if needed'
+    do k=1,15
       input_class(:,1*pver+k) = 0.  
       input_class(:,2*pver+k) = 0.  
 
@@ -952,8 +969,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
    do i=1,ncol
      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
      q_bctend (i,1:idx_trop(i)) = 0.
-     qc_bctend(i,1:idx_trop(i)) = 0.
-     qi_bctend(i,1:idx_trop(i)) = 0.
+    !  qc_bctend(i,1:idx_trop(i)) = 0.
+    !  qi_bctend(i,1:idx_trop(i)) = 0.
    end do
    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
 
@@ -1141,8 +1158,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do i=1,ncol
       call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
       q_bctend (i,1:idx_trop(i)) = 0.
-      qc_bctend(i,1:idx_trop(i)) = 0.
-      qi_bctend(i,1:idx_trop(i)) = 0.
+      ! qc_bctend(i,1:idx_trop(i)) = 0.
+      ! qi_bctend(i,1:idx_trop(i)) = 0.
     end do
     call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
     
