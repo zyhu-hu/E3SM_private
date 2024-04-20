@@ -150,6 +150,9 @@ contains
    real(real32) :: temperature_new(pcols,pver)
    real(real32) :: qn_new(pcols,pver)
 
+   real(r8) :: delta_lat, delta_lon
+   real(r8), parameter :: tol = 1.e-4
+
    math_pi = 3.14159265358979323846_r8
 
    ncol  = state%ncol
@@ -472,6 +475,61 @@ select case (to_lower(trim(cb_nn_var_combo)))
 
 end select
 
+do i = 1,ncol
+  delta_lat = get_rlat_p(lchnk,i) - 0.0944265
+  delta_lon = get_rlon_p(lchnk,i) - 1.276095
+  if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+    write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1-30=',input(i,1:30)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 31-60=',input(i,31:60)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 61-90=',input(i,61:90)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 91-120=',input(i,91:120)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 121-150=',input(i,121:150)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 151-180=',input(i,151:180)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 181-210=',input(i,181:210)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 211-240=',input(i,211:240)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 241-270=',input(i,241:270)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 271-300=',input(i,271:300)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 301-330=',input(i,301:330)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 331-360=',input(i,331:360)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 361-390=',input(i,361:390)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 391-420=',input(i,391:420)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 421-450=',input(i,421:450)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 451-480=',input(i,451:480)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 481-510=',input(i,481:510)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 511-540=',input(i,511:540)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 541-570=',input(i,541:570)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 571-600=',input(i,571:600)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 601-630=',input(i,601:630)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 631-660=',input(i,631:660)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 661-690=',input(i,661:690)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 691-720=',input(i,691:720)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 721-750=',input(i,721:750)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 751-780=',input(i,751:780)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 781-810=',input(i,781:810)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 811-840=',input(i,811:840)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 841-870=',input(i,841:870)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 871-900=',input(i,871:900)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 901-930=',input(i,901:930)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 931-960=',input(i,931:960)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 961-990=',input(i,961:990)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 991-1020=',input(i,991:1020)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1021-1050=',input(i,1021:1050)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1051-1080=',input(i,1051:1080)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1081-1110=',input(i,1081:1110)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1111-1140=',input(i,1111:1140)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1141-1170=',input(i,1141:1170)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1171-1200=',input(i,1171:1200)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1201-1230=',input(i,1201:1230)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1231-1260=',input(i,1231:1260)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1261-1290=',input(i,1261:1290)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1291-1320=',input(i,1291:1320)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1321-1350=',input(i,1321:1350)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1351-1380=',input(i,1351:1380)
+    write (iulog,*)  'nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG input before norm 1381-1405=',input(i,1381:1405)
+  endif
+ end do
+
 ! Tue Jan 24 13:28:43 CST 2023
 ! Sungduk 
 #ifdef CLIMSIMDEBUG
@@ -746,6 +804,15 @@ select case (to_lower(trim(cb_nn_var_combo)))
 end select
   end if
 
+  do i = 1,ncol
+    delta_lat = get_rlat_p(lchnk,i) - 0.09442659
+    delta_lon = get_rlon_p(lchnk,i) - 1.2760951
+    if (abs(delta_lat) < tol .and. abs(delta_lon) < tol) then
+    ! if ((get_rlat_p(lchnk,i)-0.0978469)<1.e-4  .and. (get_rlon_p(lchnk,i)-3.239911)<1.e-4) then
+      ! write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i
+      write (iulog,*) 'CLIMSIMDEBUG nndebug lat =', get_rlat_p(lchnk,i), 'lon =', get_rlon_p(lchnk,i), 'icol = ', i, 'CLIMSIMDEBUG nndebug output = ',output(i,:)
+    endif  
+  end do
 !     do i=1,ncol
 !       if (cb_do_ensemble) then
 ! !         output(i,:) = 0.
