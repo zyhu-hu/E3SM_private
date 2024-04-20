@@ -1114,8 +1114,9 @@ select case (to_lower(trim(cb_nn_var_combo)))
     end if
 
     !apply the microphysics classifier to mask qn output
+    write (iulog,*) 'CLIMSIMDEBUG for classifier, qn output is hardcoded to be masked only below level 15'
     do i=1,ncol
-      do k=1,pver
+      do k=16,pver
         if (output_class_reduce(i,k) .eq. 1) then
           output(i,2*pver+k) = 0.
         else if (output_class_reduce(i,k) .eq. 2) then
