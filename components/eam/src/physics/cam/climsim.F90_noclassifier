@@ -49,7 +49,6 @@ use iso_fortran_env
   character(len=fieldname_lenp2) :: cb_partial_coupling_vars(pflds)
   character(len=256) :: cb_nn_var_combo = 'v4' ! nickname for a specific NN in/out variable combination
   character(len=256)    :: cb_torch_model   ! absolute filepath for a torch model txt file
-  character(len=256)    :: cb_torch_model_class   ! absolute filepath for a torch model classification txt file
   character(len=256)    :: cb_qc_lbd   ! absolute filepath for qc_lbd for exponential input transformation
   character(len=256)    :: cb_qi_lbd   ! absolute filepath for qi_lbd for exponential input transformation
   character(len=256)    :: cb_qn_lbd   ! absolute filepath for qn_lbd for exponential input transformation
@@ -74,7 +73,6 @@ use iso_fortran_env
 
   type(network_type), allocatable :: climsim_net(:)
   type(torch_module), allocatable :: torch_mod(:)
-  type(torch_module), allocatable :: torch_mod_class(:)
   ! type(torch_tensor_wrap), allocatable :: input_tensors
   ! type(torch_tensor), allocatable :: out_tensor
   real(r8), allocatable :: inp_sub(:)
@@ -128,7 +126,7 @@ contains
    ! local variables
    real(r8) :: input(pcols,inputlength)
    real(r8) :: output(pcols,outputlength)
-   integer :: i,k,ncol,ixcldice,ixcldliq,ii,kk,idx_trop(pcols),kens, j
+   integer :: i,k,ncol,ixcldice,ixcldliq,ii,kk,idx_trop(pcols),kens
    real (r8) :: s_bctend(pcols,pver), q_bctend(pcols,pver), qc_bctend(pcols,pver), qi_bctend(pcols,pver), qafter, safter, &
                 u_bctend(pcols,pver), v_bctend(pcols,pver)
    logical :: do_constraints
@@ -149,19 +147,8 @@ contains
    real(real32), pointer :: output_torch(:, :)
    real(r8) :: math_pi
    real(r8) :: liq_partition
-   real(r8) :: qn_log_tmp
    real(real32) :: temperature_new(pcols,pver)
    real(real32) :: qn_new(pcols,pver)
-
-   ! for classifier inference
-   real(r8) :: input_class(pcols,inputlength)
-   real(r8) :: output_class(pcols,pver,3)
-   integer :: output_class_reduce(pcols,pver)
-   real(r8) :: max_value
-   real(real32) :: input_torch_class(inputlength, pcols)
-   real(real32), pointer :: output_torch_class(:, :, :)
-   type(torch_tensor_wrap) :: input_tensors_class
-   type(torch_tensor) :: out_tensor_class
 
    math_pi = 3.14159265358979323846_r8
 
@@ -545,24 +532,6 @@ end if
       end if
     end do
 
-    input_class(:,:) = input(:,:)
-    write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
-    do i = 1,ncol
-      do k=1,pver
-        qn_log_tmp = state%q(i,k,ixcldliq)+state%q(i,k,ixcldice)
-        if (qn_log_tmp<1e-15) then
-          qn_log_tmp = 1e-15
-        end if
-        qn_log_tmp = log10(qn_log_tmp)
-        if (qn_log_tmp>-3.0) then
-          qn_log_tmp = -3.0
-        else if (qn_log_tmp<-15.0) then
-          qn_log_tmp = -15.0
-        end if
-        input_class(i,2*pver+k) = (qn_log_tmp+15.0) / 12.0
-      end do
-    end do
-
 select case (to_lower(trim(cb_nn_var_combo)))
 
   case('v4')
@@ -725,35 +694,6 @@ select case (to_lower(trim(cb_nn_var_combo)))
       end if
     end if
 
-    ! dealing with pruning and clipping for input_class
-    write(*,*) 'CLIMSIM: right now, for classification, input pruning are hard-coded to level 15, and hardcoded to clip rh only to (0,1.2) may need to revisit this in the future if needed'
-    do k=1,15
-      input_class(:,1*pver+k) = 0.  
-      input_class(:,2*pver+k) = 0.  
-
-      input_class(:,4*pver+k) = 0.
-      input_class(:,5*pver+k) = 0.
-      input_class(:,6*pver+k) = 0.
-      input_class(:,7*pver+k) = 0.
-      input_class(:,8*pver+k) = 0.
-      input_class(:,9*pver+k) = 0.
-      input_class(:,10*pver+k) = 0.
-      input_class(:,11*pver+k) = 0.
-      input_class(:,12*pver+k) = 0.
-      input_class(:,13*pver+k) = 0.
-      input_class(:,14*pver+k) = 0.
-      input_class(:,15*pver+k) = 0.
-      input_class(:,16*pver+k) = 0.
-      input_class(:,17*pver+k) = 0.
-      input_class(:,18*pver+k) = 0.
-      input_class(:,19*pver+k) = 0.
-      input_class(:,1396) = 0.
-    end do
-
-    do k=61,120
-      input_class(:,k) = max(min(input_class(:,k),1.2),0.0)
-    end do
-
 end select
 
 
@@ -770,13 +710,6 @@ end select
       end do
     end do
 
-    input_torch_class(:,:) = 0.
-    do i=1,ncol
-      do k=1,inputlength
-        input_torch_class(k,i) = input_class(i,k)
-      end do
-    end do
-
     !print *, "Creating input tensor"
     call input_tensors%create
     !print *, "Adding input data"
@@ -788,34 +721,6 @@ end select
     do i=1, ncol
       do k=1,outputlength
         output(i,k) = output_torch(k,i)
-      end do
-    end do
-
-    ! do inference for the classification model
-    !print *, "Creating input tensor for classification"
-    call input_tensors_class%create
-    !print *, "Adding input data for classification"
-    call input_tensors_class%add_array(input_torch_class)
-    print *, "Running forward pass for classification"
-    call torch_mod_class(1)%forward(input_tensors_class, out_tensor_class, flags=module_use_inference_mode)
-    call out_tensor_class%to_array(output_torch_class)
-
-    do i=1, ncol
-      do k=1,pver
-        do j=1,3
-          output_class(i,k,j) = output_torch_class(j,k,i)
-        end do
-        ! let output_class_reduce to be the max index of the three classes
-        ! output_class_reduce(i,k) = maxloc(output_class(i,k,:)) 
-        output_class_reduce(i,k) = 1
-        max_value = output_class(i,k,1)
-        do j=2, 3
-          if (output_class(i,k,j) > max_value) then
-            max_value = output_class(i,k,j)
-            output_class_reduce(i,k) = j
-          end if
-        end do
-
       end do
     end do
 
@@ -969,8 +874,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
    do i=1,ncol
      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
      q_bctend (i,1:idx_trop(i)) = 0.
-    !  qc_bctend(i,1:idx_trop(i)) = 0.
-    !  qi_bctend(i,1:idx_trop(i)) = 0.
+     qc_bctend(i,1:idx_trop(i)) = 0.
+     qi_bctend(i,1:idx_trop(i)) = 0.
    end do
    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
 
@@ -1112,18 +1017,6 @@ select case (to_lower(trim(cb_nn_var_combo)))
        end do
      end do
     end if
-
-    !apply the microphysics classifier to mask qn output
-    write (iulog,*) 'CLIMSIMDEBUG for classifier, qn output is hardcoded to be masked only below level 15'
-    do i=1,ncol
-      do k=16,pver
-        if (output_class_reduce(i,k) .eq. 1) then
-          output(i,2*pver+k) = 0.
-        else if (output_class_reduce(i,k) .eq. 2) then
-          output(i,2*pver+k) = -(state%q(i,k,ixcldliq) + state%q(i,k,ixcldice))/1200.0
-        end if
-      end do
-    end do
  
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
@@ -1159,8 +1052,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do i=1,ncol
       call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
       q_bctend (i,1:idx_trop(i)) = 0.
-      ! qc_bctend(i,1:idx_trop(i)) = 0.
-      ! qi_bctend(i,1:idx_trop(i)) = 0.
+      qc_bctend(i,1:idx_trop(i)) = 0.
+      qi_bctend(i,1:idx_trop(i)) = 0.
     end do
     call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
     
@@ -1313,9 +1206,6 @@ end subroutine neural_net
     allocate(torch_mod (1))
     call torch_mod(1)%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
     !call torch_mod(1)%load(trim(cb_torch_model), module_use_device) !0 is not using gpu? for now just use cpu
-
-    allocate(torch_mod_class (1))
-    call torch_mod_class(1)%load(trim(cb_torch_model_class), 0) !0 is not using gpu? for now just use cpu
 
     open (unit=555,file=cb_inp_sub,status='old',action='read')
     read(555,*) inp_sub(:)
@@ -1498,7 +1388,7 @@ end subroutine neural_net
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
                            cb_random_ens_size, &
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
-                           cb_torch_model, cb_torch_model_class, cb_qc_lbd, cb_qi_lbd, cb_qn_lbd, cb_decouple_cloud, cb_spinup_step, &
+                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_qn_lbd, cb_decouple_cloud, cb_spinup_step, &
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
@@ -1552,7 +1442,6 @@ end subroutine neural_net
       call mpibcast(qoutput_prune,   1, mpilog,  0, mpicom)
       call mpibcast(strato_lev,   1, mpiint,  0, mpicom)
       call mpibcast(cb_torch_model, len(cb_torch_model), mpichar, 0, mpicom)
-      call mpibcast(cb_torch_model_class, len(cb_torch_model_class), mpichar, 0, mpicom)
       call mpibcast(cb_qc_lbd, len(cb_qc_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_qi_lbd, len(cb_qi_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_qn_lbd, len(cb_qn_lbd), mpichar, 0, mpicom)
