@@ -969,8 +969,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
    do i=1,ncol
      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
      q_bctend (i,1:idx_trop(i)) = 0.
-    !  qc_bctend(i,1:idx_trop(i)) = 0.
-    !  qi_bctend(i,1:idx_trop(i)) = 0.
+     qc_bctend(i,1:idx_trop(i)) = 0.
+     qi_bctend(i,1:idx_trop(i)) = 0.
    end do
    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
 
@@ -1159,8 +1159,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do i=1,ncol
       call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
       q_bctend (i,1:idx_trop(i)) = 0.
-      ! qc_bctend(i,1:idx_trop(i)) = 0.
-      ! qi_bctend(i,1:idx_trop(i)) = 0.
+      qc_bctend(i,1:idx_trop(i)) = 0.
+      qi_bctend(i,1:idx_trop(i)) = 0.
     end do
     call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
     
