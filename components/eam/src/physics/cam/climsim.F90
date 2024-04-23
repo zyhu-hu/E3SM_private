@@ -127,6 +127,7 @@ contains
 
    ! local variables
    real(r8) :: input(pcols,inputlength)
+   real(r8) :: tscaled_weight(pcols,pver)
    real(r8) :: output(pcols,outputlength)
    integer :: i,k,ncol,ixcldice,ixcldliq,ii,kk,idx_trop(pcols),kens, j
    real (r8) :: s_bctend(pcols,pver), q_bctend(pcols,pver), qc_bctend(pcols,pver), qi_bctend(pcols,pver), qafter, safter, &
@@ -152,7 +153,7 @@ contains
    real(r8) :: qn_log_tmp
    real(real32) :: temperature_new(pcols,pver)
    real(real32) :: qn_new(pcols,pver)
-
+   real(r8) :: a1, b1, c1, d1, e1, t_tmp
    ! for classifier inference
    real(r8) :: input_class(pcols,inputlength)
    real(r8) :: output_class(pcols,pver,3)
@@ -164,6 +165,11 @@ contains
    type(torch_tensor) :: out_tensor_class
 
    math_pi = 3.14159265358979323846_r8
+   a1 = 1.34040060e-16
+   b1 = -1.38512963e-13
+   c1 = 5.41389274e-11
+   d1 = -9.35030920e-09
+   e1 = 6.00504217e-07
 
    ncol  = state%ncol
    call cnst_get_ind('CLDLIQ', ixcldliq)
@@ -405,6 +411,13 @@ select case (to_lower(trim(cb_nn_var_combo)))
 
     case('v5')
       input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
+      do i = 1,ncol
+        do k=1,pver
+          t_tmp = min(290.0, max(state%t(i,k),170.0)) ! clip temperature to 170-290K
+          tscaled_weight(i,k) = a1*t_tmp**4 + b1*t_tmp**3 + c1*t_tmp**2 + d1*t_tmp + e1
+        end do
+      end do
+
       input(:ncol,1*pver+1:2*pver) = state%q(1:ncol,1:pver,1)        ! state_q0001
       ! do exp transform for qc, qi
       do i = 1,ncol
@@ -546,6 +559,7 @@ end if
     end do
 
     input_class(:,:) = input(:,:)
+    ! resetting qn in input_class, overwrite the value from input
     write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
     do i = 1,ncol
       do k=1,pver
