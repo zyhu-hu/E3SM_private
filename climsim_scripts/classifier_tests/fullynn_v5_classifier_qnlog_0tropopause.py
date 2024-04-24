@@ -15,7 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'fully_v5_classifier_qnlog_0tropopause'
-exe_refcase = 'fully_v5_classifier_qnlog'
+# exe_refcase = 'fully_v5_classifier_qnlog'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -88,6 +88,7 @@ cb_spinup_step = 5
 f_do_limiter = '.false.'
 f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
 f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
+f_cb_zeroqn_strat = '.true.'
 
 f_cb_do_ramp = '.false.'
 f_cb_ramp_option = 'step'
@@ -195,6 +196,7 @@ cb_do_aggressive_pruning = {cb_do_aggressive_pruning}
 cb_clip_rhonly = {cb_clip_rhonly}
 strato_lev_qinput = {strato_lev_qinput}
 strato_lev_tinput = {strato_lev_tinput}
+cb_zeroqn_strat = {f_cb_zeroqn_strat}
 /
 
 &cam_history_nl

@@ -15,7 +15,6 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'fully_v5_classifier_qnlog_wtropopause'
-exe_refcase = 'fully_v5_classifier_qnlog'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -47,9 +46,9 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'nmonths',2, 0,'12:00:00'
+stop_opt,stop_n,resub,walltime = 'nmonths',12, 0,'12:00:00'
 
-ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
+ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
@@ -58,8 +57,8 @@ compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
 
-#queue = 'regular'
-queue = 'debug'
+queue = 'regular'
+#queue = 'debug'
 
 # case_list = [case_prefix,arch,compset,grid]
 case_list = [case_prefix, ]
@@ -88,7 +87,7 @@ cb_spinup_step = 5
 f_do_limiter = '.false.'
 f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
 f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
-f_cb_zeroqn_strat = '.true.'
+
 f_cb_do_ramp = '.false.'
 f_cb_ramp_option = 'step'
 cb_ramp_factor = 1.0
@@ -195,7 +194,6 @@ cb_do_aggressive_pruning = {cb_do_aggressive_pruning}
 cb_clip_rhonly = {cb_clip_rhonly}
 strato_lev_qinput = {strato_lev_qinput}
 strato_lev_tinput = {strato_lev_tinput}
-cb_zeroqn_strat = {f_cb_zeroqn_strat}
 /
 
 &cam_history_nl
