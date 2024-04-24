@@ -68,6 +68,7 @@ use iso_fortran_env
   logical :: cb_clip_rhonly = .false.
   integer :: strato_lev_qinput = -1
   integer :: strato_lev_tinput = -1
+  logical :: cb_zeroqn_strat = .false.
 
 
 
@@ -1516,7 +1517,7 @@ end subroutine neural_net
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
-                           strato_lev_qinput, strato_lev_tinput
+                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1588,6 +1589,7 @@ end subroutine neural_net
       call mpibcast(cb_clip_rhonly,     1,                 mpilog,  0, mpicom)
       call mpibcast(strato_lev_qinput,   1, mpiint,  0, mpicom)
       call mpibcast(strato_lev_tinput,   1, mpiint,  0, mpicom)
+      call mpibcast(cb_zeroqn_strat,   1, mpilog,  0, mpicom)
 
 
 
