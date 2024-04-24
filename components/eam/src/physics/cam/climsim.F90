@@ -45,6 +45,9 @@ use iso_fortran_env
   character(len=256)    :: cb_inp_sub     ! absolute filepath for a inp_sub.txt
   character(len=256)    :: cb_inp_div     ! absolute filepath for a inp_div.txt
   character(len=256)    :: cb_out_scale   ! absolute filepath for a out_scale.txt
+  character(len=256)    :: cb_inp_sub_tscale     ! absolute filepath for a inp_sub.txt
+  character(len=256)    :: cb_inp_div_tscale     ! absolute filepath for a inp_div.txt
+  character(len=256)    :: cb_out_scale_tscale   ! absolute filepath for a out_scale.txt
   logical :: cb_partial_coupling  = .false.
   character(len=fieldname_lenp2) :: cb_partial_coupling_vars(pflds)
   character(len=256) :: cb_nn_var_combo = 'v4' ! nickname for a specific NN in/out variable combination
@@ -81,6 +84,9 @@ use iso_fortran_env
   real(r8), allocatable :: inp_sub(:)
   real(r8), allocatable :: inp_div(:)
   real(r8), allocatable :: out_scale(:)
+  real(r8), allocatable :: inp_sub_tscale(:)
+  real(r8), allocatable :: inp_div_tscale(:)
+  real(r8), allocatable :: out_scale_tscale(:)
   real(r8), allocatable :: qc_lbd(:)
   real(r8), allocatable :: qi_lbd(:)
   real(r8), allocatable :: qn_lbd(:)
@@ -549,17 +555,37 @@ end if
     ! call torch_mod%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
     ! print *, "finish loading model"
 
+    input_class(:,:) = input(:,:)
+    
+    ! 2. Normalize input for tscaled input for regressor
+    do i = 1,ncol
+      do k=1,pver
+        ! t_tmp = min(290.0, max(state%t(i,k),170.0)) ! clip temperature to 170-290K
+        ! tscaled_weight(i,k) = a1*t_tmp**4 + b1*t_tmp**3 + c1*t_tmp**2 + d1*t_tmp + e1
+        input(i,14*pver+k) = input(i,14*pver+k)/tscaled_weight(i,k)
+        input(i,18*pver+k) = input(i,18*pver+k)/tscaled_weight(i,k)
+      end do
+    end do
 
-    ! 2. Normalize input
+
     do k=1,inputlength
-      if (inp_div(k) .eq. 0.) then
+      if (inp_div_tscale(k) .eq. 0.) then
         input(:ncol,k) = 0.
       else
-        input(:ncol,k) = (input(:ncol,k) - inp_sub(k))/inp_div(k)
+        input(:ncol,k) = (input(:ncol,k) - inp_sub_tscale(k))/inp_div_tscale(k)
       end if
     end do
 
-    input_class(:,:) = input(:,:)
+    ! 2. Normalize input for classifier
+    do k=1,inputlength
+      if (inp_div(k) .eq. 0.) then
+        input_class(:ncol,k) = 0.
+      else
+        input_class(:ncol,k) = (input_class(:ncol,k) - inp_sub(k))/inp_div(k)
+      end if
+    end do
+
+
     ! resetting qn in input_class, overwrite the value from input
     write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
     do i = 1,ncol
@@ -1117,7 +1143,15 @@ select case (to_lower(trim(cb_nn_var_combo)))
     ! output normalization (un-weighting, really).
     do i=1,ncol
       do k=1,outputlength
-       output(i,k) = output(i,k) / out_scale(k)
+       output(i,k) = output(i,k) / out_scale_tscale(k)
+      end do
+    end do
+
+    do i = 1,ncol
+      do k=1,pver
+        ! t_tmp = min(290.0, max(state%t(i,k),170.0)) ! clip temperature to 170-290K
+        ! tscaled_weight(i,k) = a1*t_tmp**4 + b1*t_tmp**3 + c1*t_tmp**2 + d1*t_tmp + e1
+        output(i,120+k) = output(i,120+k) * tscaled_weight(i,k)
       end do
     end do
  
@@ -1296,6 +1330,9 @@ end subroutine neural_net
     allocate(inp_sub (inputlength))
     allocate(inp_div (inputlength))
     allocate(out_scale (outputlength))
+    allocate(inp_sub_tscale (inputlength))
+    allocate(inp_div_tscale (inputlength))
+    allocate(out_scale_tscale (outputlength))
     allocate(qc_lbd (60))
     allocate(qi_lbd (60))
     allocate(qn_lbd (60))
@@ -1361,6 +1398,27 @@ end subroutine neural_net
     close (555)
     if (masterproc) then
        write (iulog,*) 'CLIMSIM: loaded output scale factors from: ', trim(cb_out_scale)
+    endif
+
+    open (unit=555,file=cb_inp_sub_tscale,status='old',action='read')
+    read(555,*) inp_sub_tscale(:)
+    close (555)
+    if (masterproc) then
+       write (iulog,*) 'CLIMSIM: loaded input subtraction factors from: ', trim(cb_inp_sub_tscale)
+    endif
+
+    open (unit=555,file=cb_inp_div_tscale,status='old',action='read')
+    read(555,*) inp_div_tscale(:)
+    close (555)
+    if (masterproc) then
+       write (iulog,*) 'CLIMSIM: loaded input division factors from: ', trim(cb_inp_div_tscale)
+    endif
+
+    open (unit=555,file=cb_out_scale_tscale,status='old',action='read')
+    read(555,*) out_scale_tscale(:)
+    close (555)
+    if (masterproc) then
+       write (iulog,*) 'CLIMSIM: loaded output scale factors from: ', trim(cb_out_scale_tscale)
     endif
 
     open (unit=555,file=cb_qc_lbd,status='old',action='read')
@@ -1518,6 +1576,7 @@ end subroutine neural_net
       namelist /climsim_nl/ inputlength, outputlength, input_rh, &
                            cb_fkb_model, &
                            cb_inp_sub, cb_inp_div, cb_out_scale, &
+                           cb_inp_sub_tscale, cb_inp_div_tscale, cb_out_scale_tscale, &
                            cb_partial_coupling, cb_partial_coupling_vars,&
                            cb_use_input_prectm1, &
                            cb_do_ensemble, cb_ens_size, cb_ens_fkb_model_list, &
@@ -1565,6 +1624,9 @@ end subroutine neural_net
       call mpibcast(cb_inp_sub,   len(cb_inp_sub),   mpichar, 0, mpicom)
       call mpibcast(cb_inp_div,   len(cb_inp_div),   mpichar, 0, mpicom)
       call mpibcast(cb_out_scale, len(cb_out_scale), mpichar, 0, mpicom)
+      call mpibcast(cb_inp_sub_tscale,   len(cb_inp_sub_tscale),   mpichar, 0, mpicom)
+      call mpibcast(cb_inp_div_tscale,   len(cb_inp_div_tscale),   mpichar, 0, mpicom)
+      call mpibcast(cb_out_scale_tscale, len(cb_out_scale_tscale), mpichar, 0, mpicom)
       call mpibcast(cb_partial_coupling, 1,          mpilog,  0, mpicom)
       call mpibcast(cb_partial_coupling_vars, len(cb_partial_coupling_vars(1))*pflds, mpichar, 0, mpicom)
       call mpibcast(cb_do_ensemble, 1,               mpilog,  0, mpicom)

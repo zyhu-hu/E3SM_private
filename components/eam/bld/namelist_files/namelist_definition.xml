@@ -7971,6 +7971,21 @@ Absolute path of a input normalization factor txt file (div)
 Absolute path of an output rescaling factor txt file
 </entry>
 
+<entry id="cb_inp_sub_tscale" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a tscaled input normalization factor txt file (sub)
+</entry>
+
+<entry id="cb_inp_div_tscale" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a tscaled input normalization factor txt file (div)
+</entry>
+
+<entry id="cb_out_scale_tscale" type="char*256" category="climsim"
+       group="climsim_nl" valid_values="" >
+Absolute path of a tscaled output rescaling factor txt file
+</entry>
+
 <entry id="cb_partial_coupling" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
 Toggle partial coupling of NN output;
