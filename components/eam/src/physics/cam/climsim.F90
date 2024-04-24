@@ -66,6 +66,7 @@ use iso_fortran_env
   logical :: cb_do_aggressive_pruning = .false.
   logical :: cb_solin_nolag  = .false.
   logical :: cb_clip_rhonly = .false.
+  logical :: cb_zeroqn_strat = .false.
   integer :: strato_lev_qinput = -1
   integer :: strato_lev_tinput = -1
 
@@ -969,8 +970,13 @@ select case (to_lower(trim(cb_nn_var_combo)))
    do i=1,ncol
      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
      q_bctend (i,1:idx_trop(i)) = 0.
-     qc_bctend(i,1:idx_trop(i)) = 0.
-     qi_bctend(i,1:idx_trop(i)) = 0.
+     if (cb_zeroqn_strat) then
+      qc_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldliq)/ztodt
+      qi_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldice)/ztodt
+     else 
+      qc_bctend(i,1:idx_trop(i)) = 0.
+      qi_bctend(i,1:idx_trop(i)) = 0.
+     end if
    end do
    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
 
@@ -1159,8 +1165,13 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do i=1,ncol
       call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
       q_bctend (i,1:idx_trop(i)) = 0.
-      qc_bctend(i,1:idx_trop(i)) = 0.
-      qi_bctend(i,1:idx_trop(i)) = 0.
+      if (cb_zeroqn_strat) then
+        qc_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldliq)/ztodt
+        qi_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldice)/ztodt
+       else 
+        qc_bctend(i,1:idx_trop(i)) = 0.
+        qi_bctend(i,1:idx_trop(i)) = 0.
+       end if
     end do
     call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
     
@@ -1502,7 +1513,7 @@ end subroutine neural_net
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
-                           strato_lev_qinput, strato_lev_tinput
+                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1574,6 +1585,7 @@ end subroutine neural_net
       call mpibcast(cb_clip_rhonly,     1,                 mpilog,  0, mpicom)
       call mpibcast(strato_lev_qinput,   1, mpiint,  0, mpicom)
       call mpibcast(strato_lev_tinput,   1, mpiint,  0, mpicom)
+      call mpibcast(cb_zeroqn_strat,   1, mpilog,  0, mpicom)
 
 
 
