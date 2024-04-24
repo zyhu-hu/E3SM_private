@@ -202,7 +202,7 @@ cb_do_aggressive_pruning = {cb_do_aggressive_pruning}
 cb_clip_rhonly = {cb_clip_rhonly}
 strato_lev_qinput = {strato_lev_qinput}
 strato_lev_tinput = {strato_lev_tinput}
-cb_zeroqn_strato = {f_cb_zeroqn_strat}
+cb_zeroqn_strat = {f_cb_zeroqn_strat}
 /
 
 &cam_history_nl
