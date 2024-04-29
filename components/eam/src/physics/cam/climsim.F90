@@ -205,204 +205,10 @@ contains
 
 select case (to_lower(trim(cb_nn_var_combo)))
    case('v2')
-      input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
-      input(:ncol,1*pver+1:2*pver) = state%q(1:ncol,1:pver,1)        ! state_q0001
-      input(:ncol,2*pver+1:3*pver) = state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
-      input(:ncol,3*pver+1:4*pver) = state%q(1:ncol,1:pver,ixcldice) ! state_q0003
-      input(:ncol,4*pver+1:5*pver) = state%u(1:ncol,1:pver)          ! state_u
-      input(:ncol,5*pver+1:6*pver) = state%v(1:ncol,1:pver)          ! state_v
-      input(:ncol,6*pver+1       ) = state%ps(1:ncol)                ! state_ps
-      input(:ncol,6*pver+2       ) = solin(1:ncol)                   ! pbuf_SOLIN
-      input(:ncol,6*pver+3       ) = lhflx(1:ncol)                   ! pbuf_LHFLX
-      input(:ncol,6*pver+4       ) = shflx(1:ncol)                   ! pbuf_SHFLX
-      input(:ncol,6*pver+5       ) = taux(1:ncol)                    ! pbuf_TAUX
-      input(:ncol,6*pver+6       ) = tauy(1:ncol)                    ! pbuf_TAUY
-      input(:ncol,6*pver+7       ) = coszrs(1:ncol)                  ! pbuf_COSZRS
-      input(:ncol,6*pver+8       ) = cam_in%ALDIF(:ncol)             ! cam_in_ALDIF 
-      input(:ncol,6*pver+9       ) = cam_in%ALDIR(:ncol)             ! cam_in_ALDIR 
-      input(:ncol,6*pver+10      ) = cam_in%ASDIF(:ncol)             ! cam_in_ASDIF 
-      input(:ncol,6*pver+11      ) = cam_in%ASDIR(:ncol)             ! cam_in_ASDIR
-      input(:ncol,6*pver+12      ) = cam_in%LWUP(:ncol)              ! cam_in_LWUP
-      input(:ncol,6*pver+13      ) = cam_in%ICEFRAC(:ncol)           ! cam_in_ICEFRAC
-      input(:ncol,6*pver+14      ) = cam_in%LANDFRAC(:ncol)          ! cam_in_LANDFRAC
-      input(:ncol,6*pver+15      ) = cam_in%OCNFRAC(:ncol)           ! cam_in_OCNFRAC
-      input(:ncol,6*pver+16      ) = cam_in%SNOWHICE(:ncol)          ! cam_in_SNOWHICE
-      input(:ncol,6*pver+17      ) = cam_in%SNOWHLAND(:ncol)         ! cam_in_SNOWHLAND
-      input(:ncol,6*pver+18:6*pver+33) = ozone(:ncol,6:21)           ! pbuf_ozone
-      input(:ncol,6*pver+34:6*pver+49) = ch4(:ncol,6:21)             ! pbuf_CH4
-      input(:ncol,6*pver+50:6*pver+65) = n2o(:ncol,6:21)             ! pbuf_N2O
-
-      ! RH conversion
-      if (input_rh) then ! relative humidity conversion for input
-         do i = 1,ncol
-           do k=1,pver
-             ! Port of tom's RH =  Rv*p*qv/(R*esat(T))
-             rh_loc = 461.*state%pmid(i,k)*state%q(i,k,1)/(287.*tom_esat(state%t(i,k))) ! note function tom_esat below refercing SAM's sat.F90
-#ifdef RHDEBUG
-             if (masterproc) then
-               write (iulog,*) 'RHDEBUG:p,q,T,RH=',state%pmid(i,k),state%q(i,k,1),state%t(i,k),rh_loc
-             endif
-#endif
-             input(i,1*pver+k) = rh_loc
-           end do
-         end do
-      end if
 
    case('v3')
-      input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
-      input(:ncol,1*pver+1:2*pver) = state%q(1:ncol,1:pver,1)        ! state_q0001
-      if (qinput_log) then
-        input(:ncol,2*pver+1:3*pver) = log10(1._r8+1.e6*state%q(1:ncol,1:pver,ixcldliq)) ! state_q0002
-        input(:ncol,3*pver+1:4*pver) = log10(1._r8+1.e6*state%q(1:ncol,1:pver,ixcldice)) ! state_q0003
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG log10 transform is applied to q1-3'
-      endif
-#endif     
-      else
-        input(:ncol,2*pver+1:3*pver) = state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
-        input(:ncol,3*pver+1:4*pver) = state%q(1:ncol,1:pver,ixcldice) ! state_q0003
-      end if
-      input(:ncol,4*pver+1:5*pver) = state%u(1:ncol,1:pver)          ! state_u
-      input(:ncol,5*pver+1:6*pver) = state%v(1:ncol,1:pver)          ! state_v
-      input(:ncol,6*pver+1:7*pver) = (state%t(1:ncol,1:pver)-state_aphys1%t(1:ncol,1:pver))/1200. ! state_t_dyn
-      ! state_q0_dyn
-      input(:ncol,7*pver+1:8*pver) = (state%q(1:ncol,1:pver,1)-state_aphys1%q(1:ncol,1:pver,1) + state%q(1:ncol,1:pver,ixcldliq)-state_aphys1%q(1:ncol,1:pver,ixcldliq) + state%q(1:ncol,1:pver,ixcldice)-state_aphys1%q(1:ncol,1:pver,ixcldice))/1200.
-      input(:ncol,8*pver+1:9*pver) = (state%u(1:ncol,1:pver)-state_aphys1%u(1:ncol,1:pver))/1200. ! state_u_dyn
-      input(:ncol,9*pver+1:10*pver) = ozone(:ncol,1:pver)            ! pbuf_ozone
-      input(:ncol,10*pver+1:11*pver) = ch4(:ncol,1:pver)             ! pbuf_CH4
-      input(:ncol,11*pver+1:12*pver) = n2o(:ncol,1:pver)             ! pbuf_N2O
-      input(:ncol,12*pver+1) = state%ps(1:ncol)                      ! state_ps
-      input(:ncol,12*pver+2) = solin(1:ncol)                         ! pbuf_SOLIN
-      input(:ncol,12*pver+3) = lhflx(1:ncol)                         ! pbuf_LHFLX
-      input(:ncol,12*pver+4) = shflx(1:ncol)                         ! pbuf_SHFLX
-      input(:ncol,12*pver+5) = taux(1:ncol)                          ! pbuf_TAUX
-      input(:ncol,12*pver+6) = tauy(1:ncol)                          ! pbuf_TAUY
-      input(:ncol,12*pver+7) = coszrs(1:ncol)                        ! pbuf_COSZRS
-      input(:ncol,12*pver+8) = cam_in%ALDIF(:ncol)                   ! cam_in_ALDIF
-      input(:ncol,12*pver+9) = cam_in%ALDIR(:ncol)                   ! cam_in_ALDIR
-      input(:ncol,12*pver+10) = cam_in%ASDIF(:ncol)                  ! cam_in_ASDIF
-      input(:ncol,12*pver+11) = cam_in%ASDIR(:ncol)                  ! cam_in_ASDIR
-      input(:ncol,12*pver+12) = cam_in%LWUP(:ncol)                   ! cam_in_LWUP
-      input(:ncol,12*pver+13) = cam_in%ICEFRAC(:ncol)                ! cam_in_ICEFRAC
-      input(:ncol,12*pver+14) = cam_in%LANDFRAC(:ncol)               ! cam_in_LANDFRAC
-      input(:ncol,12*pver+15) = cam_in%OCNFRAC(:ncol)                ! cam_in_OCNFRAC
-      input(:ncol,12*pver+16) = cam_in%SNOWHICE(:ncol)               ! cam_in_SNOWHICE
-      input(:ncol,12*pver+17) = cam_in%SNOWHLAND(:ncol)              ! cam_in_SNOWHLAND
-      
-      ! input(:ncol,6*pver+1       ) = state%ps(1:ncol)                ! state_ps
-      ! input(:ncol,6*pver+2       ) = solin(1:ncol)                   ! pbuf_SOLIN
-      ! input(:ncol,6*pver+3       ) = lhflx(1:ncol)                   ! pbuf_LHFLX
-      ! input(:ncol,6*pver+4       ) = shflx(1:ncol)                   ! pbuf_SHFLX
-      ! input(:ncol,6*pver+5       ) = taux(1:ncol)                    ! pbuf_TAUX
-      ! input(:ncol,6*pver+6       ) = tauy(1:ncol)                    ! pbuf_TAUY
-      ! input(:ncol,6*pver+7       ) = coszrs(1:ncol)                  ! pbuf_COSZRS
-      ! input(:ncol,6*pver+8       ) = cam_in%ALDIF(:ncol)             ! cam_in_ALDIF 
-      ! input(:ncol,6*pver+9       ) = cam_in%ALDIR(:ncol)             ! cam_in_ALDIR 
-      ! input(:ncol,6*pver+10      ) = cam_in%ASDIF(:ncol)             ! cam_in_ASDIF 
-      ! input(:ncol,6*pver+11      ) = cam_in%ASDIR(:ncol)             ! cam_in_ASDIR
-      ! input(:ncol,6*pver+12      ) = cam_in%LWUP(:ncol)              ! cam_in_LWUP
-      ! input(:ncol,6*pver+13      ) = cam_in%ICEFRAC(:ncol)           ! cam_in_ICEFRAC
-      ! input(:ncol,6*pver+14      ) = cam_in%LANDFRAC(:ncol)          ! cam_in_LANDFRAC
-      ! input(:ncol,6*pver+15      ) = cam_in%OCNFRAC(:ncol)           ! cam_in_OCNFRAC
-      ! input(:ncol,6*pver+16      ) = cam_in%SNOWHICE(:ncol)          ! cam_in_SNOWHICE
-      ! input(:ncol,6*pver+17      ) = cam_in%SNOWHLAND(:ncol)         ! cam_in_SNOWHLAND
-      ! input(:ncol,6*pver+18:6*pver+33) = ozone(:ncol,6:21)           ! pbuf_ozone
-      ! input(:ncol,6*pver+34:6*pver+49) = ch4(:ncol,6:21)             ! pbuf_CH4
-      ! input(:ncol,6*pver+50:6*pver+65) = n2o(:ncol,6:21)             ! pbuf_N2O
 
-      ! RH conversion
-      if (input_rh) then ! relative humidity conversion for input
-         do i = 1,ncol
-           do k=1,pver
-             ! Port of tom's RH =  Rv*p*qv/(R*esat(T))
-             rh_loc = 461.*state%pmid(i,k)*state%q(i,k,1)/(287.*tom_esat(state%t(i,k))) ! note function tom_esat below refercing SAM's sat.F90
-#ifdef RHDEBUG
-             if (masterproc) then
-               write (iulog,*) 'RHDEBUG:p,q,T,RH=',state%pmid(i,k),state%q(i,k,1),state%t(i,k),rh_loc
-             endif
-#endif
-             input(i,1*pver+k) = rh_loc
-           end do
-         end do
-      end if
-
-    case('v4')
-      input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
-      input(:ncol,1*pver+1:2*pver) = state%q(1:ncol,1:pver,1)        ! state_q0001
-      ! do exp transform for qc, qi
-      do i = 1,ncol
-        do k=1,pver
-          input(i,2*pver+k) = 1 - exp(-state%q(i,k,ixcldliq)*qc_lbd(k))
-          input(i,3*pver+k) = 1 - exp(-state%q(i,k,ixcldice)*qi_lbd(k))
-        end do
-      end do
-      input(:ncol,4*pver+1:5*pver) = state%u(1:ncol,1:pver)          ! state_u
-      input(:ncol,5*pver+1:6*pver) = state%v(1:ncol,1:pver)          ! state_v
-      input(:ncol,6*pver+1:7*pver) = (state%t(1:ncol,1:pver)-state_aphys1%t(1:ncol,1:pver))/1200. ! state_t_dyn
-      ! state_q0_dyn
-      input(:ncol,7*pver+1:8*pver) = (state%q(1:ncol,1:pver,1)-state_aphys1%q(1:ncol,1:pver,1) + state%q(1:ncol,1:pver,ixcldliq)-state_aphys1%q(1:ncol,1:pver,ixcldliq) + state%q(1:ncol,1:pver,ixcldice)-state_aphys1%q(1:ncol,1:pver,ixcldice))/1200.
-      input(:ncol,8*pver+1:9*pver) = (state%u(1:ncol,1:pver)-state_aphys1%u(1:ncol,1:pver))/1200. ! state_u_dyn
-      input(:ncol,9*pver+1:10*pver) = state%t_adv(2,1:ncol,1:pver)
-      input(:ncol,10*pver+1:11*pver) = state%q_adv(2,1:ncol,1:pver,1) + state%q_adv(2,1:ncol,1:pver,ixcldliq) + state%q_adv(2,1:ncol,1:pver,ixcldice)
-      input(:ncol,11*pver+1:12*pver) = state%u_adv(2,1:ncol,1:pver)
-      ! previous state physics tendencies
-      input(:ncol,12*pver+1:13*pver) = state%t_phy(1,1:ncol,1:pver)
-      input(:ncol,13*pver+1:14*pver) = state%q_phy(1,1:ncol,1:pver,1)
-      input(:ncol,14*pver+1:15*pver) = state%q_phy(1,1:ncol,1:pver,ixcldliq)
-      input(:ncol,15*pver+1:16*pver) = state%q_phy(1,1:ncol,1:pver,ixcldice)
-      input(:ncol,16*pver+1:17*pver) = state%u_phy(1,1:ncol,1:pver)
-      ! 2-step in the past physics tendencies
-      input(:ncol,17*pver+1:18*pver) = state%t_phy(2,1:ncol,1:pver)
-      input(:ncol,18*pver+1:19*pver) = state%q_phy(2,1:ncol,1:pver,1)
-      input(:ncol,19*pver+1:20*pver) = state%q_phy(2,1:ncol,1:pver,ixcldliq)
-      input(:ncol,20*pver+1:21*pver) = state%q_phy(2,1:ncol,1:pver,ixcldice)
-      input(:ncol,21*pver+1:22*pver) = state%u_phy(2,1:ncol,1:pver)
-      !gas
-      input(:ncol,22*pver+1:23*pver) = ozone(:ncol,1:pver)            ! pbuf_ozone
-      input(:ncol,23*pver+1:24*pver) = ch4(:ncol,1:pver)             ! pbuf_CH4
-      input(:ncol,24*pver+1:25*pver) = n2o(:ncol,1:pver)             ! pbuf_N2O
-      ! 2d vars e.g., ps, solin
-      input(:ncol,25*pver+1) = state%ps(1:ncol)                      ! state_ps
-      input(:ncol,25*pver+2) = solin(1:ncol)                         ! pbuf_SOLIN
-      input(:ncol,25*pver+3) = lhflx(1:ncol)                         ! pbuf_LHFLX
-      input(:ncol,25*pver+4) = shflx(1:ncol)                         ! pbuf_SHFLX
-      input(:ncol,25*pver+5) = taux(1:ncol)                          ! pbuf_TAUX
-      input(:ncol,25*pver+6) = tauy(1:ncol)                          ! pbuf_TAUY
-      input(:ncol,25*pver+7) = coszrs(1:ncol)                        ! pbuf_COSZRS
-      input(:ncol,25*pver+8) = cam_in%ALDIF(:ncol)                   ! cam_in_ALDIF
-      input(:ncol,25*pver+9) = cam_in%ALDIR(:ncol)                   ! cam_in_ALDIR
-      input(:ncol,25*pver+10) = cam_in%ASDIF(:ncol)                  ! cam_in_ASDIF
-      input(:ncol,25*pver+11) = cam_in%ASDIR(:ncol)                  ! cam_in_ASDIR
-      input(:ncol,25*pver+12) = cam_in%LWUP(:ncol)                   ! cam_in_LWUP
-      input(:ncol,25*pver+13) = cam_in%ICEFRAC(:ncol)                ! cam_in_ICEFRAC
-      input(:ncol,25*pver+14) = cam_in%LANDFRAC(:ncol)               ! cam_in_LANDFRAC
-      input(:ncol,25*pver+15) = cam_in%OCNFRAC(:ncol)                ! cam_in_OCNFRAC
-      input(:ncol,25*pver+16) = cam_in%SNOWHICE(:ncol)               ! cam_in_SNOWHICE
-      input(:ncol,25*pver+17) = cam_in%SNOWHLAND(:ncol)              ! cam_in_SNOWHLAND
-      !5 placeholder for future input
-      input(:ncol,25*pver+18:25*pver+22) = 0._r8
-      ! cos lat and sin lat
-      do i = 1,ncol ! lat is get_lat_p(lchnk,i), 23/24 needs cos/sin
-        input(i,25*pver+23) = cos(get_rlat_p(lchnk,i))
-        input(i,25*pver+24) = sin(get_rlat_p(lchnk,i))
-      end do
-      input(:ncol,25*pver+25) = 0._r8               ! icol ! can be 1-384 in future
-      ! RH conversion
-      if (input_rh) then ! relative humidity conversion for input
-         do i = 1,ncol
-           do k=1,pver
-             ! Port of tom's RH =  Rv*p*qv/(R*esat(T))
-             rh_loc = 461.*state%pmid(i,k)*state%q(i,k,1)/(287.*tom_esat(state%t(i,k))) ! note function tom_esat below refercing SAM's sat.F90
-#ifdef RHDEBUG
-             if (masterproc) then
-               write (iulog,*) 'RHDEBUG:p,q,T,RH=',state%pmid(i,k),state%q(i,k,1),state%t(i,k),rh_loc
-             endif
-#endif
-             input(i,1*pver+k) = rh_loc
-           end do
-         end do
-      end if
+   case('v4')
 
     case('v5')
       input(:ncol,0*pver+1:1*pver) = state%t(1:ncol,1:pver)          ! state_t
@@ -410,7 +216,9 @@ select case (to_lower(trim(cb_nn_var_combo)))
       ! do exp transform for qc, qi
       do i = 1,ncol
         do k=1,pver
+          ! do exp transform for qn, 1-exp(-qn*lambda)
           input(i,2*pver+k) = 1 - exp(-(state%q(i,k,ixcldliq)+state%q(i,k,ixcldice))*qn_lbd(k))
+          !temperature based liquid-ice partition
           input(i,3*pver+k) = (state%t(i,k) - 253.16)/20.0
           if (state%t(i,k)>273.16) then
             input(i,3*pver+k) = 1.0
@@ -467,7 +275,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
         input(i,23*pver+23) = cos(get_rlat_p(lchnk,i))
         input(i,23*pver+24) = sin(get_rlat_p(lchnk,i))
       end do
-      input(:ncol,23*pver+25) = 0._r8               ! icol ! can be 1-384 in future
+      input(:ncol,23*pver+25) = 0._r8               ! placeholder, can be 1-384 in future
       ! RH conversion
       if (input_rh) then ! relative humidity conversion for input
          do i = 1,ncol
@@ -486,56 +294,12 @@ select case (to_lower(trim(cb_nn_var_combo)))
 
 end select
 
-! Tue Jan 24 13:28:43 CST 2023
-! Sungduk 
-#ifdef CLIMSIMDEBUG
-if (masterproc) then ! (logging ncol=1 only)
-select case (to_lower(trim(cb_nn_var_combo)))
-   case('v2')
-      write (iulog,*) 'CLIMSIMDEBUG state_t = ', state%t(1:ncol,1:pver)          ! state_t
-      write (iulog,*) 'CLIMSIMDEBUG state_q0001 = ', state%q(1:ncol,1:pver,1)        ! state_q0001
-      write (iulog,*) 'CLIMSIMDEBUG state_q0002 = ', state%q(1:ncol,1:pver,ixcldliq) ! state_q0002
-      write (iulog,*) 'CLIMSIMDEBUG state_q0003 = ', state%q(1:ncol,1:pver,ixcldice) ! state_q0003
-      write (iulog,*) 'CLIMSIMDEBUG state_u = ', state%u(1:ncol,1:pver)          ! state_u
-      write (iulog,*) 'CLIMSIMDEBUG state_v = ', state%v(1:ncol,1:pver)          ! state_v
-      write (iulog,*) 'CLIMSIMDEBUG state_ps = ', state%ps(1:ncol)                ! state_ps
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_SOLIN = ', solin(1:ncol)                   ! pbuf_SOLIN
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_LHFLX = ', lhflx(1:ncol)                   ! pbuf_LHFLX
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_SHFLX = ', shflx(1:ncol)                   ! pbuf_SHFLX
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_TAUX = ', taux(1:ncol)                    ! pbuf_TAUX
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_TAUY = ', tauy(1:ncol)                    ! pbuf_TAUY
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_COSZRS = ', coszrs(1:ncol)                  ! pbuf_COSZRS
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_ALDIF = ', cam_in%ALDIF(:ncol)             ! cam_in_ALDIF
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_ALDIR = ', cam_in%ALDIR(:ncol)             ! cam_in_ALDIR
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_ASDIF = ', cam_in%ASDIF(:ncol)             ! cam_in_ASDIF
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_ASDIR = ', cam_in%ASDIR(:ncol)             ! cam_in_ASDIR
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_LWUP = ', cam_in%LWUP(:ncol)              ! cam_in_LWUP
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_ICEFRAC = ', cam_in%ICEFRAC(:ncol)           ! cam_in_ICEFRAC
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_LANDFRAC = ', cam_in%LANDFRAC(:ncol)          ! cam_in_LANDFRAC
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_OCNFRAC = ', cam_in%OCNFRAC(:ncol)           ! cam_in_OCNFRAC
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_SNOWHICE = ', cam_in%SNOWHICE(:ncol)          ! cam_in_SNOWHICE
-      write (iulog,*) 'CLIMSIMDEBUG cam_in_SNOWHLAND = ', cam_in%SNOWHLAND(:ncol)         ! cam_in_SNOWHLAND
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_ozone = ', ozone(:ncol,6:21)           ! pbuf_ozone
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_CH4 = ', ch4(:ncol,6:21)             ! pbuf_CH4
-      write (iulog,*) 'CLIMSIMDEBUG pbuf_N2O = ', n2o(:ncol,6:21)             ! pbuf_N2O
-      if (input_rh) then ! relative humidity conversion for input
-         write (iulog,*) 'CLIMSIMDEBUG RH = ', input(:ncol,1*pver+1:2*pver) ! relhum 
-      end if
-end select
-end if
-#endif 
 
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
         write (iulog,*) 'CLIMSIMDEBUG input pre norm=',input(1,:)
       endif
 #endif
-
-    !load torch model
-    ! print *, "Loading model"
-    ! call torch_mod%load(trim(cb_torch_model), 0) !0 is not using gpu? for now just use cpu
-    ! print *, "finish loading model"
-
 
     ! 2. Normalize input
     do k=1,inputlength
@@ -546,6 +310,8 @@ end if
       end if
     end do
 
+    ! copy the input (for regression model) to input_class for classification model
+    ! redo the transformation for qn in input_class
     input_class(:,:) = input(:,:)
     write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
     do i = 1,ncol
@@ -568,103 +334,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
 
   case('v4')
 
-    if (qinput_prune) then
-      do k=1,strato_lev
-        !if to_lower(trim(cb_nn_var_combo)) == 'v4' then skip qv prune
-        !input(:,1*pver+k) = 0. ! qv
-        if (to_lower(trim(cb_nn_var_combo)) /= 'v4') then
-          input(:,1*pver+k) = 0. ! qv
-        end if
-        input(:,2*pver+k) = 0. ! qc
-        input(:,3*pver+k) = 0. ! qi
-      end do 
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG qinput is pruned above level: ',strato_lev
-      endif
-#endif      
-    end if
-
-    if (cb_decouple_cloud) then
-      do k=1,pver
-        input(:,2*pver+k) = 0. ! qc
-        input(:,3*pver+k) = 0. ! qi
-        input(:,14*pver+k) = 0.
-        input(:,15*pver+k) = 0.
-        input(:,19*pver+k) = 0.
-        input(:,20*pver+k) = 0.
-      end do
-    end if
-    
-    if (cb_do_aggressive_pruning) then
-      do k=1,strato_lev
-        input(:,1*pver+k) = 0.  
-        input(:,2*pver+k) = 0.  
-        input(:,3*pver+k) = 0. 
-        input(:,4*pver+k) = 0.
-        input(:,5*pver+k) = 0.
-        input(:,6*pver+k) = 0.
-        input(:,7*pver+k) = 0.
-        input(:,8*pver+k) = 0.
-        input(:,9*pver+k) = 0.
-        input(:,10*pver+k) = 0.
-        input(:,11*pver+k) = 0.
-        input(:,12*pver+k) = 0.
-        input(:,13*pver+k) = 0.
-        input(:,14*pver+k) = 0.
-        input(:,15*pver+k) = 0.
-        input(:,16*pver+k) = 0.
-        input(:,17*pver+k) = 0.
-        input(:,18*pver+k) = 0.
-        input(:,19*pver+k) = 0.
-        input(:,20*pver+k) = 0.
-        input(:,21*pver+k) = 0.
-        input(:,1516) = 0.
-      end do
-
-      do k=1,30
-        input(:,2*pver+k) = 0. 
-        input(:,14*pver+k) = 0.
-        input(:,19*pver+k) = 0.
-      end do
-
-      if (strato_lev_qinput>0) then
-        do k=1,strato_lev_qinput
-          input(:,1*pver+k) = 0.  
-          input(:,3*pver+k) = 0. 
-          input(:,13*pver+k) = 0.  
-          input(:,15*pver+k) = 0. 
-          input(:,18*pver+k) = 0.  
-          input(:,20*pver+k) = 0. 
-        end do
-      end if
-
-      if (strato_lev_tinput>0) then
-        do k=1,strato_lev_tinput
-          input(:,k) = 0.  
-        end do
-      end if
-    end if
-
-    if (cb_do_clip) then
-      if (cb_clip_rhonly) then
-        do k=61,120
-          input(:,k) = max(min(input(:,k),1.2),0.0)
-        end do
-      else
-        do k=61,120
-          input(:,k) = max(min(input(:,k),1.2),0.0)
-        end do
-        do k=361,720
-          input(:,k) = max(min(input(:,k),0.5),-0.5)
-        end do
-        do k=721,1320
-          input(:,k) = max(min(input(:,k),3.0),-3.0)
-        end do
-      end if
-    end if
-
   case('v5')
+    ! prune stratosphere input for certain input variables
     if (cb_do_aggressive_pruning) then
       do k=1,strato_lev
         input(:,1*pver+k) = 0.  
@@ -709,6 +380,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
     end if
 
     if (cb_do_clip) then
+      ! clip certain variables
       if (cb_clip_rhonly) then
         do k=61,120
           input(:,k) = max(min(input(:,k),1.2),0.0)
@@ -764,6 +436,7 @@ end select
       endif
 #endif
     
+    ! transpose input array for pytorch input
     input_torch(:,:) = 0.
     do i=1,ncol
       do k=1,inputlength
@@ -823,14 +496,7 @@ end select
   if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
 select case (to_lower(trim(cb_nn_var_combo)))
   case('v4')
-      do k=1,strato_lev
-        output(:,1*pver+k) = 0. ! qv
-        output(:,2*pver+k) = 0. ! qc
-        output(:,3*pver+k) = 0. ! qi
-      end do
-      do k=1,28
-        output(:,2*pver+k) = 0. 
-      end do
+
   case('v5')
     do k=1,strato_lev ! not necessary to call since v5 unet has done this output pruning internally
       ! although this provide an option to prune more levels than specified in unet model
@@ -842,61 +508,6 @@ select case (to_lower(trim(cb_nn_var_combo)))
 end select
   end if
 
-!     do i=1,ncol
-!       if (cb_do_ensemble) then
-! !         output(i,:) = 0.
-! !         !! Random ensemble averaging
-! !         if (cb_do_random_ensemble) then
-! !           ens_ind_shuffled = shuffle_1d(ens_ind_shuffled) ! randomly shuffle ens indices
-! !           do kens = 1,cb_random_ens_size
-! !             output(i,:) = output(i,:) +  (1._r8/cb_random_ens_size) * climsim_net(ens_ind_shuffled(kens)) % output(input(i,:))
-! !           enddo
-! ! #ifdef CLIMSIMDEBUG
-! !           if (masterproc .and. i.eq.1) then
-! !             write (iulog,*) 'CLIMSIMDEBUG  random ensemble model IDs = ',ens_ind_shuffled(1:cb_random_ens_size)
-! !           endif
-! ! #endif
-! !         !! All ensemble averaging
-! !         else
-! !           do kens = 1,cb_ens_size
-! !             output(i,:) = output(i,:) +  (1._r8/cb_ens_size) * climsim_net(kens) % output(input(i,:))
-! !           enddo
-! !         endif
-!       !! Using a single model
-!       else ! cb_do_ensemble
-!         !output(i,:) = climsim_net(1) % output(input(i,:))
-
-!         !input_torch(inputlength, 1)
-!         ! input_torch(:,1) = 0.
-  
-!         ! do k=1,inputlength
-!         !   input_torch(k,1) = input(i,k)
-!         ! end do
-!         print *, "Creating input tensor"
-!         call input_tensors%create
-!         print *, "Adding input data"
-!         call input_tensors%add_array(input_torch)
-!         print *, "Running forward pass"
-!         call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
-!         call out_tensor%to_array(output_torch)
-!         do k=1,outputlength
-!           output(i,k) = output_torch(k,1)
-!         end do
-!         if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
-!           do k=1,strato_lev
-!             output(i,1*pver+k) = 0. ! qv
-!             output(i,2*pver+k) = 0. ! qc
-!             output(i,3*pver+k) = 0. ! qi
-!           end do 
-! #ifdef CLIMSIMDEBUG
-!       if (masterproc) then
-!         write (iulog,*) 'CLIMSIMDEBUG q output is pruned above level: ',strato_lev
-!       endif
-! #endif    
-!         end if
-
-!       endif
-!     end do
 
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
@@ -906,174 +517,6 @@ end select
 
 select case (to_lower(trim(cb_nn_var_combo)))
   case('v4')
-   ! Manually applying ReLU activation for positive-definite variables
-   ! [TODO] for ensemble, ReLU should be moved before ens-averaging
-   do i=1,ncol
-     ! ReLU for the last 8 variables (true for 'v1' and 'v2')
-     do k=outputlength-7,outputlength
-       output(i,k) = max(output(i,k), 0.)
-     end do
-     ! tiny flwds
-     k=6*pver+2
-     output(i,k) = max(output(i,k), tiny(output(i,k))) ! flwds
-                                                       ! preventing flwds==0 error
-     ! zero out surface solar fluxes when local time is at night
-     if (coszrs(i) .le. 0.) then
-       output(i,6*pver+1) = 0. ! netsw
-       output(i,6*pver+5) = 0. ! sols
-       output(i,6*pver+6) = 0. ! soll
-       output(i,6*pver+7) = 0. ! solsd
-       output(i,6*pver+8) = 0. ! solld
-     endif
-   end do
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG output after ReLU = ',output(1,:)
-      endif
-#endif
-
-   ! output normalization (un-weighting, really).
-   do i=1,ncol
-     do k=1,outputlength
-      output(i,k) = output(i,k) / out_scale(k)
-     end do
-   end do
-
-   if (cb_do_limiter) then
-    do k = 1, outputlength
-      do i = 1, ncol
-        if (output(i,k) .gt. limiter_upper(k)) then
-          output(i,k) = limiter_upper(k)
-        else if (output(i,k) .lt. limiter_lower(k)) then
-          output(i,k) = limiter_lower(k)
-        end if
-      end do
-    end do
-   end if
-
-#ifdef CLIMSIMDEBUG
-      if (masterproc) then
-        write (iulog,*) 'CLIMSIMDEBUG output post scale = ',output(1,:)
-      endif
-#endif
-
-! ---------- 1. NN output to atmosphere forcing --------
-! ['TBCTEND', 'QBCTEND','CLDLIQBCTEND','CLDICEBCTEND']
-   s_bctend (:ncol,1:pver) = output(1:ncol,0*pver+1:1*pver)*cpair ! K/s --> J/kg/s (ptend expects that)
-   q_bctend (:ncol,1:pver) = output(1:ncol,1*pver+1:2*pver)       ! kg/kg/s
-   qc_bctend(:ncol,1:pver) = output(1:ncol,2*pver+1:3*pver)       ! kg/kg/s
-   qi_bctend(:ncol,1:pver) = output(1:ncol,3*pver+1:4*pver)       ! kg/kg/s
-   u_bctend (:ncol,1:pver) = output(1:ncol,4*pver+1:5*pver)       ! m/s/s
-   v_bctend (:ncol,1:pver) = output(1:ncol,5*pver+1:6*pver)       ! m/s/s
-
-! deny any moisture activity in the stratosphere:
-   do i=1,ncol
-     call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
-     q_bctend (i,1:idx_trop(i)) = 0.
-     if (cb_zeroqn_strat) then
-      qc_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldliq)/ztodt
-      qi_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldice)/ztodt
-     else 
-      qc_bctend(i,1:idx_trop(i)) = 0.
-      qi_bctend(i,1:idx_trop(i)) = 0.
-     end if
-   end do
-   call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
-
-! -- atmos positivity constraints ---- 
-   if (do_constraints) then
-   do i=1,ncol
-     do k=1,pver
-! deny activity in the ice phase where it is above freezing.
-!        if (state%t(i,k) .gt. 273.16) then
-!           qi_bctend(i,k) = 0.
-! ! deny activitiy in the water phase where it is below freezing.
-! ! (253.16K: the lowest threshold temperature for supercooled cloud water to form)
-!        elseif (state%t(i,k) .lt. 253.16) then
-!           qc_bctend(i,k) = 0.
-!        end if
-!eliminate all activity in the water phase on top 10 levels:
-
-! energy positivity:
-       safter = state%s(i,k) + s_bctend(i,k)*ztodt ! predicted DSE after NN tendency
-       if (safter .lt. 0.) then ! can only happen when bctend < 0...
-         s_bctend(i,k) = s_bctend(i,k) + abs(safter)/ztodt ! in which case reduce cooling rate
-         write (iulog,*) 'HEY CLIMSIM made a negative absolute temperature, corrected but BEWARE!!!'
-         write (iulog,*) '' ! [TODO] printout lat/lon and error magnitude
-       endif
-
- ! vapor positivity:
-       qafter = state%q(i,k,1) + q_bctend(i,k)*ztodt ! predicted vapor after NN tendency
-       if (qafter .lt. 0.) then ! can only happen when qbctend < 0...
-         q_bctend(i,k) = q_bctend(i,k) + abs(qafter)/ztodt ! in which case reduce drying rate
-         write (iulog,*) 'HEY CLIMSIM made a negative absolute q, corrected but BEWARE!!!'
-       endif
-
- ! liquid positivity:
-       qafter = state%q(i,k,ixcldliq) + qc_bctend(i,k)*ztodt ! predicted liquid after NN tendency
-       if (qafter .lt. 0.) then ! can only happen when qbctend < 0...
-         qc_bctend(i,k) = qc_bctend(i,k) + abs(qafter)/ztodt ! in which case reduce drying rate
-         !write (iulog,*) 'HEY CLIMSIM made a negative absolute qc, corrected but BEWARE!!!'
-       endif
-! ice positivity:
-       qafter = state%q(i,k,ixcldice) + qi_bctend(i,k)*ztodt ! predicted ice after NN tendency
-       if (qafter .lt. 0.) then ! can only happen when qbctend < 0...
-         qi_bctend(i,k) = qi_bctend(i,k) + abs(qafter)/ztodt ! in which case reduce drying rate
-         !write (iulog,*) 'HEY CLIMSIM made a negative absolute qi, corrected but BEWARE!!!'
-       endif
-     end do
-   end do
-   endif
-! Wire to ptend:
-    ptend%s(:ncol,:pver)          = s_bctend(:ncol,:pver)
-    ptend%q(:ncol,:pver,1)        = q_bctend(:ncol,:pver)
-    ptend%q(:ncol,:pver,ixcldliq) = qc_bctend(:ncol,:pver)
-    ptend%q(:ncol,:pver,ixcldice) = qi_bctend(:ncol,:pver)
-    ptend%u(:ncol,:pver)          = u_bctend(:ncol,:pver)
-    ptend%v(:ncol,:pver)          = v_bctend(:ncol,:pver)
-
-! for q{1,2,3}, u, v tendencies, top levels [1 to 12] are not coupled
-! no std dev except ptend%q1[1:3], whose magnitudes are smaller that other levels by orders of magnitude
-    if (cb_top_levels_zero_out) then
-      ptend%q(:ncol,1:cb_n_levels_zero,1)        = 0. 
-      ptend%q(:ncol,1:cb_n_levels_zero,ixcldliq) = 0. 
-      ptend%q(:ncol,1:cb_n_levels_zero,ixcldice) = 0. 
-      ptend%u(:ncol,1:cb_n_levels_zero)          = 0. 
-      ptend%v(:ncol,1:cb_n_levels_zero)          = 0. 
-    end if
-
-! ------------- 2. NN output to land forcing ---------
-!!! Sungduk: It works, but I wrote it again to add 'ocean only coupling' option
-!!!          (#CLIMSIM_OCN_ONLY)
-!!! 
-!!!    ! These are the cam_out members that are assigned in cam_export: prec_dp, snow_dp,
-!!!    ! and so saved to pbuf, instead.
-!!!    ! SY: Note that this uses SPCAM's or CAM's pbuf register: crm_physics_register(), convect_deep_register()
-!!!    !     Once, SP is entirely removed, cam_out%prec{c,l,sc,sl} should be directly updated here.
-
-   prec_dp_idx = pbuf_get_index('PREC_DP', errcode=i) ! Query physics buffer index
-   snow_dp_idx = pbuf_get_index('SNOW_DP', errcode=i)
-   call pbuf_get_field(pbuf, prec_dp_idx, prec_dp) ! Associate pointers withphysics buffer fields
-   call pbuf_get_field(pbuf, snow_dp_idx, snow_dp)
-
-   do i = 1,ncol
-! SY: debugging
-!     allowing surface coupling over ocean only
-#ifdef CLIMSIM_OCN_ONLY 
-     if (cam_in%ocnfrac(i) .eq. 1.0_r8) then
-#endif
-       cam_out%netsw(i) = output(i,6*pver+1)
-       cam_out%flwds(i) = output(i,6*pver+2)
-       snow_dp(i)       = output(i,6*pver+3)
-       prec_dp(i)       = output(i,6*pver+4)
-       cam_out%sols(i)  = output(i,6*pver+5)
-       cam_out%soll(i)  = output(i,6*pver+6)
-       cam_out%solsd(i) = output(i,6*pver+7)
-       cam_out%solld(i) = output(i,6*pver+8)
-#ifdef CLIMSIM_OCN_ONLY
-     end if
-#endif
-   end do 
 
   case('v5')
     do i=1,ncol
