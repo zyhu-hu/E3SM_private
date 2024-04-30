@@ -69,6 +69,7 @@ use iso_fortran_env
   logical :: cb_zeroqn_strat = .false.
   integer :: strato_lev_qinput = -1
   integer :: strato_lev_tinput = -1
+  real(r8) :: dtheta_thred = 10.0
 
 
 
@@ -1482,7 +1483,7 @@ end subroutine neural_net
    do k=2,pver-1
      dthetadz = (theta(k-1)-theta(k+1))/(zmid(k-1)-zmid(k+1))*1000. ! K/km
      ! assume theta in K and pmid in Pa then
-     if (pmid(k) .le. 40000. .and. dthetadz > 10.) then
+     if (pmid(k) .le. 40000. .and. dthetadz > dtheta_thred) then
        klev_crmtop = k
      endif
    end do
@@ -1513,7 +1514,7 @@ end subroutine neural_net
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
-                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat
+                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, dtheta_thred
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1586,6 +1587,7 @@ end subroutine neural_net
       call mpibcast(strato_lev_qinput,   1, mpiint,  0, mpicom)
       call mpibcast(strato_lev_tinput,   1, mpiint,  0, mpicom)
       call mpibcast(cb_zeroqn_strat,   1, mpilog,  0, mpicom)
+      call mpibcast(dtheta_thred, 1,            mpir8,  0, mpicom)
 
 
 
