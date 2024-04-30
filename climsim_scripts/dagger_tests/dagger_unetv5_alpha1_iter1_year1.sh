@@ -6,7 +6,7 @@ exp_vars="cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','pte
 exp_cb_ramp_option="cb_ramp_option='constant'"
 exp_cb_ramp_factor="cb_ramp_factor = 1.0"
 exp_cb_do_ramp="cb_do_ramp = .false."
-exp_cb_partial_coupling = "cb_partial_coupling = .true."
+exp_cb_partial_coupling="cb_partial_coupling = .true."
 
 dir_ens_root=$(pwd)
 
