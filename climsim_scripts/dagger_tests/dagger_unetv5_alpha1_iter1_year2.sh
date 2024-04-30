@@ -18,7 +18,7 @@ for i in $(seq 1 12); do
     # reftod_values=(00000 00000 00000 00000)
     # reftod=${reftod_values[$(((i - 1) % 4))]}
     reftod="00000"
-    parent_name="dagger_unetv5_alpha0.8_iter1"
+    parent_name="dagger_unetv5_alpha1_iter1"
     expnamenew="${uniqueid}"
 
     # create clone
