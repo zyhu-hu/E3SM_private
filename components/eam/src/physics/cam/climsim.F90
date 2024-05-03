@@ -451,33 +451,33 @@ end select
       end do
     end do
 
-    !print *, "Creating input tensor"
-    call input_tensors%create
-    !print *, "Adding input data"
-    call input_tensors%add_array(input_torch)
-    print *, "Running forward pass"
-    call torch_mod(1)%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
-    call out_tensor%to_array(output_torch)
+    ! !print *, "Creating input tensor"
+    ! call input_tensors%create
+    ! !print *, "Adding input data"
+    ! call input_tensors%add_array(input_torch)
+    ! print *, "Running forward pass"
+    ! call torch_mod(1)%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
+    ! call out_tensor%to_array(output_torch)
 
     do i=1, ncol
       do k=1,outputlength
-        output(i,k) = output_torch(k,i)
+        output(i,k) = 0 !output_torch(k,i)
       end do
     end do
 
-    ! do inference for the classification model
-    !print *, "Creating input tensor for classification"
-    call input_tensors_class%create
-    !print *, "Adding input data for classification"
-    call input_tensors_class%add_array(input_torch_class)
-    print *, "Running forward pass for classification"
-    call torch_mod_class(1)%forward(input_tensors_class, out_tensor_class, flags=module_use_inference_mode)
-    call out_tensor_class%to_array(output_torch_class)
+    ! ! do inference for the classification model
+    ! !print *, "Creating input tensor for classification"
+    ! call input_tensors_class%create
+    ! !print *, "Adding input data for classification"
+    ! call input_tensors_class%add_array(input_torch_class)
+    ! print *, "Running forward pass for classification"
+    ! call torch_mod_class(1)%forward(input_tensors_class, out_tensor_class, flags=module_use_inference_mode)
+    ! call out_tensor_class%to_array(output_torch_class)
 
     do i=1, ncol
       do k=1,pver
         do j=1,3
-          output_class(i,k,j) = output_torch_class(j,k,i)
+          output_class(i,k,j) = 0 !output_torch_class(j,k,i)
         end do
         ! let output_class_reduce to be the max index of the three classes
         ! output_class_reduce(i,k) = maxloc(output_class(i,k,:)) 
