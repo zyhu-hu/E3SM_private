@@ -2110,6 +2110,43 @@ subroutine physics_state_dealloc(state)
   deallocate(state%tw_cur, stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_state_dealloc error: deallocation error for state%tw_cur')
 
+  !!!!!!!
+
+  deallocate(state%t_adv, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%t_adv')
+  
+  deallocate(state%u_adv, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%u_adv')
+
+  deallocate(state%q_adv, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%q_adv')
+  
+  deallocate(state%q_phy, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%q_phy')
+  
+  deallocate(state%t_phy, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%t_phy')
+  
+  deallocate(state%u_phy, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%u_phy')
+
+  deallocate(state%tm_ps, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%tm_ps')
+  
+  deallocate(state%tm_solin, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%tm_solin')
+
+  deallocate(state%tm_coszn, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%tm_coszn')
+
+  deallocate(state%tm_lhf, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%tm_lhf')
+
+  deallocate(state%tm_shf, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_state_alloc error: deallocation error for state%tm_shf')
+
+  !!!!!!!
+
   if(print_additional_diagn_phys_control)then
      deallocate(state%te_before_physstep, stat=ierr)
      if ( ierr /= 0 ) call endrun('physics_state_dealloc error: deallocation error for state%te_before_pstep')
