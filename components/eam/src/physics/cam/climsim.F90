@@ -666,6 +666,15 @@ select case (to_lower(trim(cb_nn_var_combo)))
     end if
 
   case('v5')
+
+    if (cb_decouple_cloud) then
+      do k=1,pver
+        input(:,2*pver+k) = 0. ! qc
+        input(:,14*pver+k) = 0.
+        input(:,18*pver+k) = 0.
+      end do
+    end if
+
     if (cb_do_aggressive_pruning) then
       do k=1,strato_lev
         input(:,1*pver+k) = 0.  
