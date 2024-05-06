@@ -981,8 +981,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
      q_bctend (i,1:idx_trop(i)) = 0.
      if (cb_zeroqn_strat) then
-      qc_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldliq)/ztodt
-      qi_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldice)/ztodt
+      qc_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldliq)/ztodt
+      qi_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldice)/ztodt
      else 
       qc_bctend(i,1:idx_trop(i)) = 0.
       qi_bctend(i,1:idx_trop(i)) = 0.
@@ -1176,8 +1176,8 @@ select case (to_lower(trim(cb_nn_var_combo)))
       call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
       q_bctend (i,1:idx_trop(i)) = 0.
       if (cb_zeroqn_strat) then
-        qc_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldliq)/ztodt
-        qi_bctend(i,1:idx_trop(i)) = -state%q(i,k,ixcldice)/ztodt
+        qc_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldliq)/ztodt
+        qi_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldice)/ztodt
        else 
         qc_bctend(i,1:idx_trop(i)) = 0.
         qi_bctend(i,1:idx_trop(i)) = 0.
