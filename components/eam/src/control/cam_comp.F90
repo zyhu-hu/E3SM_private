@@ -427,6 +427,9 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    end if
 #endif /* MMF_ML_TRAINING */
 
+   deallocate(phys_state_tmp)
+   deallocate(phys_tend_placeholder_2)
+
 end subroutine cam_run1
 
 !
@@ -648,6 +651,11 @@ subroutine cam_final( cam_out, cam_in )
    call phys_final( phys_state, phys_tend , pbuf2d, phys_diag )
 #endif
    call t_stopf ('phys_final')
+
+   deallocate(phys_state_aphys1)
+   deallocate(phys_state_sp)
+   deallocate(phys_tend_placeholder)
+   deallocate(phys_tend_placeholder_sp)
 
    call t_startf ('stepon_final')
    call stepon_final(dyn_in, dyn_out)
