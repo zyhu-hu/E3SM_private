@@ -1632,7 +1632,7 @@ end subroutine phys_run2
 !===================================================================================================
 !===================================================================================================
 
-subroutine phys_final( phys_state, phys_tend, pbuf2d )
+subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, phys_state_sp, phys_tend_placeholder_sp, pbuf2d )
   use physics_buffer, only : physics_buffer_desc, pbuf_deallocate
   use chemistry,      only : chem_final
   use wv_saturation,  only : wv_sat_final
@@ -1644,6 +1644,10 @@ subroutine phys_final( phys_state, phys_tend, pbuf2d )
   ! Input/output arguments
   type(physics_state),       pointer :: phys_state(:)
   type(physics_tend ),       pointer :: phys_tend(:)
+  type(physics_state),       pointer :: phys_state_aphys1(:)
+  type(physics_tend ),       pointer :: phys_tend_placeholder(:)
+  type(physics_state),       pointer :: phys_state_sp(:)
+  type(physics_tend ),       pointer :: phys_tend_placeholder_sp(:)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
   !---------------------------------------------------------------------------
   !---------------------------------------------------------------------------
@@ -1654,6 +1658,10 @@ subroutine phys_final( phys_state, phys_tend, pbuf2d )
   end if
   deallocate(phys_state)
   deallocate(phys_tend)
+  deallocate(phys_state_aphys1)
+  deallocate(phys_tend_placeholder)
+  deallocate(phys_state_sp)
+  deallocate(phys_tend_placeholder_sp)
 
   call t_startf ('chem_final')
   call chem_final
