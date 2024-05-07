@@ -322,9 +322,10 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
             phys_state(lchnk)%q_adv(j,:,:,:) = (phys_state(lchnk)%q(:,:,:) - phys_state_aphys1(lchnk)%q(:,:,:))/1200.
          end if
       end do
-      phys_state_tmp(lchnk)%t(:,:) = phys_state(lchnk)%t(:,:)
-      phys_state_tmp(lchnk)%u(:,:) = phys_state(lchnk)%u(:,:)
-      phys_state_tmp(lchnk)%q(:,:,:) = phys_state(lchnk)%q(:,:,:)
+      phys_state_tmp(lchnk) = phys_state(lchnk)
+      ! phys_state_tmp(lchnk)%t(:,:) = phys_state(lchnk)%t(:,:)
+      ! phys_state_tmp(lchnk)%u(:,:) = phys_state(lchnk)%u(:,:)
+      ! phys_state_tmp(lchnk)%q(:,:,:) = phys_state(lchnk)%q(:,:,:)
    end do
 
    ! update time tracker for adv forcing for sp state
