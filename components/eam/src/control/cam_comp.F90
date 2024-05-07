@@ -257,8 +257,10 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! type(physics_state), pointer :: phys_state_tmp(:) => null() ! save phys_state after call to phys_run1
    ! type(physics_tend ), pointer :: phys_tend_placeholder_2(:) => null()
 
-   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
-   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
+   ! type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
+   ! type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
+   type(physics_state), allocatable, dimension(:)  :: phys_state_tmp
+   type(physics_state), allocatable, dimension(:)  :: phys_state_sp_backup
    type(cam_out_t),     dimension(begchunk:endchunk)  :: cam_out_sp
 
 #if ( defined SPMD )
@@ -275,8 +277,21 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    end if
 
    ! call physics_type_alloc(phys_state_tmp, phys_tend_placeholder_2, begchunk, endchunk, pcols)
+   ! allocate(phys_state_tmp(begchunk:endchunk), stat=ierr)
+   ! allocate(phys_state_sp_backup(begchunk:endchunk), stat=ierr)
+   ! Allocate memory dynamically
    allocate(phys_state_tmp(begchunk:endchunk), stat=ierr)
+   if (ierr /= 0) then
+      ! Handle allocation error
+      write(iulog,*) 'Error allocating phys_state_tmp error = ',ierr
+   end if
+
    allocate(phys_state_sp_backup(begchunk:endchunk), stat=ierr)
+   if (ierr /= 0) then
+      ! Handle allocation error
+      write(iulog,*) 'Error allocating phys_state_sp_backup error = ',ierr
+   end if
+
    do lchnk=begchunk,endchunk
       call physics_state_alloc(phys_state_tmp(lchnk),lchnk,pcols)
       call physics_state_alloc(phys_state_sp_backup(lchnk),lchnk,pcols)
