@@ -853,7 +853,11 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
     do lchnk=begchunk,endchunk
       call physics_state_alloc(phys_state_nn(lchnk),lchnk,pcols)
       call physics_state_alloc(phys_state_sp_backup(lchnk),lchnk,pcols)
-      call physics_tend_alloc(phys_tend_nn(lchnk),lchnk,pcols)
+      ! call physics_tend_alloc(phys_tend_nn(lchnk),lchnk,pcols)
+   end do
+
+   do lchnk=begchunk,endchunk
+      call physics_tend_alloc(phys_tend_nn(lchnk),phys_state_nn(lchnk)%psetcols)
    end do
 
 
