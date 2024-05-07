@@ -19,7 +19,8 @@ module physpkg
   use spmd_utils,              only: masterproc, iam
   use physconst,               only: latvap, latice, rh2o
   use physics_types,           only: physics_state, physics_tend, physics_state_set_grid, &
-                                     physics_ptend, physics_type_alloc
+                                     physics_ptend, physics_type_alloc, physics_state_dealloc, physics_tend_dealloc, &
+                                     physics_state_alloc, physics_tend_alloc
   use physics_update_mod,      only: physics_update, physics_update_init, hist_vars, nvars_prtrb_hist, get_var
   use phys_grid,               only: get_ncols_p, print_cost_p, update_cost_p
   use phys_gmean,              only: gmean_mass
@@ -793,9 +794,15 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   logical :: do_climsim_inference = .false.
 
   ! - for partial coupling - !
-  type(physics_state), dimension(begchunk:endchunk)  :: phys_state_nn
-  type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
-  type(physics_tend ), dimension(begchunk:endchunk)  :: phys_tend_nn
+  ! type(physics_state), dimension(begchunk:endchunk)  :: phys_state_nn
+  ! type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
+  ! type(physics_tend ), dimension(begchunk:endchunk)  :: phys_tend_nn
+
+  type(physics_state), allocatable, dimension(:)  :: phys_state_nn
+  type(physics_state), allocatable, dimension(:)  :: phys_state_sp_backup
+  type(physics_tend ), allocatable, dimension(:)  :: phys_tend_nn
+
+
   type(cam_out_t),     dimension(begchunk:endchunk)  :: cam_out_nn
   integer :: ixcldice, ixcldliq
   integer :: prec_dp_idx, snow_dp_idx
@@ -818,11 +825,36 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   real(r8) :: dt_avg = 0.0_r8   ! time step to use for the shr_orb_cosz calculation, if use_rad_dt_cosz set to true
   real(r8) :: delta    ! Solar declination angle  in radians
   real(r8) :: eccf     ! Earth orbit eccentricity factor
+  integer :: ierr=0 
 !-----------------------------------------------------------------------------
   ! phys_run1 opening
   ! - phys_timestep_init advances ghg gases,
   ! - need to advance solar insolation (for NN)
   !-----------------------------------------------------------------------------
+
+  allocate(phys_state_nn(begchunk:endchunk), stat=ierr)
+   if (ierr /= 0) then
+      ! Handle allocation error
+      write(iulog,*) 'Error allocating phys_state_nn error = ',ierr
+   end if
+
+   allocate(phys_state_sp_backup(begchunk:endchunk), stat=ierr)
+   if (ierr /= 0) then
+      ! Handle allocation error
+      write(iulog,*) 'Error allocating phys_state_sp_backup error = ',ierr
+   end if
+
+   allocate(phys_tend_nn(begchunk:endchunk), stat=ierr)
+    if (ierr /= 0) then
+        ! Handle allocation error
+        write(iulog,*) 'Error allocating phys_tend_nn error = ',ierr
+    end if
+
+    do lchnk=begchunk,endchunk
+      call physics_state_alloc(phys_state_nn(lchnk),lchnk,pcols)
+      call physics_state_alloc(phys_state_sp_backup(lchnk),lchnk,pcols)
+      call physics_tend_alloc(phys_tend_nn(lchnk),lchnk,pcols)
+   end do
 
 
 #ifdef TORCH_CLIMSIM_TEST
@@ -1212,6 +1244,22 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
      ! Write export state to history file
      call diag_export(cam_out(lchnk))
   end do
+
+  ! Deallocate physics state and tendency arrays
+!   do lchnk=begchunk,endchunk
+!     call physics_state_dealloc(phys_state_tmp(lchnk))
+!     call physics_state_dealloc(phys_state_sp_backup(lchnk))
+!  end do
+!  deallocate(phys_state_tmp)
+!  deallocate(phys_state_sp_backup)
+    do lchnk=begchunk,endchunk
+      call physics_state_dealloc(phys_state_nn(lchnk))
+      call physics_state_dealloc(phys_state_sp_backup(lchnk))
+      call physics_tend_dealloc(phys_tend_nn(lchnk))
+    end do
+    deallocate(phys_state_nn)
+    deallocate(phys_state_sp_backup)
+    deallocate(phys_tend_nn)
 
 end subroutine climsim_driver
 
@@ -1649,6 +1697,9 @@ subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_place
   type(physics_state),       pointer :: phys_state_sp(:)
   type(physics_tend ),       pointer :: phys_tend_placeholder_sp(:)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
+
+  integer :: lchnk
+
   !---------------------------------------------------------------------------
   !---------------------------------------------------------------------------
 
@@ -1656,6 +1707,16 @@ subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_place
      call pbuf_deallocate(pbuf2d,'global')
      deallocate(pbuf2d)
   end if
+
+  do lchnk=begchunk,endchunk
+    call physics_state_dealloc(phys_state(lchnk))
+    call physics_state_dealloc(phys_state_aphys1(lchnk))
+    call physics_state_dealloc(phys_state_sp(lchnk))
+    call physics_tend_dealloc(phys_tend(lchnk))
+    call physics_tend_dealloc(phys_tend_placeholder(lchnk))
+    call physics_tend_dealloc(phys_tend_placeholder_sp(lchnk))
+ end do
+
   deallocate(phys_state)
   deallocate(phys_tend)
   deallocate(phys_state_aphys1)
