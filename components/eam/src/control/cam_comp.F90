@@ -231,7 +231,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! use physpkg,          only: phys_run1, climsim_driver
 
    use stepon,           only: stepon_run1
-   use physics_types,    only: physics_type_alloc, physics_state_alloc, physics_state_dealloc
+   use physics_types,    only: physics_type_alloc, physics_state_alloc, physics_state_dealloc, physics_state_copy
 #if ( defined SPMD )
    use mpishorthand,     only: mpicom
 #endif
@@ -370,7 +370,9 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! sync phys_state_sp with phys_state for state variables except for adv/phy tendencies, so that we can output the correct phys_state_sp for training
    do lchnk=begchunk,endchunk
       phys_state_sp_backup(lchnk) = phys_state_sp(lchnk)
-      phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
+      call physics_state_dealloc(phys_state_sp(lchnk))
+      call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
+      ! phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
       phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
       phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
       phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
@@ -379,7 +381,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
    end do
    
-   cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
+   !cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
 
 #ifdef MMF_ML_TRAINING
    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then

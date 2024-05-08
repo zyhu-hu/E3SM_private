@@ -20,7 +20,7 @@ module physpkg
   use physconst,               only: latvap, latice, rh2o
   use physics_types,           only: physics_state, physics_tend, physics_state_set_grid, &
                                      physics_ptend, physics_type_alloc, physics_state_dealloc, physics_tend_dealloc, &
-                                     physics_state_alloc, physics_tend_alloc
+                                     physics_state_alloc, physics_tend_alloc, physics_state_copy
   use physics_update_mod,      only: physics_update, physics_update_init, hist_vars, nvars_prtrb_hist, get_var
   use phys_grid,               only: get_ncols_p, print_cost_p, update_cost_p
   use phys_gmean,              only: gmean_mass
@@ -977,6 +977,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   !Save original values of subroutine arguments
   if (do_climsim_inference .and. cb_partial_coupling) then
      do lchnk = begchunk, endchunk
+      ! since phys_state_sp_backup etc is just allocated but have not been initialized (empty), doing this copy won't lead to memory leak
         phys_state_nn(lchnk) = phys_state(lchnk) 
         phys_state_sp_backup(lchnk) = phys_state_sp(lchnk)
         phys_tend_nn(lchnk)  = phys_tend(lchnk) 
@@ -988,7 +989,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   if (.not. do_climsim_inference) then  ! MMFspin-up
      call phys_run1(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
      do lchnk = begchunk, endchunk
-        phys_state_sp(lchnk) = phys_state(lchnk)
+        ! phys_state_sp(lchnk) = phys_state(lchnk)
+        call physics_state_dealloc(phys_state_sp(lchnk))
+        call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
         cam_out_sp(lchnk)    = cam_out(lchnk)
      end do
 
@@ -1020,7 +1023,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
         end do
 
         do lchnk = begchunk, endchunk
-          phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
+          call physics_state_dealloc(phys_state_sp(lchnk))
+          call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
+          ! phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
           phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
           phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
           phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
@@ -1053,7 +1058,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
         call phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out,&
                           solin, coszrs)
         do lchnk = begchunk, endchunk
-          phys_state_sp(lchnk) = phys_state(lchnk)
+          ! phys_state_sp(lchnk) = phys_state(lchnk)
+          call physics_state_dealloc(phys_state_sp(lchnk))
+          call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
           cam_out_sp(lchnk)    = cam_out(lchnk)
         end do
      end if ! (cb_partial_coupling)
