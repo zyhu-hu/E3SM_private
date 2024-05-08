@@ -15,7 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'fully_v5_classifier_qnlog_0tropopause_reverse_2y'
-exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_test'
+exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_mae_2y'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -47,7 +47,7 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'nmonths',24, 0,'24:00:00'
+stop_opt,stop_n,resub,walltime = 'nmonths',25, 0,'24:00:00'
 #stop_opt,stop_n,resub,walltime = 'ndays',35, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
