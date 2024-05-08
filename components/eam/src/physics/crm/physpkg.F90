@@ -1706,6 +1706,9 @@ subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_place
   type(physics_state),       pointer :: phys_state_sp(:)
   type(physics_tend ),       pointer :: phys_tend_placeholder_sp(:)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
+
+  integer :: lchnk
+  
   !---------------------------------------------------------------------------
   !---------------------------------------------------------------------------
 
