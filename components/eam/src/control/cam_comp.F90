@@ -231,7 +231,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! use physpkg,          only: phys_run1, climsim_driver
 
    use stepon,           only: stepon_run1
-   use physics_types,    only: physics_type_alloc
+   use physics_types,    only: physics_type_alloc, physics_state_alloc, physics_state_dealloc, physics_state_copy
 #if ( defined SPMD )
    use mpishorthand,     only: mpicom
 #endif
@@ -249,15 +249,18 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    integer, intent(in), optional :: dy   ! Simulation day
    integer, intent(in), optional :: sec  ! Seconds into current simulation day
    integer :: lchnk
-   integer :: i, j
+   integer :: i, j, ierr=0
    integer :: ptracker, ncol
 
    ! type(physics_state), pointer :: phys_state_aphys1(:) => null() ! save phys_state after call to phys_run1
    ! type(physics_tend ), pointer :: phys_tend(:) => null()
-   type(physics_state), pointer :: phys_state_tmp(:) => null() ! save phys_state after call to phys_run1
-   type(physics_tend ), pointer :: phys_tend_placeholder_2(:) => null()
+   ! type(physics_state), pointer :: phys_state_tmp(:) => null() ! save phys_state after call to phys_run1
+   ! type(physics_tend ), pointer :: phys_tend_placeholder_2(:) => null()
 
-   type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
+   ! type(physics_state), dimension(begchunk:endchunk)  :: phys_state_tmp
+   ! type(physics_state), dimension(begchunk:endchunk)  :: phys_state_sp_backup
+   type(physics_state), allocatable, dimension(:)  :: phys_state_tmp
+   type(physics_state), allocatable, dimension(:)  :: phys_state_sp_backup
    type(cam_out_t),     dimension(begchunk:endchunk)  :: cam_out_sp
 
 #if ( defined SPMD )
@@ -273,7 +276,28 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       call t_stampf (wcstart, usrstart, sysstart)
    end if
 
-   call physics_type_alloc(phys_state_tmp, phys_tend_placeholder_2, begchunk, endchunk, pcols)
+   ! call physics_type_alloc(phys_state_tmp, phys_tend_placeholder_2, begchunk, endchunk, pcols)
+   ! allocate(phys_state_tmp(begchunk:endchunk), stat=ierr)
+   ! allocate(phys_state_sp_backup(begchunk:endchunk), stat=ierr)
+   ! Allocate memory dynamically
+   allocate(phys_state_tmp(begchunk:endchunk), stat=ierr)
+   if (ierr /= 0) then
+      ! Handle allocation error
+      write(iulog,*) 'Error allocating phys_state_tmp error = ',ierr
+   end if
+
+   allocate(phys_state_sp_backup(begchunk:endchunk), stat=ierr)
+   if (ierr /= 0) then
+      ! Handle allocation error
+      write(iulog,*) 'Error allocating phys_state_sp_backup error = ',ierr
+   end if
+
+   do lchnk=begchunk,endchunk
+      call physics_state_alloc(phys_state_tmp(lchnk),lchnk,pcols)
+      call physics_state_alloc(phys_state_sp_backup(lchnk),lchnk,pcols)
+   end do
+
+
    !----------------------------------------------------------
    ! First phase of dynamics (at least couple from dynamics to physics)
    ! Return time-step for physics from dynamics.
@@ -345,7 +369,9 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    ! sync phys_state_sp with phys_state for state variables except for adv/phy tendencies, so that we can output the correct phys_state_sp for training
    do lchnk=begchunk,endchunk
       phys_state_sp_backup(lchnk) = phys_state_sp(lchnk)
-      phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
+      call physics_state_dealloc(phys_state_sp(lchnk))
+      call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
+      ! phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
       phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
       phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
       phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
@@ -354,7 +380,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
    end do
    
-   cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
+   ! cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
 
 #ifdef MMF_ML_TRAINING
    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then
@@ -427,8 +453,13 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
    end if
 #endif /* MMF_ML_TRAINING */
 
+   
+   do lchnk=begchunk,endchunk
+      call physics_state_dealloc(phys_state_tmp(lchnk))
+      call physics_state_dealloc(phys_state_sp_backup(lchnk))
+   end do
    deallocate(phys_state_tmp)
-   deallocate(phys_tend_placeholder_2)
+   deallocate(phys_state_sp_backup)
 
 end subroutine cam_run1
 
@@ -646,7 +677,7 @@ subroutine cam_final( cam_out, cam_in )
 
    call t_startf ('phys_final')
 #if defined(MMF_SAMXX) || defined(MMF_PAM)
-   call phys_final( phys_state, phys_tend , pbuf2d )
+   call phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, phys_state_sp, phys_tend_placeholder_sp, pbuf2d )
 #else
    call phys_final( phys_state, phys_tend , pbuf2d, phys_diag )
 #endif
