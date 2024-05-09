@@ -349,6 +349,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       phys_state_tmp(lchnk)%q(:,:,:) = phys_state(lchnk)%q(:,:,:)
    end do
 
+#ifdef CLIMSIM
    ! update time tracker for adv forcing for sp state
    ptracker = phys_state_sp(begchunk)%ntracker
    do lchnk=begchunk,endchunk
@@ -379,13 +380,15 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       phys_state_sp(lchnk)%q_adv(:,:,:,:) = phys_state_sp_backup(lchnk)%q_adv(:,:,:,:)
       phys_state_sp(lchnk)%q_phy(:,:,:,:) = phys_state_sp_backup(lchnk)%q_phy(:,:,:,:)
    end do
-   
+#endif   /* endif CLIMSIM for updating sp state*/
    ! cam_out_sp = cam_out ! just initialize cam_out_sp with cam_out so not inf, maybe not necessary
 
 #ifdef MMF_ML_TRAINING
    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then
       call write_ml_training(pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, 1)
+#ifdef CLIMSIM
       call write_ml_training(pbuf2d, phys_state_sp, phys_tend, cam_in, cam_out, yr, mn, dy, sec, 3) ! phys_tend is not used in write_ml_training
+#endif /* CLIMSIM */
    end if
 #endif /* MMF_ML_TRAINING */
 
@@ -425,6 +428,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
       end do
    end do
 
+#ifdef CLIMSIM
    !update phy tendencies fo phys_state_sp
    do lchnk=begchunk,endchunk
       do i=1,ptracker
@@ -440,6 +444,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
          end if
       end do
    end do
+#endif /* endif CLIMSIM for updating phys tendencies in sp state*/
 
    call t_stopf  ('phys_run1')
 
@@ -449,7 +454,9 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 #ifdef MMF_ML_TRAINING
    if (present(yr).and.present(mn).and.present(dy).and.present(sec)) then
       call write_ml_training(pbuf2d, phys_state, phys_tend, cam_in, cam_out, yr, mn, dy, sec, 2)
+#ifdef CLIMSIM
       call write_ml_training(pbuf2d, phys_state_sp, phys_tend, cam_in, cam_out_sp, yr, mn, dy, sec, 4) ! phys_tend is not used in write_ml_training
+#endif /* CLIMSIM */
    end if
 #endif /* MMF_ML_TRAINING */
 
