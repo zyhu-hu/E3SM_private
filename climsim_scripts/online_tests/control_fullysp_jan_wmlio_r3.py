@@ -32,7 +32,7 @@ os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
 # RESTART
 runtype = 'branch' # startup, hybrid,  branch
-refdate = '0004-01-01' # only works for branch (and hybrid?)
+refdate = '0003-01-01' # only works for branch (and hybrid?)
 reftod = '00000' # or 21600, 43200, 64800
 # clean        = True
 newcase      = True
@@ -47,7 +47,7 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-stop_opt,stop_n,resub,walltime = 'nmonths',12, 3,'24:00:00'
+stop_opt,stop_n,resub,walltime = 'nmonths',12, 4,'24:00:00'
 
 ne,npg=4,2;  num_nodes=2  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -136,9 +136,9 @@ if newcase :
    # setup branch/hybrid
    if runtype == 'branch':
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_TYPE   --val {runtype}') # 'branch' won't allow change model time steps
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/control_fullysp_jan_nomlio_r2/archive/rest/{refdate}-{reftod}')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/E3SM_ML_ne4_rerun.F2010-MMF1/archive/rest/{refdate}-{reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id GET_REFCASE --val TRUE')
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val control_fullysp_jan_nomlio_r2')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val E3SM_ML_ne4_rerun.F2010-MMF1')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDATE --val {refdate}')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFTOD  --val {reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_STARTDATE --val {refdate}') # only used for startup or hybrid
