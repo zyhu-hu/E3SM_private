@@ -15,7 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'control_fullysp_jan_wmlio_r3_debug3'
-exe_refcase = 'control_fullysp_jan_wmlio_r3_debug2'
+exe_refcase = 'control_fullysp_jan_wmlio_r3_debug2.debug'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
