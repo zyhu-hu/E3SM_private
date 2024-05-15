@@ -63,6 +63,7 @@ use iso_fortran_env
   integer :: cb_ramp_step_0steps = 10
   integer :: cb_ramp_step_1steps = 20
   logical :: cb_do_clip = .false.
+  logical :: cb_apply_classifier = .true.
   logical :: cb_do_aggressive_pruning = .false.
   logical :: cb_solin_nolag  = .false.
   logical :: cb_clip_rhonly = .false.
@@ -547,6 +548,7 @@ end if
       end if
     end do
 
+  if (cb_apply_classifier) then
     input_class(:,:) = input(:,:)
     write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
     do i = 1,ncol
@@ -564,6 +566,7 @@ end if
         input_class(i,2*pver+k) = (qn_log_tmp+15.0) / 12.0
       end do
     end do
+  end if ! cb_apply_classifier
 
 select case (to_lower(trim(cb_nn_var_combo)))
 
@@ -736,6 +739,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
       end if
     end if
 
+  if (cb_apply_classifier) then
     ! dealing with pruning and clipping for input_class
     write(*,*) 'CLIMSIM: right now, for classification, input pruning are hard-coded to level 15, and hardcoded to clip rh only to (0,1.2) may need to revisit this in the future if needed'
     do k=1,15
@@ -764,6 +768,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do k=61,120
       input_class(:,k) = max(min(input_class(:,k),1.2),0.0)
     end do
+  end if ! cb_apply_classifier
 
 end select
 
@@ -781,12 +786,14 @@ end select
       end do
     end do
 
+  if (cb_apply_classifier) then
     input_torch_class(:,:) = 0.
     do i=1,ncol
       do k=1,inputlength
         input_torch_class(k,i) = input_class(i,k)
       end do
     end do
+  end if ! cb_apply_classifier
 
     !print *, "Creating input tensor"
     call input_tensors%create
@@ -802,6 +809,7 @@ end select
       end do
     end do
 
+  if (cb_apply_classifier) then
     ! do inference for the classification model
     !print *, "Creating input tensor for classification"
     call input_tensors_class%create
@@ -829,6 +837,8 @@ end select
 
       end do
     end do
+  end if ! cb_apply_classifier
+
 
   if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
 select case (to_lower(trim(cb_nn_var_combo)))
@@ -1129,6 +1139,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
      end do
     end if
 
+  if (cb_apply_classifier) then
     !apply the microphysics classifier to mask qn output
     write (iulog,*) 'CLIMSIMDEBUG for classifier, qn output is hardcoded to be masked only below level 15'
     do i=1,ncol
@@ -1140,6 +1151,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
         end if
       end do
     end do
+  end if ! cb_apply_classifier
  
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
@@ -1523,7 +1535,7 @@ end subroutine neural_net
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
-                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, dtheta_thred
+                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, dtheta_thred, cb_apply_classifier
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1597,6 +1609,7 @@ end subroutine neural_net
       call mpibcast(strato_lev_tinput,   1, mpiint,  0, mpicom)
       call mpibcast(cb_zeroqn_strat,   1, mpilog,  0, mpicom)
       call mpibcast(dtheta_thred, 1,            mpir8,  0, mpicom)
+      call mpibcast(cb_apply_classifier,     1,                 mpilog,  0, mpicom)
 
 
 

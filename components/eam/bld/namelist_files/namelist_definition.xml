@@ -8150,4 +8150,9 @@ Option to set qn=0 in stratosphere;
 the threshold for dtheta/dt (K/km) to detect tropopause
 </entry>
 
+<entry id="cb_apply_classifier" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to run and apply microphysics classifier;
+</entry>
+
 </namelist_definition>
