@@ -100,7 +100,7 @@ cb_do_clip = '.true.'
 cb_do_aggressive_pruning = '.true.'
 
 cb_clip_rhonly = '.true.'
-cb_apply_classifiers = '.false.'
+cb_apply_classifier = '.false.'
 strato_lev_qinput = 22
 strato_lev_tinput = -1
 #---------------------------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ cb_clip_rhonly = {cb_clip_rhonly}
 strato_lev_qinput = {strato_lev_qinput}
 strato_lev_tinput = {strato_lev_tinput}
 cb_zeroqn_strat = {f_cb_zeroqn_strat}
-cb_apply_classifiers = {cb_apply_classifiers}
+cb_apply_classifier = {cb_apply_classifier}
 /
 
 &cam_history_nl
