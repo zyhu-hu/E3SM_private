@@ -548,7 +548,7 @@ end if
       end if
     end do
 
-  if (cb_apply_classifier) then
+  ! if (cb_apply_classifier) then
     input_class(:,:) = input(:,:)
     write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
     do i = 1,ncol
@@ -566,7 +566,7 @@ end if
         input_class(i,2*pver+k) = (qn_log_tmp+15.0) / 12.0
       end do
     end do
-  end if ! cb_apply_classifier
+  ! end if ! cb_apply_classifier
 
 select case (to_lower(trim(cb_nn_var_combo)))
 
@@ -739,7 +739,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
       end if
     end if
 
-  if (cb_apply_classifier) then
+  ! if (cb_apply_classifier) then
     ! dealing with pruning and clipping for input_class
     write(*,*) 'CLIMSIM: right now, for classification, input pruning are hard-coded to level 15, and hardcoded to clip rh only to (0,1.2) may need to revisit this in the future if needed'
     do k=1,15
@@ -768,7 +768,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do k=61,120
       input_class(:,k) = max(min(input_class(:,k),1.2),0.0)
     end do
-  end if ! cb_apply_classifier
+  ! end if ! cb_apply_classifier
 
 end select
 
@@ -786,14 +786,14 @@ end select
       end do
     end do
 
-  if (cb_apply_classifier) then
+  ! if (cb_apply_classifier) then
     input_torch_class(:,:) = 0.
     do i=1,ncol
       do k=1,inputlength
         input_torch_class(k,i) = input_class(i,k)
       end do
     end do
-  end if ! cb_apply_classifier
+  ! end if ! cb_apply_classifier
 
     !print *, "Creating input tensor"
     call input_tensors%create
@@ -809,7 +809,7 @@ end select
       end do
     end do
 
-  if (cb_apply_classifier) then
+  ! if (cb_apply_classifier) then
     ! do inference for the classification model
     !print *, "Creating input tensor for classification"
     call input_tensors_class%create
@@ -837,7 +837,7 @@ end select
 
       end do
     end do
-  end if ! cb_apply_classifier
+  ! end if ! cb_apply_classifier
 
 
   if (qoutput_prune) then ! prune output, set 0 tendencies for qv, qc, qi in the stratosphere
