@@ -59,8 +59,8 @@ compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
 
-#queue = 'regular'
-queue = 'debug'
+queue = 'regular'
+#queue = 'debug'
 
 # case_list = [case_prefix,arch,compset,grid]
 case_list = [case_prefix, ]
