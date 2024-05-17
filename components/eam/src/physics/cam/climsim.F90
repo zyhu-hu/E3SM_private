@@ -626,7 +626,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
         input(:,1516) = 0.
       end do
 
-      do k=1,30
+      do k=1,30 ! hardcoded to prune cloud water to lev30
         input(:,2*pver+k) = 0. 
         input(:,14*pver+k) = 0.
         input(:,19*pver+k) = 0.
