@@ -15,7 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_1y_epoch5'
-exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_test'
+exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_mae_2y'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
