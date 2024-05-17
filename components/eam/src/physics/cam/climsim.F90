@@ -159,17 +159,12 @@ contains
    ! for classifier inference
    real(r8) :: input_class(pcols,inputlength)
    real(real32) :: input_torch_class(inputlength, pcols)
-
-   ! for v4, must def the following cpp to avoid segfault issue
-   ! otherwise, may need to call a classifier so that the following torch_tensor will be created and will be deallocated without the segfault issue
-#ifndef NOT_DECLARE_CLASSIFIER 
    real(r8) :: output_class(pcols,pver,3)
    integer :: output_class_reduce(pcols,pver)
    real(r8) :: max_value
    real(real32), pointer :: output_torch_class(:, :, :)
    type(torch_tensor_wrap) :: input_tensors_class
    type(torch_tensor) :: out_tensor_class
-#endif
 
    math_pi = 3.14159265358979323846_r8
 
