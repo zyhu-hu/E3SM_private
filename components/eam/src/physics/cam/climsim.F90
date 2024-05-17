@@ -809,6 +809,10 @@ end select
       end do
     end do
 
+select case (to_lower(trim(cb_nn_var_combo)))
+  case('v4')
+    ! classifier not implemented for v4
+  case('v5')
   ! if (cb_apply_classifier) then
     ! do inference for the classification model
     !print *, "Creating input tensor for classification"
@@ -837,6 +841,7 @@ end select
 
       end do
     end do
+end select
   ! end if ! cb_apply_classifier
 
 
