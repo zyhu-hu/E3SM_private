@@ -670,6 +670,13 @@ select case (to_lower(trim(cb_nn_var_combo)))
 
   case('v5')
 
+    if (qinput_prune) then
+      do k=1,strato_lev
+        !if to_lower(trim(cb_nn_var_combo)) == 'v4' then skip qv prune
+        input(:,2*pver+k) = 0. ! qn
+      end do 
+    end if
+
     if (cb_decouple_cloud) then
       do k=1,pver
         input(:,2*pver+k) = 0. ! qc
