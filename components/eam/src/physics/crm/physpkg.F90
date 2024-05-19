@@ -751,10 +751,6 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   use cam_diagnostics,        only: diag_phys_writeout, diag_conv
   use cloud_diagnostics,      only: cloud_diagnostics_calc
 
-#ifdef TORCH_CLIMSIM_TEST
-  use torch_ftn
-  use iso_fortran_env
-#endif
   !-----------------------------------------------------------------------------
   ! Interface arguments
   !-----------------------------------------------------------------------------
@@ -859,48 +855,6 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
       call physics_tend_alloc(phys_tend_nn(lchnk),phys_state_nn(lchnk)%psetcols)
    end do
 
-#ifdef TORCH_CLIMSIM_TEST
-      ! test to call pytorch-fortran module
-  integer :: n
-  integer :: use_gpu
-  type(torch_module) :: torch_mod
-  type(torch_tensor_wrap) :: input_tensors
-  type(torch_tensor) :: out_tensor
-
-  real(real32) :: input(124, 1)
-  real(real32), pointer :: output(:, :)
-
-  character(:), allocatable :: filename
-  character(len=50) :: outputfile
-  integer :: arglen, stat
-  integer :: unit
-
-  unit = 20
-  print *, "Reading input from test_input.txt"
-  open(unit=unit, file="/global/homes/z/zeyuanhu/shared/test_input.txt", status="old", action="read")
-  do i = 1, size(input, 1)
-      read(unit,*) input(i,1)
-  end do
-  close(unit)
-
-  use_gpu = 1 !module_use_device
-
-  print *, "Creating input tensor"
-  call input_tensors%create
-  print *, "Adding input data"
-  call input_tensors%add_array(input)
-  print *, "Loading model"
-  call torch_mod%load("/global/homes/z/zeyuanhu/shared/final_hsr_wrapped.pt", use_gpu)
-  print *, "Running forward pass"
-  call torch_mod%forward(input_tensors, out_tensor, flags=module_use_inference_mode)
-  print *, "Getting output data"
-  call out_tensor%to_array(output)
-  print *, "torch Output data:"
-  do i = 1, size(output, 1)
-      print *, output(i,1)
-  end do
-#endif
-
   nstep = get_nstep()
   dtime = get_step_size()
 
@@ -987,8 +941,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   if (.not. do_climsim_inference) then  ! MMFspin-up
      call phys_run1(phys_state, ztodt, phys_tend, pbuf2d,  cam_in, cam_out)
      do lchnk = begchunk, endchunk
-        ! phys_state_sp(lchnk) = phys_state(lchnk)
-        call physics_state_dealloc(phys_state_sp(lchnk))
+        call physics_state_dealloc(phys_state_sp(lchnk)) ! to prevent memory leak
         call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
         cam_out_sp(lchnk)    = cam_out(lchnk)
      end do
@@ -996,21 +949,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
   else  ! NN inference
      if (cb_partial_coupling) then ! NN partial coupling
 
-! #ifdef CLIMSIM_DIAG_PARTIAL
-!         write(iulog,*) '[CLIMSIM] Partial coupling, ', nstep
-
-!         do lchnk = begchunk, endchunk
-!            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-!            call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 0) ! 0 for 'before physics'
-!         end do
-! #endif 
         call phys_run1   (phys_state,    ztodt, phys_tend,    pbuf2d, cam_in, cam_out)
-! #ifdef CLIMSIM_DIAG_PARTIAL
-!         do lchnk = begchunk, endchunk
-!            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-!            call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 1) ! 1 for 'SP calculation'
-!         end do
-! #endif
         ! store mmf calculation of prec_dp and snow_dp
         do lchnk = begchunk, endchunk
            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
@@ -1021,9 +960,9 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
         end do
 
         do lchnk = begchunk, endchunk
+          ! update phys_state_sp but cannot overwrite its the mmf adv and phy history
           call physics_state_dealloc(phys_state_sp(lchnk))
           call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
-          ! phys_state_sp(lchnk) = phys_state(lchnk) ! sync sp state with mmf state, except for adv and phy history
           phys_state_sp(lchnk)%t_adv(:,:,:) = phys_state_sp_backup(lchnk)%t_adv(:,:,:)
           phys_state_sp(lchnk)%u_adv(:,:,:) = phys_state_sp_backup(lchnk)%u_adv(:,:,:)
           phys_state_sp(lchnk)%t_phy(:,:,:) = phys_state_sp_backup(lchnk)%t_phy(:,:,:)
@@ -1035,12 +974,6 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
 
         call phys_run1_NN(phys_state_nn, phys_state_aphys1, ztodt, phys_tend_nn, pbuf2d, cam_in, cam_out_nn,&
                           solin, coszrs)
-! #ifdef CLIMSIM_DIAG_PARTIAL
-!         do lchnk = begchunk, endchunk
-!            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-!            call diag_climsim_debug(phys_state_nn(lchnk), cam_out_nn(lchnk), phys_buffer_chunk, 2) ! 2 for 'NN calculation'
-!         end do
-! #endif
         ! store nn calculation of prec_dp and snow_dp
         do lchnk = begchunk, endchunk
            phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
@@ -1056,7 +989,7 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
         call phys_run1_NN(phys_state, phys_state_aphys1, ztodt, phys_tend, pbuf2d,  cam_in, cam_out,&
                           solin, coszrs)
         do lchnk = begchunk, endchunk
-          ! phys_state_sp(lchnk) = phys_state(lchnk)
+          ! in fully nn coupling case (no partial coupling), phys_state_sp is just synced with phys_state but won't be used
           call physics_state_dealloc(phys_state_sp(lchnk))
           call physics_state_copy(phys_state(lchnk), phys_state_sp(lchnk))
           cam_out_sp(lchnk)    = cam_out(lchnk)
@@ -1104,9 +1037,6 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
       write (iulog,*) 'CLIMSIM partial coupling: cb_do_ramp is off'
       write (iulog,*) 'CLIMSIM partial coupling: 1 is fully NN, ramp_ratio = ', ramp_ratio
     end if
-    ! write (iulog,*) 'CLIMSIM partial coupling: ramp_ratio = ', ramp_ratio
-    ! write (iulog,*) 'CLIMSIM partial coupling: nstep-nstep0-nstep_NN = ', nstep-nstep0-nstep_NN
-    ! write (iulog,*) 'CLIMSIM partial coupling: cb_ramp_linear_steps = ', cb_ramp_linear_steps
 
      call cnst_get_ind('CLDICE', ixcldice)
      call cnst_get_ind('CLDLIQ', ixcldliq)
@@ -1214,13 +1144,6 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
         end if ! (do_geopotential)
 
      end do ! c
-
-! #ifdef CLIMSIM_DIAG_PARTIAL
-!     do lchnk = begchunk, endchunk
-!        phys_buffer_chunk => pbuf_get_chunk(pbuf2d, lchnk)
-!        call diag_climsim_debug(phys_state(lchnk), cam_out(lchnk), phys_buffer_chunk, 3) ! 3 for 'after partial coupling'
-!     end do
-! #endif
   end if ! (cb_partial coupling)
 
   ! copy from the tphysbc2 to here. make sure the outputted history file is consistent with the partial coupling
@@ -1254,13 +1177,6 @@ subroutine climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, ztodt, p
      call diag_export(cam_out(lchnk))
   end do
 
-    ! Deallocate physics state and tendency arrays
-!   do lchnk=begchunk,endchunk
-!     call physics_state_dealloc(phys_state_tmp(lchnk))
-!     call physics_state_dealloc(phys_state_sp_backup(lchnk))
-!  end do
-!  deallocate(phys_state_tmp)
-!  deallocate(phys_state_sp_backup)
   do lchnk=begchunk,endchunk
     call physics_state_dealloc(phys_state_nn(lchnk))
     call physics_state_dealloc(phys_state_sp_backup(lchnk))
@@ -2555,6 +2471,7 @@ subroutine tphysbc2(ztodt, fsns, fsnt, flns, flnt, &
   end if ! l_tracer_aero
 
 #ifndef CLIMSIM
+! in climsim_driver, this block is included, so need to skip when CLIMSIM is defined
 ! even not executing this block, it won't influence the radiation_tend, which won't use cam_out%psl
   !-----------------------------------------------------------------------------
   ! Moist physical parameteriztions complete: 
@@ -2599,6 +2516,7 @@ subroutine tphysbc2(ztodt, fsns, fsnt, flns, flnt, &
   if(do_aerocom_ind3) call cloud_top_aerocom(state, pbuf) 
 
 #ifndef CLIMSIM
+! in climsim_driver, this block is included, so need to skip when CLIMSIM is defined
   ! Diagnose the location of the tropopause
   call tropopause_output(state)
 
