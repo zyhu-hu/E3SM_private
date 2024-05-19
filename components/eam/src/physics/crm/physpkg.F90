@@ -583,8 +583,6 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
 
   do lchnk = begchunk, endchunk
      call physics_state_set_grid(lchnk, phys_state(lchnk))
-     call physics_state_set_grid(lchnk, phys_state_aphys1(lchnk))
-      call physics_state_set_grid(lchnk, phys_state_sp(lchnk))
   end do
 
   !-----------------------------------------------------------------------------

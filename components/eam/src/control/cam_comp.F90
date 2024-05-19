@@ -136,6 +136,8 @@ subroutine cam_init( cam_out, cam_in, mpicom_atm, &
    integer :: dtime_cam        ! Time-step
    logical :: log_print        ! Flag to print out log information or not
    character(len=cs) :: filein ! Input namelist filename
+
+   integer :: lchnk
    !-----------------------------------------------------------------------
    etamid = nan
    !
@@ -199,6 +201,10 @@ subroutine cam_init( cam_out, cam_in, mpicom_atm, &
 #if defined(MMF_ML_TRAINING) || defined(CLIMSIM)
    call physics_type_alloc(phys_state_aphys1, phys_tend_placeholder, begchunk, endchunk, pcols)
    call physics_type_alloc(phys_state_sp, phys_tend_placeholder_sp, begchunk, endchunk, pcols)
+   do lchnk = begchunk, endchunk
+      call physics_state_set_grid(lchnk, phys_state_aphys1(lchnk))
+       call physics_state_set_grid(lchnk, phys_state_sp(lchnk))
+   end do
 #endif
    call t_stopf('phys_init')
 
