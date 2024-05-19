@@ -96,7 +96,7 @@ subroutine cam_init( cam_out, cam_in, mpicom_atm, &
    use cam_restart,      only: cam_read_restart
    use stepon,           only: stepon_init
    use physpkg,          only: phys_init
-   use physics_types,     only: physics_type_alloc
+   use physics_types,     only: physics_type_alloc, physics_state_set_grid
    
    use dycore,           only: dycore_is
 #if (defined E3SM_SCM_REPLAY)
