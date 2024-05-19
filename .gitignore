@@ -34,5 +34,3 @@ site
 components/eamxx/site/*
 # Ignore auto-generated eamxx_params.md file
 components/eamxx/docs/common/eamxx_params.md
-
-climsim_scripts
