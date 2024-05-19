@@ -507,7 +507,7 @@ end subroutine phys_inidat
 !===================================================================================================
 !===================================================================================================
 
-subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, phys_state_sp, phys_tend_placeholder_sp, pbuf2d, cam_out )
+subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
   !-----------------------------------------------------------------------------
   ! Purpose: Initialization of physics package
   !-----------------------------------------------------------------------------
@@ -567,10 +567,6 @@ subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeh
   !-----------------------------------------------------------------------------
   type(physics_state), pointer       :: phys_state(:)
   type(physics_tend ), pointer       :: phys_tend(:)
-  type(physics_state), pointer       :: phys_state_aphys1(:)
-  type(physics_tend ), pointer       :: phys_tend_placeholder(:) 
-  type(physics_state), pointer       :: phys_state_sp(:)
-  type(physics_tend ), pointer       :: phys_tend_placeholder_sp(:)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
   type(cam_out_t),intent(inout)      :: cam_out(begchunk:endchunk)
   !-----------------------------------------------------------------------------
@@ -584,8 +580,6 @@ subroutine phys_init( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeh
   !-----------------------------------------------------------------------------
 
   call physics_type_alloc(phys_state, phys_tend, begchunk, endchunk, pcols)
-  call physics_type_alloc(phys_state_aphys1, phys_tend_placeholder, begchunk, endchunk, pcols)
-  call physics_type_alloc(phys_state_sp, phys_tend_placeholder_sp, begchunk, endchunk, pcols)
 
   do lchnk = begchunk, endchunk
      call physics_state_set_grid(lchnk, phys_state(lchnk))
@@ -1605,7 +1599,7 @@ end subroutine phys_run2
 !===================================================================================================
 !===================================================================================================
 
-subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_placeholder, phys_state_sp, phys_tend_placeholder_sp, pbuf2d )
+subroutine phys_final( phys_state, phys_tend, pbuf2d )
   use physics_buffer, only : physics_buffer_desc, pbuf_deallocate
   use chemistry,      only : chem_final
   use wv_saturation,  only : wv_sat_final
@@ -1617,10 +1611,6 @@ subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_place
   ! Input/output arguments
   type(physics_state),       pointer :: phys_state(:)
   type(physics_tend ),       pointer :: phys_tend(:)
-  type(physics_state),       pointer :: phys_state_aphys1(:)
-  type(physics_tend ),       pointer :: phys_tend_placeholder(:)
-  type(physics_state),       pointer :: phys_state_sp(:)
-  type(physics_tend ),       pointer :: phys_tend_placeholder_sp(:)
   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
 
   integer :: lchnk
@@ -1636,19 +1626,11 @@ subroutine phys_final( phys_state, phys_tend, phys_state_aphys1, phys_tend_place
 
   do lchnk=begchunk,endchunk
     call physics_state_dealloc(phys_state(lchnk))
-    call physics_state_dealloc(phys_state_aphys1(lchnk))
-    call physics_state_dealloc(phys_state_sp(lchnk))
     call physics_tend_dealloc(phys_tend(lchnk))
-    call physics_tend_dealloc(phys_tend_placeholder(lchnk))
-    call physics_tend_dealloc(phys_tend_placeholder_sp(lchnk))
  end do
 
   deallocate(phys_state)
   deallocate(phys_tend)
-  deallocate(phys_state_aphys1)
-  deallocate(phys_tend_placeholder)
-  deallocate(phys_state_sp)
-  deallocate(phys_tend_placeholder_sp)
   
   call t_startf ('chem_final')
   call chem_final

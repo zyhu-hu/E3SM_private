@@ -166,8 +166,6 @@ subroutine stepon_run1( ztodt, phys_state, phys_tend, pbuf2d, dyn_in, dyn_out )
                       v3(:,:,:,n3), q3(:,:,:,:,n3), &
                       omga, phis, phys_state, phys_tend,  pbuf2d)
    call t_stopf  ('d_p_coupling')
-
-   write(*,*) 'dynamical core is using sld'
 end subroutine stepon_run1
 
 !

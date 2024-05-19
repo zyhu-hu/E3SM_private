@@ -8012,17 +8012,17 @@ Nickname for a specific NN input/output variable combination
 
 <entry id="qinput_log" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
-do log transform of qc and qi input
+toggle to switch from qc/qi to log10(1+1e6*qc/i) input, not implemented
 </entry>
 
 <entry id="qinput_prune" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
-prune qv, qc and qi input in stratosphere
+prune qc/qi (v4 NN) or qn (total cloud, v5 NN) input in stratosphere
 </entry>
 
 <entry id="qoutput_prune" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
-prune qv, qc and qi tendencies output in stratosphere
+prune qv/qc/qi and/or u/v tendencies output in stratosphere
 </entry>
 
 <entry id="strato_lev" type="integer" category="climsim"
@@ -8032,12 +8032,12 @@ define the stratosphere level for pruning
 
 <entry id="cb_torch_model" type="char*256" category="climsim"
        group="climsim_nl" valid_values="" >
-Absolute path of a torch model txt file
+absolute filepath for a torchscript model txt file
 </entry>
 
 <entry id="cb_torch_model_class" type="char*256" category="climsim"
        group="climsim_nl" valid_values="" >
-Absolute path of a torch model for classification txt file
+absolute filepath for a torchscript classification model txt file
 </entry>
 
 <entry id="cb_qc_lbd" type="char*256" category="climsim"
@@ -8062,7 +8062,7 @@ to set all cloud related input to 0 before send to NN
 
 <entry id="cb_spinup_step" type="integer" category="climsim"
        group="climsim_nl" valid_values="" >
-steps to call SP before NN for spinup cloud resolving model
+steps to call CRM before NN for spinup cloud resolving model
 </entry>
 
 <entry id="cb_limiter_lower" type="char*256" category="climsim"
@@ -8082,7 +8082,7 @@ to set whether to use limiter for NN output
 
 <entry id="cb_do_ramp" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
-Option to gradually transit from MMF to NN;
+option to turn on customized ratio scheduling, tendency sent to GCM grid would be: ratio * NN output + (1-ratio) * SP output
 </entry>
 
 <entry id="cb_ramp_option" type="char*256" category="climsim"
@@ -8102,17 +8102,22 @@ if choose 'linear' ramping schedule, the steps took to transit from 0 to cb_ramp
 
 <entry id="cb_ramp_step_0steps" type="integer" category="climsim"
        group="climsim_nl" valid_values="" >
-if choose 'step' ramping schedule, the steps took to with 0 NN output and 1 SP output
+if choose 'step' ramping schedule, the steps took to with 0 NN + 1 CRM output
 </entry>
 
 <entry id="cb_ramp_step_1steps" type="integer" category="climsim"
        group="climsim_nl" valid_values="" >
-if choose 'step' ramping schedule, the steps took to with cb_ramp_factor NN output and 1-cb_ramp_factor SP output
+if choose 'step' ramping schedule, the steps took to with cb_ramp_factor NN + 1-cb_ramp_factor SP output
 </entry>
 
 <entry id="cb_do_clip" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
 Option to clip input;
+</entry>
+
+<entry id="cb_clip_rhonly" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to clip only rh input;
 </entry>
 
 <entry id="cb_do_aggressive_pruning" type="logical" category="climsim"
@@ -8122,12 +8127,7 @@ Option to aggressively prune input;
 
 <entry id="cb_solin_nolag" type="logical" category="climsim"
        group="climsim_nl" valid_values="" >
-Option have solin/coszr without lag for nn input;
-</entry>
-
-<entry id="cb_clip_rhonly" type="logical" category="climsim"
-       group="climsim_nl" valid_values="" >
-Option to clip only rh input;
+Option have solin/coszr without lag for nn input; should keep as false
 </entry>
 
 <entry id="strato_lev_qinput" type="integer" category="climsim"
