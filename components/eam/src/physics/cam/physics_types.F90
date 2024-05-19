@@ -67,7 +67,7 @@ module physics_types
           ncol=0,               &! --             -- sum of nsubcol for all ngrdcols - number of active columns
           ntracker=2             ! --             -- the number of previous steps' adv/sfc forcing and previous phys tendencies
 #else
-          ncol=0,                ! --             -- sum of nsubcol for all ngrdcols - number of active columns
+          ncol=0                 ! --             -- sum of nsubcol for all ngrdcols - number of active columns
 #endif
      real(r8), dimension(:), allocatable         :: &
           lat,     &! latitude (radians)
