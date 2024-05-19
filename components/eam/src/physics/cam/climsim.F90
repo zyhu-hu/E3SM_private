@@ -16,9 +16,7 @@ use cam_abortutils,  only: endrun
 use string_utils,    only: to_lower
 use phys_grid,       only: get_lat_p, get_lon_p, get_rlat_p, get_rlon_p
 
-!-------- NEURAL-FORTRAN (FKB) --------
-! use mod_kinds, only: ik, rk
-use mod_network, only: network_type
+!-------- torch fortran --------
 
 use torch_ftn
 use iso_fortran_env
@@ -49,6 +47,7 @@ use iso_fortran_env
   character(len=256) :: cb_nn_var_combo = 'v4' ! nickname for a specific NN in/out variable combination, currently support v4 or v5
   character(len=256)    :: cb_torch_model   ! absolute filepath for a torchscript model txt file
   character(len=256)    :: cb_torch_model_class   ! absolute filepath for a torchscript classification model txt file
+  logical :: cb_apply_classifier = .true. ! apply classifier to the NN microphysics output! if set false, classifier will still do inference but not applied to the final output
   character(len=256)    :: cb_qc_lbd   ! absolute filepath for qc_lbd for exponential input transformation
   character(len=256)    :: cb_qi_lbd   ! absolute filepath for qi_lbd for exponential input transformation
   character(len=256)    :: cb_qn_lbd   ! absolute filepath for qn_lbd for exponential input transformation
@@ -75,9 +74,6 @@ use iso_fortran_env
   ! if cb_do_clip = .true., and cb_clip_rhonly = .true., only clip rh to [0,1.2]
   logical :: cb_do_clip = .false.
   logical :: cb_clip_rhonly = .false.
-
-
-  logical :: cb_apply_classifier = .true. ! apply classifier to the NN microphysics output
   
   logical :: cb_solin_nolag  = .false. ! option to use SOLIN/coszr without time lag in the NN input. should be set to false since the CRM use previous step's radiation as forcing
   logical :: cb_zeroqn_strat = .false. ! zero out cloud (qc and qi) above tropopause in the NN output
@@ -94,12 +90,10 @@ use iso_fortran_env
   ! if strato_lev_tinput>0, will prune t to strato_lev_tinput
   integer :: strato_lev_tinput = -1
 
-
-
-
-  type(network_type), allocatable :: climsim_net(:)
   type(torch_module), allocatable :: torch_mod(:)
+#ifdef CLIMSIM_CLASSIFIER
   type(torch_module), allocatable :: torch_mod_class(:)
+#endif
   real(r8), allocatable :: inp_sub(:)
   real(r8), allocatable :: inp_div(:)
   real(r8), allocatable :: out_scale(:)
@@ -165,6 +159,7 @@ contains
    real(real32) :: temperature_new(pcols,pver)
    real(real32) :: qn_new(pcols,pver)
 
+#ifdef CLIMSIM_CLASSIFIER
    ! for classifier inference
    real(r8) :: input_class(pcols,inputlength)
    real(real32) :: input_torch_class(inputlength, pcols)
@@ -174,6 +169,7 @@ contains
    real(real32), pointer :: output_torch_class(:, :, :)
    type(torch_tensor_wrap) :: input_tensors_class
    type(torch_tensor) :: out_tensor_class
+#endif
 
    math_pi = 3.14159265358979323846_r8
 
@@ -435,7 +431,8 @@ end select
       end if
     end do
 
-  ! if (cb_apply_classifier) then
+#ifdef CLIMSIM_CLASSIFIER
+    ! prepare the input array for the microphysics classifier
     input_class(:,:) = input(:,:)
     write (iulog,*) 'for classifier, qn input is hardcoded to be log10(qn), clipped to [-15,-3], then scaled to [0,1]'
     do i = 1,ncol
@@ -453,7 +450,7 @@ end select
         input_class(i,2*pver+k) = (qn_log_tmp+15.0) / 12.0
       end do
     end do
-  ! end if ! cb_apply_classifier
+#endif
 
 select case (to_lower(trim(cb_nn_var_combo)))
 
@@ -627,7 +624,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
       end if
     end if
 
-  ! if (cb_apply_classifier) then
+#ifdef CLIMSIM_CLASSIFIER
     ! dealing with pruning and clipping for input_class (the in put for classifier)
     ! 'CLIMSIM: right now, for classification, input pruning are hard-coded to level 15, and hardcoded to clip rh only to (0,1.2) may need to revisit this in the future if needed'
     do k=1,15
@@ -656,7 +653,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
     do k=61,120
       input_class(:,k) = max(min(input_class(:,k),1.2),0.0)
     end do
-  ! end if ! cb_apply_classifier
+#endif
 
 end select
     
@@ -667,14 +664,15 @@ end select
       end do
     end do
 
-  ! if (cb_apply_classifier) then
+#ifdef CLIMSIM_CLASSIFIER
+    ! transform input_class to input_torch_class for the torch_fortran module inference
     input_torch_class(:,:) = 0.
     do i=1,ncol
       do k=1,inputlength
         input_torch_class(k,i) = input_class(i,k)
       end do
     end do
-  ! end if ! cb_apply_classifier
+#endif
 
     !print *, "Creating input tensor"
     call input_tensors%create
@@ -689,11 +687,12 @@ end select
       end do
     end do
 
+#ifdef CLIMSIM_CLASSIFIER
+! do the classifier inference
 select case (to_lower(trim(cb_nn_var_combo)))
   case('v4')
     ! classifier not implemented for v4
   case('v5')
-  ! if (cb_apply_classifier) then
     call input_tensors_class%create
     call input_tensors_class%add_array(input_torch_class)
     call torch_mod_class(1)%forward(input_tensors_class, out_tensor_class, flags=module_use_inference_mode)
@@ -717,7 +716,7 @@ select case (to_lower(trim(cb_nn_var_combo)))
       end do
     end do
 end select
-  ! end if ! cb_apply_classifier
+#endif
 
 
   if (qoutput_prune) then ! prune output for values in the stratosphere
@@ -952,6 +951,7 @@ end select
      end do
     end if
 
+#ifdef CLIMSIM_CLASSIFIER
   if (cb_apply_classifier) then
     !apply the microphysics classifier to mask qn output
     write (iulog,*) 'CLIMSIMDEBUG for classifier, qn output is hardcoded to be masked only below level 15'
@@ -964,7 +964,8 @@ end select
         end if
       end do
     end do
-  end if ! cb_apply_classifier
+  end if
+#endif
  
 #ifdef CLIMSIMDEBUG
       if (masterproc) then
@@ -1119,10 +1120,10 @@ end subroutine neural_net
     allocate(torch_mod (1))
     call torch_mod(1)%load(trim(cb_torch_model), 0) !0 is not using gpu, for now just use cpu for NN inference
     !call torch_mod(1)%load(trim(cb_torch_model), module_use_device) will use gpu if available
-
+#ifdef CLIMSIM_CLASSIFIER
     allocate(torch_mod_class (1))
     call torch_mod_class(1)%load(trim(cb_torch_model_class), 0) !0 is not using gpu, for now just use cpu for NN inference
-
+#endif
     open (unit=555,file=cb_inp_sub,status='old',action='read')
     read(555,*) inp_sub(:)
     close (555)
@@ -1288,11 +1289,11 @@ end subroutine neural_net
                            cb_partial_coupling, cb_partial_coupling_vars,&
                            cb_use_input_prectm1, &
                            cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
-                           cb_torch_model, cb_torch_model_class, cb_qc_lbd, cb_qi_lbd, cb_qn_lbd, cb_decouple_cloud, cb_spinup_step, &
+                           cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_qn_lbd, cb_decouple_cloud, cb_spinup_step, &
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
-                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, dtheta_thred, cb_apply_classifier
+                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, dtheta_thred, cb_apply_classifier, cb_torch_model_class
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1331,7 +1332,6 @@ end subroutine neural_net
       call mpibcast(qoutput_prune,   1, mpilog,  0, mpicom)
       call mpibcast(strato_lev,   1, mpiint,  0, mpicom)
       call mpibcast(cb_torch_model, len(cb_torch_model), mpichar, 0, mpicom)
-      call mpibcast(cb_torch_model_class, len(cb_torch_model_class), mpichar, 0, mpicom)
       call mpibcast(cb_qc_lbd, len(cb_qc_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_qi_lbd, len(cb_qi_lbd), mpichar, 0, mpicom)
       call mpibcast(cb_qn_lbd, len(cb_qn_lbd), mpichar, 0, mpicom)
@@ -1356,7 +1356,7 @@ end subroutine neural_net
       call mpibcast(cb_zeroqn_strat,   1, mpilog,  0, mpicom)
       call mpibcast(dtheta_thred, 1,            mpir8,  0, mpicom)
       call mpibcast(cb_apply_classifier,     1,                 mpilog,  0, mpicom)
-
+      call mpibcast(cb_torch_model_class, len(cb_torch_model_class), mpichar, 0, mpicom)
 
 
       ! [TODO] check ierr for each mpibcast call
