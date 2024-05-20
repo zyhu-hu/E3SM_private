@@ -398,7 +398,7 @@ subroutine cam_run1(cam_in, cam_out, yr, mn, dy, sec )
 
 
 #ifdef CLIMSIM
-   call climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, dtime, phys_tend, pbuf2d,  cam_in, cam_out, cam_out_sp)
+   ! call climsim_driver(phys_state, phys_state_aphys1, phys_state_sp, dtime, phys_tend, pbuf2d,  cam_in, cam_out, cam_out_sp)
 #else
    call phys_run1(phys_state, dtime, phys_tend, pbuf2d,  cam_in, cam_out)
 #endif 
