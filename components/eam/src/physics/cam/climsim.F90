@@ -1119,8 +1119,8 @@ end subroutine neural_net
     allocate(qc_lbd (60))
     allocate(qi_lbd (60))
     allocate(qn_lbd (60))
-    allocate(limiter_lower (368))
-    allocate(limiter_upper (368))
+    allocate(limiter_lower (outputlength))
+    allocate(limiter_upper (outputlength))
     ! allocate(input_tensors)
     ! allocate(out_tensor)
     
@@ -1173,20 +1173,22 @@ end subroutine neural_net
        write (iulog,*) 'CLIMSIM: loaded qn exponential transformation factor from: ', trim(cb_qn_lbd)
     endif
 
-    open (unit=555,file=cb_limiter_lower,status='old',action='read')
-    read(555,*) limiter_lower(:)
-    close (555)
-    if (masterproc) then
-       write (iulog,*) 'CLIMSIM: loaded lower limiter from: ', trim(cb_limiter_lower)
-    endif
+    if (cb_do_limiter) then
+      open (unit=555,file=cb_limiter_lower,status='old',action='read')
+      read(555,*) limiter_lower(:)
+      close (555)
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIM: loaded lower limiter from: ', trim(cb_limiter_lower)
+      endif
 
-    open (unit=555,file=cb_limiter_upper,status='old',action='read')
-    read(555,*) limiter_upper(:)
-    close (555)
-    if (masterproc) then
-       write (iulog,*) 'CLIMSIM: loaded upper limiter from: ', trim(cb_limiter_upper)
+      open (unit=555,file=cb_limiter_upper,status='old',action='read')
+      read(555,*) limiter_upper(:)
+      close (555)
+      if (masterproc) then
+        write (iulog,*) 'CLIMSIM: loaded upper limiter from: ', trim(cb_limiter_upper)
+      endif
     endif
-
+    
   ! add diagnostic output fileds
   call addfld ('TROP_IND',horiz_only,   'A', '1', 'lev index for tropopause')
 
