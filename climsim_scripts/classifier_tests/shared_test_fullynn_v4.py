@@ -14,20 +14,21 @@ acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
-case_prefix = 'clean_code_fullysp'
+case_prefix = 'shared_test_fullynn_v4'
 # exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_test'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
 scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
-src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
+src_dir  = top_dir+'/nvidia_codes/E3SM_private/' 
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
-# user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
-# user_cpp = '-DCLIMSIM -DCLIMSIM_CLASSIFIER' # NN hybrid test
-user_cpp = ''
+user_cpp = '-DCLIMSIM' # do NN inference, turn on microphysics classifier
+#user_cpp = '' # do MMF
+
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
-pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
+
+pytorch_fortran_path = '/global/homes/z/zeyuanhu/shared_e3sm/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
@@ -71,24 +72,23 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-# f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_qstra22_cliprh_mae/model.pt'
-f_torch_model_class = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
-f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_qstra22_cliprh_mae/inp_sub.txt'
-f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_qstra22_cliprh_mae/inp_div.txt'
-f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_qstra22_cliprh_mae/out_scale.txt'
+f_torch_model = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v4/v4plus_unet_qstra22_cliprh_mae/model.pt'
+f_torch_model_class = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
+f_inp_sub     = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v4/v4plus_unet_qstra22_cliprh_mae/inp_sub.txt'
+f_inp_div     = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v4/v4plus_unet_qstra22_cliprh_mae/inp_div.txt'
+f_out_scale   = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v4/v4plus_unet_qstra22_cliprh_mae/out_scale.txt'
 f_qinput_log = '.true.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
 f_strato_lev = 15
-f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qc_exp_lambda_large.txt'
-f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
-f_qn_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qn_exp_lambda_large.txt'
+f_qc_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qc_exp_lambda_large.txt'
+f_qi_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qi_exp_lambda_large.txt'
+f_qn_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qn_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
 cb_spinup_step = 5
 f_do_limiter = '.false.'
-f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
-f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
+# f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
+# f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
 f_cb_zeroqn_strat = '.true.'
 f_cb_partial_coupling = '.false.'
 
@@ -147,7 +147,7 @@ if newcase :
    # setup branch/hybrid
    if runtype == 'branch':
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_TYPE   --val {runtype}') # 'branch' won't allow change model time steps
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/E3SM_ML_ne4_rerun.F2010-MMF1/archive/rest/{refdate}-{reftod}')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /global/homes/z/zeyuanhu/shared_e3sm/restart_files/{refdate}-{reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id GET_REFCASE --val TRUE')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val E3SM_ML_ne4_rerun.F2010-MMF1')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDATE --val {refdate}')
@@ -170,9 +170,9 @@ do_aerosol_rad = .false.
 /
 
 &climsim_nl
-inputlength     = 1405
-outputlength    = 308
-cb_nn_var_combo = 'v5'
+inputlength     = 1525
+outputlength    = 368
+cb_nn_var_combo = 'v4'
 input_rh        = .true.
 cb_torch_model  = '{f_torch_model}'
 cb_torch_model_class  = '{f_torch_model_class}'
@@ -189,8 +189,6 @@ cb_qn_lbd = '{f_qn_lbd}'
 cb_decouple_cloud = {f_decouple_cloud}
 cb_spinup_step = {cb_spinup_step}
 cb_do_limiter = {f_do_limiter}
-cb_limiter_lower = '{f_limiter_lower}'
-cb_limiter_upper = '{f_limiter_upper}'
 cb_partial_coupling = '{f_cb_partial_coupling}'
 cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
 cb_do_ramp = {f_cb_do_ramp}
