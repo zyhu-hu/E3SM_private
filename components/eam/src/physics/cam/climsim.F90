@@ -1,5 +1,3 @@
-#if defined(MMF_ML_TRAINING) || defined(CLIMSIM)
-
 module climsim
 
 use constituents,    only: pcnst
@@ -111,11 +109,16 @@ use iso_fortran_env
   logical :: cb_top_levels_zero_out = .true.
   integer :: cb_n_levels_zero = 12 ! top n levels to zero out
 
+#ifdef CLIMSIM
   public neural_net, init_neural_net, climsim_readnl, &
          cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, cb_solin_nolag
+#else
+  public climsim_readnl, cb_partial_coupling, cb_partial_coupling_vars, cb_spinup_step, cb_do_ramp, cb_ramp_linear_steps, cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, cb_solin_nolag
+#endif
   
 contains
 
+#ifdef CLIMSIM
   subroutine neural_net (ptend, state, state_aphys1, pbuf, cam_in, cam_out, coszrs, solin, ztodt, lchnk)
  ! note state is meant to have the "BP" state saved earlier. 
 
@@ -1101,7 +1104,9 @@ end select
   end select ! end of case statement
 
 end subroutine neural_net
+#endif
 
+#ifdef CLIMSIM
   subroutine init_neural_net()
 
     implicit none
@@ -1186,6 +1191,7 @@ end subroutine neural_net
   call addfld ('TROP_IND',horiz_only,   'A', '1', 'lev index for tropopause')
 
   end subroutine init_neural_net
+#endif
 
   real(r8) function tom_esat(T) 
   ! For consistency with the python port of Tom's RH-calculator, this is how it
@@ -1393,5 +1399,3 @@ end subroutine neural_net
   end function shuffle_1d
 
 end module climsim
-
-#endif
