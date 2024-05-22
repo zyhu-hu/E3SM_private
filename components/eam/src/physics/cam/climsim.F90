@@ -68,6 +68,7 @@ use iso_fortran_env
   logical :: cb_solin_nolag  = .false.
   logical :: cb_clip_rhonly = .false.
   logical :: cb_zeroqn_strat = .false.
+  logical :: cb_overwrite_qnstrat = .false.
   integer :: strato_lev_qinput = -1
   integer :: strato_lev_tinput = -1
   real(r8) :: dtheta_thred = 10.0
@@ -999,18 +1000,20 @@ select case (to_lower(trim(cb_nn_var_combo)))
    v_bctend (:ncol,1:pver) = output(1:ncol,5*pver+1:6*pver)       ! m/s/s
 
 ! deny any moisture activity in the stratosphere:
-   do i=1,ncol
-     call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
-     q_bctend (i,1:idx_trop(i)) = 0.
-     if (cb_zeroqn_strat) then
-      qc_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldliq)/ztodt
-      qi_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldice)/ztodt
-     else 
-      qc_bctend(i,1:idx_trop(i)) = 0.
-      qi_bctend(i,1:idx_trop(i)) = 0.
-     end if
-   end do
-   call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
+   if (cb_overwrite_qnstrat) then
+    do i=1,ncol
+      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
+      q_bctend (i,1:idx_trop(i)) = 0.
+      if (cb_zeroqn_strat) then
+        qc_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldliq)/ztodt
+        qi_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldice)/ztodt
+      else 
+        qc_bctend(i,1:idx_trop(i)) = 0.
+        qi_bctend(i,1:idx_trop(i)) = 0.
+      end if
+    end do
+    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
+   end if
 
 ! -- atmos positivity constraints ---- 
    if (do_constraints) then
@@ -1196,19 +1199,21 @@ select case (to_lower(trim(cb_nn_var_combo)))
     v_bctend (:ncol,1:pver) = output(1:ncol,4*pver+1:5*pver)       ! m/s/s
  
  ! deny any moisture activity in the stratosphere:
-    do i=1,ncol
-      call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
-      q_bctend (i,1:idx_trop(i)) = 0.
-      if (cb_zeroqn_strat) then
-        qc_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldliq)/ztodt
-        qi_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldice)/ztodt
-       else 
-        qc_bctend(i,1:idx_trop(i)) = 0.
-        qi_bctend(i,1:idx_trop(i)) = 0.
-       end if
-    end do
-    call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
-    
+    if (cb_overwrite_qnstrat) then
+      do i=1,ncol
+        call detect_tropopause(state%t(i,:),state%exner(i,:),state%zm(i,:),state%pmid(i,:),idx_trop(i))
+        q_bctend (i,1:idx_trop(i)) = 0.
+        if (cb_zeroqn_strat) then
+          qc_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldliq)/ztodt
+          qi_bctend(i,1:idx_trop(i)) = -state%q(i,1:idx_trop(i),ixcldice)/ztodt
+        else 
+          qc_bctend(i,1:idx_trop(i)) = 0.
+          qi_bctend(i,1:idx_trop(i)) = 0.
+        end if
+      end do
+      call outfld('TROP_IND', idx_trop(:ncol)*1._r8, ncol, state%lchnk)
+    end if
+      
  ! -- atmos positivity constraints ---- 
     if (do_constraints) then
     do i=1,ncol
@@ -1547,7 +1552,7 @@ end subroutine neural_net
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
                            cb_do_aggressive_pruning, cb_do_clip, cb_solin_nolag, cb_clip_rhonly,  &
-                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, dtheta_thred, cb_apply_classifier
+                           strato_lev_qinput, strato_lev_tinput, cb_zeroqn_strat, cb_overwrite_qnstrat, dtheta_thred, cb_apply_classifier
 
       ! Initialize 'cb_partial_coupling_vars'
       do f = 1, pflds
@@ -1620,6 +1625,7 @@ end subroutine neural_net
       call mpibcast(strato_lev_qinput,   1, mpiint,  0, mpicom)
       call mpibcast(strato_lev_tinput,   1, mpiint,  0, mpicom)
       call mpibcast(cb_zeroqn_strat,   1, mpilog,  0, mpicom)
+      call mpibcast(cb_overwrite_qnstrat,   1, mpilog,  0, mpicom)
       call mpibcast(dtheta_thred, 1,            mpir8,  0, mpicom)
       call mpibcast(cb_apply_classifier,     1,                 mpilog,  0, mpicom)
 
