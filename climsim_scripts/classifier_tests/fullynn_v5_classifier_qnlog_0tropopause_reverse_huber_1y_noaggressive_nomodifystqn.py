@@ -15,7 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_1y_noaggressive_nomodifystqn'
-exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_1y_noaggressive'
+# exe_refcase = 'fully_v5_classifier_qnlog_0tropopause_reverse_huber_1y_noaggressive'
 # Added extra physics_state and cam_out variables.
 
 top_dir  = os.getenv('HOME')
@@ -233,13 +233,13 @@ if config :
    if clean : run_cmd('./case.setup --clean')
    run_cmd('./case.setup --reset')
 #---------------------------------------------------------------------------------------------------
-# if build : 
-#    if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
-#    if clean : run_cmd('./case.build --clean')
-#    run_cmd('./case.build')
+if build : 
+   if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
+   if clean : run_cmd('./case.build --clean')
+   run_cmd('./case.build')
 
-run_cmd(f'cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/{exe_refcase}/build/e3sm.exe ./build/')
-run_cmd('./xmlchange BUILD_COMPLETE=TRUE')
+# run_cmd(f'cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/{exe_refcase}/build/e3sm.exe ./build/')
+# run_cmd('./xmlchange BUILD_COMPLETE=TRUE')
 #---------------------------------------------------------------------------------------------------
 if submit : 
    if 'queue' in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
