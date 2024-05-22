@@ -71,7 +71,7 @@ case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
 # f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber/ckpt/ckpt_epoch_13_metric_0.0512.pt'
+f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber/model.pt'
 f_torch_model_class = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
 f_fkb_model   = '/pscratch/sd/s/sungduk/for_zeyuan/trained_model/backup_phase-11_retrained_models_step2_lot-152_trial_0024.best.h5.linear-out.h5.fkb.txt'
 f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber/inp_sub.txt'
