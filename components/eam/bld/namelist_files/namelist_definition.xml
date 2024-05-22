@@ -8145,6 +8145,11 @@ define the stratosphere level for pruning t
 Option to set qn=0 in stratosphere;
 </entry>
 
+<entry id="cb_overwrite_qnstrat" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+Option to overwrite or not qn/qc/qi in stratosphere;
+</entry>
+
 <entry id="dtheta_thred" type="real" category="climsim"
        group="climsim_nl" valid_values="" >
 the threshold for dtheta/dt (K/km) to detect tropopause
