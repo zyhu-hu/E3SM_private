@@ -14,7 +14,7 @@ acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
-case_prefix = 'v4_noclassifier_mse_1y_noaggressive_nomodifystqn_cos'
+case_prefix = 'v5_noclassifier_mse_1y_noaggressive_nomodifystqn_cos'
 exe_refcase = 'v5_noclassifier_huber_1y_noaggressive'
 # Added extra physics_state and cam_out variables.
 
@@ -71,10 +71,10 @@ case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
 # f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4plus_unet_nonaggressive_cliprh_huber_cos_r2/model.pt'
-f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4plus_unet_nonaggressive_cliprh_huber_cos_r2/inp_sub.txt'
-f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4plus_unet_nonaggressive_cliprh_huber_cos_r2/inp_div.txt'
-f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4plus_unet_nonaggressive_cliprh_huber_cos_r2/out_scale.txt'
+f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_mse_cos_r2/model.pt'
+f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_mse_cos_r2/inp_sub.txt'
+f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_mse_cos_r2/inp_div.txt'
+f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_mse_cos_r2/out_scale.txt'
 f_qinput_log = '.true.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
@@ -85,7 +85,7 @@ f_qn_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/nor
 f_decouple_cloud = '.false.'
 cb_spinup_step = 5
 f_do_limiter = '.false.'
-f_cb_zeroqn_strat = '.true.'
+f_cb_zeroqn_strat = '.false.'
 cb_overwrite_qnstrat = '.false.'
 
 f_cb_do_ramp = '.false.'
@@ -160,9 +160,9 @@ do_aerosol_rad = .false.
 /
 
 &climsim_nl
-inputlength     = 1525
-outputlength    = 368
-cb_nn_var_combo = 'v4'
+inputlength     = 1405
+outputlength    = 308
+cb_nn_var_combo = 'v5'
 input_rh        = .true.
 cb_torch_model  = '{f_torch_model}'
 cb_inp_sub      = '{f_inp_sub}'

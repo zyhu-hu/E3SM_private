@@ -14,7 +14,7 @@ acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
-case_prefix = 'v4_noclassifier_mse_1y_noaggressive_nomodifystqn_rop'
+case_prefix = 'v5_noclassifier_mse_1y_noaggressive_nomodifystqn_rop'
 exe_refcase = 'v5_noclassifier_huber_1y_noaggressive'
 # Added extra physics_state and cam_out variables.
 
@@ -85,7 +85,7 @@ f_qn_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/nor
 f_decouple_cloud = '.false.'
 cb_spinup_step = 5
 f_do_limiter = '.false.'
-f_cb_zeroqn_strat = '.true.'
+f_cb_zeroqn_strat = '.false.'
 cb_overwrite_qnstrat = '.false.'
 
 f_cb_do_ramp = '.false.'
@@ -160,9 +160,9 @@ do_aerosol_rad = .false.
 /
 
 &climsim_nl
-inputlength     = 1525
-outputlength    = 368
-cb_nn_var_combo = 'v4'
+inputlength     = 1405
+outputlength    = 308
+cb_nn_var_combo = 'v5'
 input_rh        = .true.
 cb_torch_model  = '{f_torch_model}'
 cb_inp_sub      = '{f_inp_sub}'
