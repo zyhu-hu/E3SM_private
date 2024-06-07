@@ -319,11 +319,11 @@ select case (to_lower(trim(cb_nn_var_combo)))
           do k=1,pver
             ! Port of tom's RH =  Rv*p*qv/(R*esat(T))
             rh_loc = 461.*state%pmid(i,k)*state%q(i,k,1)/(287.*tom_esat(state%t(i,k))) ! note function tom_esat below refercing SAM's sat.F90
-    #ifdef RHDEBUG
+#ifdef RHDEBUG
             if (masterproc) then
               write (iulog,*) 'RHDEBUG:p,q,T,RH=',state%pmid(i,k),state%q(i,k,1),state%t(i,k),rh_loc
             endif
-    #endif
+#endif
             input(i,1*pver+k) = rh_loc
           end do
         end do
@@ -900,11 +900,11 @@ end select
       endif
     end do
  
- #ifdef CLIMSIMDEBUG
+#ifdef CLIMSIMDEBUG
        if (masterproc) then
          write (iulog,*) 'CLIMSIMDEBUG output after ReLU = ',output(1,:)
        endif
- #endif
+#endif
  
     ! output normalization (un-weighting, really).
     do i=1,ncol
@@ -925,11 +925,11 @@ end select
      end do
     end if
  
- #ifdef CLIMSIMDEBUG
+#ifdef CLIMSIMDEBUG
        if (masterproc) then
          write (iulog,*) 'CLIMSIMDEBUG output post scale = ',output(1,:)
        endif
- #endif
+#endif
  
  ! ---------- 1. NN output to atmosphere forcing --------
  ! ['TBCTEND', 'QBCTEND','CLDLIQBCTEND','CLDICEBCTEND']
@@ -1026,9 +1026,9 @@ end select
     do i = 1,ncol
  ! SY: debugging
  !     allowing surface coupling over ocean only
- #ifdef CLIMSIM_OCN_ONLY 
+#ifdef CLIMSIM_OCN_ONLY 
       if (cam_in%ocnfrac(i) .eq. 1.0_r8) then
- #endif
+#endif
         cam_out%netsw(i) = output(i,6*pver+1)
         cam_out%flwds(i) = output(i,6*pver+2)
         snow_dp(i)       = output(i,6*pver+3)
@@ -1037,9 +1037,9 @@ end select
         cam_out%soll(i)  = output(i,6*pver+6)
         cam_out%solsd(i) = output(i,6*pver+7)
         cam_out%solld(i) = output(i,6*pver+8)
- #ifdef CLIMSIM_OCN_ONLY
+#ifdef CLIMSIM_OCN_ONLY
       end if
- #endif
+#endif
     end do 
 
   case('v4')
