@@ -14,7 +14,7 @@ acct = 'm4331'
 
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
-case_prefix = 'v2rh_mliotest_noclassifier_huber_1y_noaggressive_nomodifystqn_step_mlp_l3'
+case_prefix = 'v2rh_noclassifier_huber_1y_noaggressive_nomodifystqn_step_mlp_l3_quick'
 # exe_refcase = 'v5_noclassifier_huber_1y_noaggressive'
 # Added extra physics_state and cam_out variables.
 
@@ -24,7 +24,7 @@ case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 # user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
-user_cpp = '-DCLIMSIM -DMMF_ML_TRAINING' # NN hybrid test
+user_cpp = '-DCLIMSIM' # NN hybrid test
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
@@ -47,8 +47,8 @@ debug_mode = False
 dtime = 1200 # set to 0 to use a default value 
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
-#stop_opt,stop_n,resub,walltime = 'nmonths',13, 0,'00:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'00:30:00'
+stop_opt,stop_n,resub,walltime = 'nmonths',13, 0,'00:30:00'
+#stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -178,7 +178,7 @@ cb_qn_lbd = '{f_qn_lbd}'
 cb_decouple_cloud = {f_decouple_cloud}
 cb_spinup_step = {cb_spinup_step}
 cb_do_limiter = {f_do_limiter}
-cb_partial_coupling = .true.
+cb_partial_coupling = .false.
 cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
 cb_do_ramp = {f_cb_do_ramp}
 cb_ramp_option = '{f_cb_ramp_option}'
