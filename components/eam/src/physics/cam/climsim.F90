@@ -36,6 +36,7 @@ use iso_fortran_env
   logical :: qinput_log   = .false.  ! toggle to switch from qc/qi --> log10(1+1e6*qc/i) input ! not implemented in the latested version of NN, should be removed
   logical :: qinput_prune = .false.  ! prune qc/qi (v2/v4 NN) or qn (total cloud, v5 NN) input in stratosphere
   logical :: qoutput_prune = .false. ! prune qv/qc/qi and/or u/v tendencies output in stratosphere
+  logical :: uoutput_prune = .true. ! prune u/v tendencies output in stratosphere in v5 NN
   integer :: strato_lev = 15 ! stratospheric level used for pruning
   integer :: cb_spinup_step = 72 
   logical :: cb_use_input_prectm1 = .false.  ! use previous timestep PRECT for input variable 
@@ -867,12 +868,17 @@ select case (to_lower(trim(cb_nn_var_combo)))
       end do
   case('v5')
     do k=1,strato_lev 
-      write (iulog,*) 'CLIMSIM: pruning qv/qn/u/v output in the top stratosphere for v5 NN'
+      write (iulog,*) 'CLIMSIM: pruning qv/qnoutput in the top stratosphere for v5 NN'
       output(:,1*pver+k) = 0. ! qv
       output(:,2*pver+k) = 0. ! qn
-      output(:,3*pver+k) = 0. ! u
-      output(:,4*pver+k) = 0. ! v    
     end do
+    if (uoutput_prune) then
+      write (iulog,*) 'CLIMSIM: pruning u/v output in the top stratosphere for v5 NN'
+      do k=1,strato_lev
+        output(:,3*pver+k) = 0. ! u
+        output(:,4*pver+k) = 0. ! v
+      end do
+    end if
 end select
   end if
 
@@ -1594,7 +1600,7 @@ end subroutine neural_net
                            cb_inp_sub, cb_inp_div, cb_out_scale, &
                            cb_partial_coupling, cb_partial_coupling_vars,&
                            cb_use_input_prectm1, &
-                           cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, strato_lev, &
+                           cb_nn_var_combo, qinput_log, qinput_prune, qoutput_prune, uoutput_prune, strato_lev, &
                            cb_torch_model, cb_qc_lbd, cb_qi_lbd, cb_qn_lbd, cb_decouple_cloud, cb_spinup_step, &
                            cb_limiter_lower, cb_limiter_upper, cb_do_limiter, cb_do_ramp, cb_ramp_linear_steps, &
                            cb_ramp_option, cb_ramp_factor, cb_ramp_step_0steps, cb_ramp_step_1steps, &
@@ -1636,6 +1642,7 @@ end subroutine neural_net
       call mpibcast(qinput_log,   1, mpilog,  0, mpicom)
       call mpibcast(qinput_prune,   1, mpilog,  0, mpicom)
       call mpibcast(qoutput_prune,   1, mpilog,  0, mpicom)
+      call mpibcast(uoutput_prune,   1, mpilog,  0, mpicom)
       call mpibcast(strato_lev,   1, mpiint,  0, mpicom)
       call mpibcast(cb_torch_model, len(cb_torch_model), mpichar, 0, mpicom)
       call mpibcast(cb_qc_lbd, len(cb_qc_lbd), mpichar, 0, mpicom)

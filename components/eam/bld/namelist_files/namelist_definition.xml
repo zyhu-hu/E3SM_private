@@ -8025,6 +8025,11 @@ prune qc/qi (v4 NN) or qn (total cloud, v5 NN) input in stratosphere
 prune qv/qc/qi and/or u/v tendencies output in stratosphere
 </entry>
 
+<entry id="uoutput_prune" type="logical" category="climsim"
+       group="climsim_nl" valid_values="" >
+prune u/v tendencies output in stratosphere
+</entry>
+
 <entry id="strato_lev" type="integer" category="climsim"
        group="climsim_nl" valid_values="" >
 define the stratosphere level for pruning
