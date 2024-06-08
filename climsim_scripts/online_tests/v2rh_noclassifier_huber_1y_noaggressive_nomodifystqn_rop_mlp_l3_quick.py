@@ -15,6 +15,7 @@ acct = 'm4331'
 # case_prefix = 'dagger2_exp1_iter1_alphap5_test'
 # case_prefix = 'corrected_nndebug_prune_clip_seed'
 case_prefix = 'v2rh_noclassifier_huber_1y_noaggressive_nomodifystqn_rop_mlp_l3_quick'
+exe_refcase = 'v2rh_noclassifier_huber_1y_noaggressive_nomodifystqn_step_mlp_l3_quick'
 # exe_refcase = 'v5_noclassifier_huber_1y_noaggressive'
 # Added extra physics_state and cam_out variables.
 
@@ -225,13 +226,13 @@ if config :
    if clean : run_cmd('./case.setup --clean')
    run_cmd('./case.setup --reset')
 #---------------------------------------------------------------------------------------------------
-if build : 
-   if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
-   if clean : run_cmd('./case.build --clean')
-   run_cmd('./case.build')
+# if build : 
+#    if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
+#    if clean : run_cmd('./case.build --clean')
+#    run_cmd('./case.build')
 
-# run_cmd(f'cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/{exe_refcase}/build/e3sm.exe ./build/')
-# run_cmd('./xmlchange BUILD_COMPLETE=TRUE')
+run_cmd(f'cp /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/{exe_refcase}/build/e3sm.exe ./build/')
+run_cmd('./xmlchange BUILD_COMPLETE=TRUE')
 #---------------------------------------------------------------------------------------------------
 if submit : 
    if 'queue' in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
