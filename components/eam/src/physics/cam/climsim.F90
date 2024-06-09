@@ -36,7 +36,7 @@ use iso_fortran_env
   logical :: qinput_log   = .false.  ! toggle to switch from qc/qi --> log10(1+1e6*qc/i) input ! not implemented in the latested version of NN, should be removed
   logical :: qinput_prune = .false.  ! prune qc/qi (v2/v4 NN) or qn (total cloud, v5 NN) input in stratosphere
   logical :: qoutput_prune = .false. ! prune qv/qc/qi and/or u/v tendencies output in stratosphere
-  logical :: uoutput_prune = .true. ! prune u/v tendencies output in stratosphere in v5 NN
+  logical :: uoutput_prune = .false. ! prune u/v tendencies output in stratosphere in v5 NN
   integer :: strato_lev = 15 ! stratospheric level used for pruning
   integer :: cb_spinup_step = 72 
   logical :: cb_use_input_prectm1 = .false.  ! use previous timestep PRECT for input variable 
@@ -856,6 +856,11 @@ select case (to_lower(trim(cb_nn_var_combo)))
       do k=1,28
         output(:,2*pver+k) = 0. 
       end do
+      write (iulog,*) 'CLIMSIM: pruning u/v output in the top stratosphere for v2 NN'
+        do k=1,strato_lev
+          output(:,4*pver+k) = 0. ! u
+          output(:,5*pver+k) = 0. ! v
+        end do
   case('v4')
     write (iulog,*) 'CLIMSIM: pruning qv/qi output in the top stratosphere for v4 NN, pruning qc to lev 28'
       do k=1,strato_lev
@@ -866,6 +871,13 @@ select case (to_lower(trim(cb_nn_var_combo)))
       do k=1,28
         output(:,2*pver+k) = 0. 
       end do
+      if (uoutput_prune) then
+        write (iulog,*) 'CLIMSIM: pruning u/v output in the top stratosphere for v4 NN'
+        do k=1,strato_lev
+          output(:,4*pver+k) = 0. ! u
+          output(:,5*pver+k) = 0. ! v
+        end do
+      end if
   case('v5')
     do k=1,strato_lev 
       write (iulog,*) 'CLIMSIM: pruning qv/qnoutput in the top stratosphere for v5 NN'
