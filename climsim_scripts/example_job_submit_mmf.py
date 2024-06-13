@@ -15,22 +15,21 @@ acct = 'm4331'
 case_prefix = 'example_job_submit_mmf'
 # exe_refcase = ''
 
-top_dir  = os.getenv('HOME')
-scratch_dir = os.getenv('SCRATCH')
-case_dir = scratch_dir+'/e3sm_mlt_scratch/'
-src_dir  = top_dir+'/nvidia_codes/E3SM_private/' 
+top_dir  = "/climsim"
+case_dir = '/scratch/'
+src_dir  = top_dir+'/E3SM/' 
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 #user_cpp = '-DCLIMSIM -DCLIMSIM_CLASSIFIER' # do NN inference, turn on microphysics classifier
 user_cpp = '' # do MMF
 
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 
-pytorch_fortran_path = '/global/homes/z/zeyuanhu/shared_e3sm/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
+pytorch_fortran_path = '/opt/pytorch-fortran'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
 # RESTART
-runtype = 'branch' # startup, hybrid,  branch
+runtype = 'startup' # startup, hybrid,  branch
 refdate = '0002-12-30' # only works for branch (and hybrid?)
 reftod = '00000' # or 21600, 43200, 64800
 # clean        = True
@@ -41,7 +40,7 @@ submit       = True
 #continue_run = True
 src_mod_atm  = False
 
-debug_mode = False
+debug_mode = True
 
 dtime = 1200 # set to 0 to use a default value 
 
@@ -110,18 +109,17 @@ if 'MMF_ML_TRAINING' in user_cpp:
 print('\n  case : '+case+'\n')
 
 if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1 ; max_task_per_node = 64
-if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  4,8 ; max_task_per_node = 32
-if arch=='CORI'  : max_mpi_per_node,atm_nthrds  = 64,1
+if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  2,8 ; max_task_per_node = 16
 atm_ntasks = max_mpi_per_node*num_nodes
 #---------------------------------------------------------------------------------------------------
+case_scripts_dir=f'{case_dir}/{case}' 
 if newcase :
    # case_scripts_dir=f'{case_dir}/{case}/case_scripts' 
    case_scripts_dir=f'{case_dir}/{case}' 
    if os.path.isdir(f'{case_dir}/{case}'): exit('\n'+clr.RED+f'This case already exists: \n{case_dir}/{case}'+clr.END+'\n')
    cmd = f'{src_dir}/cime/scripts/create_newcase -case {case} --script-root {case_scripts_dir} -compset {compset} -res {grid}  '
-   if arch=='GNUCPU' : cmd += f' -mach pm-cpu -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
-   if arch=='GNUGPU' : cmd += f' -mach pm-gpu -compiler gnugpu -pecount {atm_ntasks}x{atm_nthrds} '
-   if arch=='CORI'   : cmd += f' -mach cori-knl -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='GNUCPU' : cmd += f' -mach docker-climsim -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='GNUGPU' : cmd += f' -mach docker-climsim -compiler gnugpu -pecount {atm_ntasks}x{atm_nthrds} '
    run_cmd(cmd)
 os.chdir(f'{case_scripts_dir}')
 if newcase :
