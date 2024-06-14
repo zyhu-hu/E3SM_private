@@ -15,17 +15,16 @@ acct = 'm4331'
 case_prefix = 'example_job_submit_nn_v5'
 # exe_refcase = ''
 
-top_dir  = os.getenv('HOME')
-scratch_dir = os.getenv('SCRATCH')
-case_dir = scratch_dir+'/e3sm_mlt_scratch/'
-src_dir  = top_dir+'/nvidia_codes/E3SM_private/' 
+top_dir  = "/climsim"
+case_dir = '/scratch/'
+src_dir  = top_dir+'/E3SM/' 
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
 user_cpp = '-DCLIMSIM -DCLIMSIM_CLASSIFIER' # do NN inference, turn on microphysics classifier
 #user_cpp = '' # do MMF
 
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
 
-pytorch_fortran_path = '/global/homes/z/zeyuanhu/shared_e3sm/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
+pytorch_fortran_path = '/opt/pytorch-fortran'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
@@ -69,18 +68,18 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-f_torch_model = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/model.pt'
-f_torch_model_class = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
-f_inp_sub     = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_sub.txt'
-f_inp_div     = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_div.txt'
-f_out_scale   = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/out_scale.txt'
+f_torch_model = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/model.pt'
+f_torch_model_class = '/storage/inputdata/saved_models/v5/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
+f_inp_sub     = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_sub.txt'
+f_inp_div     = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_div.txt'
+f_out_scale   = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/out_scale.txt'
 f_qinput_log = '.true.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
 f_strato_lev = 15
-f_qc_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qc_exp_lambda_large.txt'
-f_qi_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qi_exp_lambda_large.txt'
-f_qn_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qn_exp_lambda_large.txt'
+f_qc_lbd = '/storage/inputdata/saved_models/v5/normalization/qc_exp_lambda_large.txt'
+f_qi_lbd = '/storage/inputdata/saved_models/v5/normalization/qi_exp_lambda_large.txt'
+f_qn_lbd = '/storage/inputdata/saved_models/v5/normalization/qn_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
 cb_spinup_step = 5
 f_do_limiter = '.false.'
@@ -110,8 +109,7 @@ if 'MMF_ML_TRAINING' in user_cpp:
 print('\n  case : '+case+'\n')
 
 if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1 ; max_task_per_node = 64
-if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  4,8 ; max_task_per_node = 32
-if arch=='CORI'  : max_mpi_per_node,atm_nthrds  = 64,1
+if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  2,8 ; max_task_per_node = 16
 atm_ntasks = max_mpi_per_node*num_nodes
 #---------------------------------------------------------------------------------------------------
 if newcase :
@@ -119,9 +117,8 @@ if newcase :
    case_scripts_dir=f'{case_dir}/{case}' 
    if os.path.isdir(f'{case_dir}/{case}'): exit('\n'+clr.RED+f'This case already exists: \n{case_dir}/{case}'+clr.END+'\n')
    cmd = f'{src_dir}/cime/scripts/create_newcase -case {case} --script-root {case_scripts_dir} -compset {compset} -res {grid}  '
-   if arch=='GNUCPU' : cmd += f' -mach pm-cpu -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
-   if arch=='GNUGPU' : cmd += f' -mach pm-gpu -compiler gnugpu -pecount {atm_ntasks}x{atm_nthrds} '
-   if arch=='CORI'   : cmd += f' -mach cori-knl -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='GNUCPU' : cmd += f' -mach docker-climsim -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='GNUGPU' : cmd += f' -mach docker-climsim -compiler gnugpu -pecount {atm_ntasks}x{atm_nthrds} '
    run_cmd(cmd)
 os.chdir(f'{case_scripts_dir}')
 if newcase :

@@ -40,7 +40,7 @@ submit       = True
 #continue_run = True
 src_mod_atm  = False
 
-debug_mode = True
+debug_mode = False
 
 dtime = 1200 # set to 0 to use a default value 
 
@@ -52,7 +52,8 @@ ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
-compset,arch   = 'F2010-MMF1','GNUGPU'
+compset,arch   = 'F2010-MMF1','GNUCPU'
+# compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'FAQP-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
