@@ -52,7 +52,8 @@ ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
-compset,arch   = 'F2010-MMF1','GNUGPU'
+compset,arch   = 'F2010-MMF1','GNUCPU'
+# compset,arch   = 'F2010-MMF1','GNUGPU'
 # compset,arch   = 'FAQP-MMF1','GNUGPU'
 # compset,arch   = 'F2010-MMF1','CORI';
 # (MMF1: Note that MMF_VT is tunred off for CLIMSIM in $E3SMROOT/components/eam/cime_config/config_component.xml)  
@@ -68,18 +69,18 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-f_torch_model = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/model.pt'
-f_torch_model_class = '/storage/inputdata/saved_models/v5/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
-f_inp_sub     = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_sub.txt'
-f_inp_div     = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_div.txt'
-f_out_scale   = '/storage/inputdata/saved_models/v5/v5_unet_qstra22_cliprh_huber/out_scale.txt'
+f_torch_model = '/storage/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/model.pt'
+f_torch_model_class = '/storage/shared_e3sm/saved_models/v5/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
+f_inp_sub     = '/storage/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_sub.txt'
+f_inp_div     = '/storage/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_div.txt'
+f_out_scale   = '/storage/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/out_scale.txt'
 f_qinput_log = '.true.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
 f_strato_lev = 15
-f_qc_lbd = '/storage/inputdata/saved_models/v5/normalization/qc_exp_lambda_large.txt'
-f_qi_lbd = '/storage/inputdata/saved_models/v5/normalization/qi_exp_lambda_large.txt'
-f_qn_lbd = '/storage/inputdata/saved_models/v5/normalization/qn_exp_lambda_large.txt'
+f_qc_lbd = '/storage/shared_e3sm/normalization/qc_exp_lambda_large.txt'
+f_qi_lbd = '/storage/shared_e3sm/normalization/qi_exp_lambda_large.txt'
+f_qn_lbd = '/storage/shared_e3sm/normalization/qn_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
 cb_spinup_step = 5
 f_do_limiter = '.false.'
@@ -108,7 +109,7 @@ if 'MMF_ML_TRAINING' in user_cpp:
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
 
-if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1 ; max_task_per_node = 64
+if 'CPU' in arch : max_mpi_per_node,atm_nthrds  =  1,1 ; max_task_per_node = 1
 if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  2,8 ; max_task_per_node = 16
 atm_ntasks = max_mpi_per_node*num_nodes
 #---------------------------------------------------------------------------------------------------
@@ -141,7 +142,7 @@ if newcase :
    # setup branch/hybrid
    if runtype == 'branch':
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_TYPE   --val {runtype}') # 'branch' won't allow change model time steps
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /global/homes/z/zeyuanhu/shared_e3sm/restart_files/{refdate}-{reftod}')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /storage/shared_e3sm/restart_files/{refdate}-{reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id GET_REFCASE --val TRUE')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val E3SM_ML_ne4_rerun.F2010-MMF1')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDATE --val {refdate}')
