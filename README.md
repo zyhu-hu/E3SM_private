@@ -45,6 +45,15 @@ Running
 Please refer to [Running E3SM](https://e3sm.org/model/running-e3sm/) 
  for instructions on running the model. 
 
+Evaluation
+--------------------------------------------------------------------------------
+After you the hybrid simulation, you can go to climsim_scripts and execute the following file:
+```
+python example_plot_monthly_rmse.py /global/homes/z/zeyuanhu/shared_e3sm/ /global/homes/z/zeyuanhu/shared_e3sm/h0/1year/unet_v5/huber_step/
+```
+Change the first path to the shared_e3sm folder, and change the second path to the folder that contains the model output. This python script will generete a figure under climsim_scripts/figure.
+
+
 Contributing
 --------------------------------------------------------------------------------
 Please refer to [Contributing](CONTRIBUTING.md) for details on our code development
