@@ -77,16 +77,16 @@ def main(shared_path, hybrid_path_h0):
     ax1.set_xticklabels([0] + list(months), fontsize=12)
 
     # Plot for Moisture (Q)
-    rmse_per_month_nn = calculate_rmse(ds_nn, ds_mmf_ref, total_weight, var='Q')
+    rmse_per_month_nn = calculate_rmse(ds_nn, ds_mmf_ref, total_weight, var='Q')*1e3
     ax2.plot(months, rmse_per_month_nn, label='NN', color='red', linestyle='--', marker='x')
 
-    rmse_per_month_mmf_a = calculate_rmse(ds_mmf_a, ds_mmf_ref, total_weight, var='Q')
+    rmse_per_month_mmf_a = calculate_rmse(ds_mmf_a, ds_mmf_ref, total_weight, var='Q')*1e3
     ax2.plot(months, rmse_per_month_mmf_a, label='MMF', color='black', linestyle='--', marker='x')
 
-    rmse_per_month_mmf_b = calculate_rmse(ds_mmf_b, ds_mmf_ref, total_weight, var='Q')
+    rmse_per_month_mmf_b = calculate_rmse(ds_mmf_b, ds_mmf_ref, total_weight, var='Q')*1e3
     ax2.plot(months, rmse_per_month_mmf_b, color='black', linestyle='--', marker='^')
 
-    rmse_per_month_mmf_c = calculate_rmse(ds_mmf_c, ds_mmf_ref, total_weight, var='Q')
+    rmse_per_month_mmf_c = calculate_rmse(ds_mmf_c, ds_mmf_ref, total_weight, var='Q')*1e3
     ax2.plot(months, rmse_per_month_mmf_c, color='black', linestyle='--', marker='^')
 
     ax2.set_yscale('log')
