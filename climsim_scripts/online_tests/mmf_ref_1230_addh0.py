@@ -12,21 +12,20 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'm4331'
 
-# case_prefix = 'dagger2_exp1_iter1_alphap5_test'
-# case_prefix = 'corrected_nndebug_prune_clip_seed'
-case_prefix = 'v5_noclassifier_huber_1y_noaggressive_rop2_addh0'
-exe_refcase = 'v5_noclassifier_huber_1y_noaggressive'
-# Added extra physics_state and cam_out variables.
+case_prefix = 'mmf_ref_1230_addh0'
+exe_refcase = 'example_job_submit_mmf'
 
 top_dir  = os.getenv('HOME')
 scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
-src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
+src_dir  = top_dir+'/nvidia_codes/E3SM_private/' 
 # user_cpp = '-DMMF_ML_TRAINING' # for saving ML variables
-# user_cpp = '-DCLIMSIM -DCLIMSIM_DIAG_PARTIAL -DCLIMSIMDEBUG -DTORCH_CLIMSIM_TEST' # NN hybrid test
-user_cpp = '-DCLIMSIM' # NN hybrid test
+#user_cpp = '-DCLIMSIM -DCLIMSIM_CLASSIFIER' # do NN inference, turn on microphysics classifier
+user_cpp = '' # do MMF
+
 # # src_mod_atm_dir = '/global/homes/s/sungduk/repositories/ClimSim-E3SM-Hybrid/'
-pytorch_fortran_path = '/global/cfs/cdirs/m4331/shared/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
+
+pytorch_fortran_path = '/global/homes/z/zeyuanhu/shared_e3sm/pytorch-fortran-gnu-cuda11.7/gnu-cuda11.7/install'
 os.environ["pytorch_proxy_ROOT"] = pytorch_fortran_path
 os.environ["pytorch_fort_proxy_ROOT"] = pytorch_fortran_path
 
@@ -48,7 +47,7 @@ dtime = 1200 # set to 0 to use a default value
 
 #stop_opt,stop_n,resub,walltime = 'nmonths',1, 1, '00:30:00'
 stop_opt,stop_n,resub,walltime = 'nmonths',25, 0,'24:00:00'
-#stop_opt,stop_n,resub,walltime = 'ndays',35, 0,'00:30:00'
+#stop_opt,stop_n,resub,walltime = 'ndays',2, 0,'00:30:00'
 
 ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
@@ -70,22 +69,25 @@ if debug_mode: case_list.append('debug')
 case='.'.join(case_list)
 #---------------------------------------------------------------------------------------------------
 # CLIMSIM
-# f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v4_unet_baseline_fulldata/model.pt'
-f_torch_model = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber_rop2_r2/model.pt'
-f_inp_sub     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber_rop2_r2/inp_sub.txt'
-f_inp_div     = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber_rop2_r2/inp_div.txt'
-f_out_scale   = '/global/homes/z/zeyuanhu/scratch/hugging/E3SM-MMF_ne4/saved_models/v5_unet_nonaggressive_cliprh_huber_rop2_r2/out_scale.txt'
+f_torch_model = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/model.pt'
+f_torch_model_class = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_classifier_lr3em4_qnlog_thred1013_smaller2_clip/model.pt'
+f_inp_sub     = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_sub.txt'
+f_inp_div     = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/inp_div.txt'
+f_out_scale   = '/global/homes/z/zeyuanhu/shared_e3sm/saved_models/v5/v5_unet_qstra22_cliprh_huber/out_scale.txt'
 f_qinput_log = '.true.'
 f_qinput_prune = '.true.'
 f_qoutput_prune = '.true.'
 f_strato_lev = 15
-f_qc_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qc_exp_lambda_large.txt'
-f_qi_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qi_exp_lambda_large.txt'
-f_qn_lbd = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/qn_exp_lambda_large.txt'
+f_qc_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qc_exp_lambda_large.txt'
+f_qi_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qi_exp_lambda_large.txt'
+f_qn_lbd = '/global/homes/z/zeyuanhu/shared_e3sm/normalization/qn_exp_lambda_large.txt'
 f_decouple_cloud = '.false.'
 cb_spinup_step = 5
 f_do_limiter = '.false.'
+# f_limiter_lower = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.0001.txt'
+# f_limiter_upper = '/global/u2/z/zeyuanhu/nvidia_codes/Climsim_private/preprocessing/normalizations/inputs/y_quantile_0.9999.txt'
 f_cb_zeroqn_strat = '.true.'
+f_cb_partial_coupling = '.false.'
 
 f_cb_do_ramp = '.false.'
 f_cb_ramp_option = 'step'
@@ -93,11 +95,17 @@ cb_ramp_factor = 1.0
 cb_ramp_step_0steps = 80
 cb_ramp_step_1steps = 10
 cb_do_clip = '.true.'
-cb_do_aggressive_pruning = '.false.'
+cb_do_aggressive_pruning = '.true.'
 
 cb_clip_rhonly = '.true.'
 strato_lev_qinput = 22
 strato_lev_tinput = -1
+
+# check if MMF_ML_TRAINING is in user_cpp, then either no -DCLIMSIM or f_cb_partial_coupling need to be true, otherwise raise error
+if 'MMF_ML_TRAINING' in user_cpp:
+   if 'CLIMSIM' in user_cpp:
+      if f_cb_partial_coupling == '.false.':
+         raise ValueError('If CLIMSIM is used with MMF_ML_TRAINING, f_cb_partial_coupling must be true.')
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
 
@@ -136,7 +144,7 @@ if newcase :
    # setup branch/hybrid
    if runtype == 'branch':
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_TYPE   --val {runtype}') # 'branch' won't allow change model time steps
-      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /pscratch/sd/z/zeyuanhu/e3sm_mlt_scratch/E3SM_ML_ne4_rerun.F2010-MMF1/archive/rest/{refdate}-{reftod}')
+      run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDIR  --val /global/homes/z/zeyuanhu/shared_e3sm/restart_files/{refdate}-{reftod}')
       run_cmd(f'./xmlchange --file env_run.xml --id GET_REFCASE --val TRUE')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFCASE --val E3SM_ML_ne4_rerun.F2010-MMF1')
       run_cmd(f'./xmlchange --file env_run.xml --id RUN_REFDATE --val {refdate}')
@@ -164,6 +172,7 @@ outputlength    = 308
 cb_nn_var_combo = 'v5'
 input_rh        = .true.
 cb_torch_model  = '{f_torch_model}'
+cb_torch_model_class  = '{f_torch_model_class}'
 cb_inp_sub      = '{f_inp_sub}'
 cb_inp_div      = '{f_inp_div}'
 cb_out_scale    = '{f_out_scale}'
@@ -177,7 +186,7 @@ cb_qn_lbd = '{f_qn_lbd}'
 cb_decouple_cloud = {f_decouple_cloud}
 cb_spinup_step = {cb_spinup_step}
 cb_do_limiter = {f_do_limiter}
-cb_partial_coupling = .false.
+cb_partial_coupling = {f_cb_partial_coupling}
 cb_partial_coupling_vars = 'ptend_t', 'ptend_q0001','ptend_q0002','ptend_q0003', 'ptend_u', 'ptend_v', 'cam_out_PRECC', 'cam_out_PRECSC', 'cam_out_NETSW', 'cam_out_FLWDS', 'cam_out_SOLS', 'cam_out_SOLL', 'cam_out_SOLSD', 'cam_out_SOLLD' 
 cb_do_ramp = {f_cb_do_ramp}
 cb_ramp_option = '{f_cb_ramp_option}'
