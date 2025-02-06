@@ -15,7 +15,7 @@ acct = 'm4334'
 case_prefix = 'torch_gpu_test_cleanbase'
 # Added extra physics_state and cam_out variables.
 
-top_dir  = os.getenv('HOME')+'/repositories'
+top_dir  = os.getenv('HOME')
 scratch_dir = os.getenv('SCRATCH')
 case_dir = scratch_dir+'/e3sm_mlt_scratch/'
 src_dir  = top_dir+'/nvidia_codes/E3SM_private/' # branch => whannah/mmf/ml-training
