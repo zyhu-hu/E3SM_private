@@ -40,13 +40,13 @@ ne,npg=4,2;  num_nodes=1  ; grid=f'ne{ne}pg{npg}_ne{ne}pg{npg}'
 # ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
 
 # compset,arch   = 'F2010-MMF1','GNUGPU'
-compset,arch   = 'FAQP-MMF1','NVGPU'
+compset,arch   = 'F2010-MMF1','NVGPU'
 # compset,arch   = 'F2010-MMF1','CORI'; 
 
 #queue = 'regular'
 queue = 'debug'
 
-case_list = [case_prefix,arch,compset,grid]
+case_list = [case_prefix,]
 
 if debug_mode: case_list.append('debug')
 
@@ -61,7 +61,8 @@ if arch=='CORI'  : max_mpi_per_node,atm_nthrds  = 64,1
 atm_ntasks = max_mpi_per_node*num_nodes
 #---------------------------------------------------------------------------------------------------
 if newcase :
-   case_scripts_dir=f'{case_dir}/{case}/case_scripts' 
+   # case_scripts_dir=f'{case_dir}/{case}/case_scripts' 
+   case_scripts_dir=f'{case_dir}/{case}' 
    if os.path.isdir(f'{case_dir}/{case}'): exit('\n'+clr.RED+'This case already exists!'+clr.END+'\n')
    cmd = f'{src_dir}/cime/scripts/create_newcase -case {case} --script-root {case_scripts_dir} -compset {compset} -res {grid}  '
    if arch=='GNUCPU' : cmd += f' -mach pm-cpu -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
